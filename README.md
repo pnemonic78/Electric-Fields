@@ -1,2 +1,2 @@
-# Electric-Fields
+# Electric Fields
 Electric Fields simulation
