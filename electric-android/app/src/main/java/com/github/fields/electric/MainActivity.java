@@ -2,10 +2,9 @@ package com.github.fields.electric;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 
-import electric_fields.github.com.electricfields.R;
-
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements View.OnClickListener {
 
     private ElectricFieldsView electricFieldsView;
 
@@ -16,5 +15,13 @@ public class MainActivity extends Activity {
         electricFieldsView = (ElectricFieldsView) findViewById(R.id.electric_fields);
         electricFieldsView.addField(100, 100, 1);
         electricFieldsView.addField(400, 400, 3);
+        electricFieldsView.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == electricFieldsView) {
+            electricFieldsView.start();
+        }
     }
 }
