@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Electric Fields view.
@@ -23,7 +22,6 @@ public class ElectricFieldsView extends View {
 
     private final List<Charge> charges = new ArrayList<>(10);
     private Bitmap bitmap;
-    private final Random random = new Random();
     private AsyncTask task;
 
     public ElectricFieldsView(Context context) {
@@ -44,6 +42,10 @@ public class ElectricFieldsView extends View {
 
     public void addField(Charge field) {
         charges.add(field);
+    }
+
+    public void clear() {
+        charges.clear();
     }
 
     @Override
@@ -158,7 +160,7 @@ public class ElectricFieldsView extends View {
         protected void plot(Canvas canvas, int x, int y, int w, int h) {
             int c;
             double v = 0;
-            double r, dx, dy,z;
+            double r, dx, dy, z;
             boolean overflow = false;
 
             for (Charge charge : charges) {
