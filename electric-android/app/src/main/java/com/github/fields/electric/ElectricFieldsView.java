@@ -115,28 +115,26 @@ public class ElectricFieldsView extends View {
             double resolution2 = resolution * 2;
 
             Canvas bitmapCanvas = new Canvas(bitmap);
-            plot(bitmapCanvas, 0, 0);
+            plot(bitmapCanvas, 0, 0, resolution, resolution);
 
             int x;
-            int y = 0;
+            int y;
             do {
+                y = 0;
                 do {
                     x = resolution;
                     do {
-                        plot(bitmapCanvas, x, y);
-                        plot(bitmapCanvas, x - resolution, y + resolution);
-                        plot(bitmapCanvas, x, y + resolution);
+                        plot(bitmapCanvas, x, y, resolution, resolution);
+                        plot(bitmapCanvas, x - resolution, y + resolution, resolution, resolution);
+                        plot(bitmapCanvas, x, y + resolution, resolution, resolution);
                         postInvalidate();
 
                         x += resolution2;
-                    } while (x < w);
-                    y += resolution2;
-                } while (y < h);
+                    } while (x <= w);
 
-                try {
-                    Thread.sleep(500L);//TODO delay is from settings.
-                } catch (InterruptedException e) {
-                }
+                    y += resolution2;
+                } while (y <= h);
+
                 resolution = resolution / 2;
                 resolution2 = resolution * 2;
             } while (resolution > 1);
@@ -157,12 +155,10 @@ public class ElectricFieldsView extends View {
             Toast.makeText(getContext(), "Finished.", Toast.LENGTH_SHORT).show();
         }
 
-        protected void plot(Canvas canvas, int x, int y) {
+        protected void plot(Canvas canvas, int x, int y, int w, int h) {
             int c;
             double v = 0;
-            double z;
-            double r, dx, dy;
-            int h, w;
+            double r, dx, dy,z;
             boolean overflow = false;
 
             for (Charge charge : charges) {
@@ -180,9 +176,7 @@ public class ElectricFieldsView extends View {
                 int bh = canvas.getHeight();
                 z = (v + 1) * (bh + 1);
                 //TODO z = MaxColor * ((z / MaxColor) - Round(z / MaxColor));
-                c = filterColor(Round(z));
-                w = resolution;
-                h = resolution;
+                c = filterColor((int) Math.round(z));
 
                 paint.setColor(c);
                 rect.set(x, y, x + w, y + h);
@@ -195,10 +189,6 @@ public class ElectricFieldsView extends View {
             int g = (c & 0x0F0);
             int b = (c & 0x00F) << 4;
             return Color.rgb(r, g, b);
-        }
-
-        private int Round(double a) {
-            return (int) Math.round(a);
         }
     }
 }
