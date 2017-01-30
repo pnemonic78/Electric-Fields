@@ -85,12 +85,6 @@ public class ElectricFieldsView extends View {
         }
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        cancel();
-    }
-
     private class FieldAsyncTask extends AsyncTask<Bitmap, Bitmap, Bitmap> {
 
         private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);

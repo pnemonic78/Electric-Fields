@@ -20,6 +20,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        electricFieldsView.cancel();
+    }
+
+    @Override
     public void onClick(View v) {
         if (v == electricFieldsView) {
             electricFieldsView.clear();
