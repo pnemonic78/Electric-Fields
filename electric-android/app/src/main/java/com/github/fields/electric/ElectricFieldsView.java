@@ -11,8 +11,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Electric Fields view.
@@ -20,7 +20,9 @@ import java.util.List;
  */
 public class ElectricFieldsView extends View {
 
-    private final List<Charge> charges = new ArrayList<>(10);
+    private static final int DELTA_TOUCH_PX = 100;
+
+    private final List<Charge> charges = new CopyOnWriteArrayList<>();
     private Bitmap bitmap;
     private AsyncTask task;
 
@@ -36,12 +38,22 @@ public class ElectricFieldsView extends View {
         super(context, attrs, defStyleAttr);
     }
 
-    public void addField(int x, int y, double size) {
-        addField(new Charge(x, y, size));
+    public void addCharge(int x, int y, double size) {
+        addCharge(new Charge(x, y, size));
     }
 
-    public void addField(Charge field) {
+    public void addCharge(Charge field) {
         charges.add(field);
+    }
+
+    public boolean invertCharge(int x, int y) {
+        for (Charge charge : charges) {
+            if ((Math.abs(x - charge.x) <= DELTA_TOUCH_PX) && (Math.abs(y - charge.y) <= DELTA_TOUCH_PX)) {
+                charge.size = -charge.size;
+                return true;
+            }
+        }
+        return false;
     }
 
     public void clear() {

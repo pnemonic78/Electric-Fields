@@ -97,7 +97,9 @@ public class MainActivity extends Activity implements
 
     private void fieldClicked(int x, int y, double size) {
         fieldsView.cancel();
-        fieldsView.addField(x, y, size);
+        if (!fieldsView.invertCharge(x, y)) {
+            fieldsView.addCharge(x, y, size);
+        }
         fieldsView.start();
     }
 }
