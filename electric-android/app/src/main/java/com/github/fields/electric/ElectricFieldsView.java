@@ -36,7 +36,7 @@ public class ElectricFieldsView extends View {
         super(context, attrs, defStyleAttr);
     }
 
-    public void addField(int x, int y, int size) {
+    public void addField(int x, int y, double size) {
         addField(new Charge(x, y, size));
     }
 
