@@ -20,8 +20,9 @@ package com.github.fields.electric;
 import android.graphics.Point;
 
 /**
- * Charged particle.
- * Created by Moshe on 2017/01/28.
+ * Electric charge particle.
+ *
+ * @author Moshe Waisberg
  */
 public class Charge extends Point {
 

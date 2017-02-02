@@ -26,6 +26,11 @@ import android.view.MotionEvent;
 
 import java.util.Random;
 
+/**
+ * Main activity.
+ *
+ * @author Moshe Waisberg
+ */
 public class MainActivity extends Activity implements
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener {
