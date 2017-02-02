@@ -117,7 +117,6 @@ public class ElectricFieldsView extends View {
     private class FieldAsyncTask extends AsyncTask<Bitmap, Bitmap, Bitmap> {
 
         private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private int resolution;
         private final RectF rect = new RectF();
 
         @Override
@@ -136,22 +135,23 @@ public class ElectricFieldsView extends View {
 
             int w = bitmap.getWidth();
             int h = bitmap.getHeight();
-            resolution = Math.min(w, h) / 2;
-            double resolution2 = resolution * 2;
+            int x = 0;
+            int y = 0;
+            int resolution = Math.min(w, h);
+            int resolution2 = resolution;
+            resolution = resolution / 2;
 
             Canvas bitmapCanvas = new Canvas(bitmap);
-            plot(bitmapCanvas, 0, 0, resolution, resolution);
+            plot(bitmapCanvas, w, h, x, y, resolution, resolution);
 
-            int x;
-            int y;
             do {
                 y = 0;
                 do {
                     x = resolution;
                     do {
-                        plot(bitmapCanvas, x, y, resolution, resolution);
-                        plot(bitmapCanvas, x - resolution, y + resolution, resolution, resolution);
-                        plot(bitmapCanvas, x, y + resolution, resolution, resolution);
+                        plot(bitmapCanvas, w, h, x, y, resolution, resolution);
+                        plot(bitmapCanvas, w, h, x - resolution, y + resolution, resolution, resolution);
+                        plot(bitmapCanvas, w, h, x, y + resolution, resolution, resolution);
                         postInvalidate();
 
                         x += resolution2;
@@ -160,8 +160,8 @@ public class ElectricFieldsView extends View {
                     y += resolution2;
                 } while (y <= h);
 
+                resolution2 = resolution;
                 resolution = resolution / 2;
-                resolution2 = resolution * 2;
             } while (resolution > 1);
 
             return bitmap;
@@ -176,40 +176,38 @@ public class ElectricFieldsView extends View {
         @Override
         protected void onPostExecute(Bitmap result) {
             super.onPostExecute(result);
+            clear();
             invalidate();
             Toast.makeText(getContext(), "Finished.", Toast.LENGTH_SHORT).show();
         }
 
-        protected void plot(Canvas canvas, int x, int y, int w, int h) {
+        protected void plot(Canvas canvas, int canvasWidth, int canvasHeight, int x, int y, int w, int h) {
             int c;
-            double v = 0;
+            double v = 1;
             double r, dx, dy, z;
-            boolean overflow = false;
 
             for (Charge charge : charges) {
                 dx = x - charge.x;
                 dy = y - charge.y;
                 r = Math.sqrt((dx * dx) + (dy * dy));
                 if (r == 0) {
-                    overflow = true;
+                    v = 0;//Force black for "overflow".
                     break;
                 }
                 v += charge.size / r;
             }
 
-            if (!overflow) {
-                int bh = canvas.getHeight();
-                z = (v + 1) * (bh + 1);
-                //TODO z = MaxColor * ((z / MaxColor) - Round(z / MaxColor));
-                c = filterColor((int) Math.round(z));
+            z = v * canvasHeight;
+            c = filterColor(z);
 
-                paint.setColor(c);
-                rect.set(x, y, x + w, y + h);
-                canvas.drawRect(rect, paint);
-            }
+            paint.setColor(c);
+            rect.set(x, y, x + w, y + h);
+            canvas.drawRect(rect, paint);
         }
 
-        private int filterColor(int c) {
+        private int filterColor(double z) {
+            //TODO z = MaxColor * ((z / MaxColor) - Round(z / MaxColor));
+            int c = (int) Math.round(z);
             int r = (c & 0xF00) >> 4;
             int g = (c & 0x0F0);
             int b = (c & 0x00F) << 4;
