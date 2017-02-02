@@ -31,16 +31,16 @@ import android.widget.Toast;
  *
  * @author Moshe Waisberg
  */
-public class FieldAsyncTask extends AsyncTask<Bitmap, Bitmap, Bitmap> {
+public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
 
     private final View view;
-    private final Charge[] charges;
-    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Bitmap bitmap;
+    private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF rect = new RectF();
 
-    public FieldAsyncTask(View view, Charge[] charges) {
+    public FieldAsyncTask(View view, Bitmap bitmap) {
         this.view = view;
-        this.charges = charges;
+        this.bitmap = bitmap;
     }
 
     @Override
@@ -53,9 +53,8 @@ public class FieldAsyncTask extends AsyncTask<Bitmap, Bitmap, Bitmap> {
     }
 
     @Override
-    protected Bitmap doInBackground(Bitmap... params) {
-        Bitmap bitmap = params[0];
-        bitmap.eraseColor(Color.WHITE);
+    protected Bitmap doInBackground(Charge... params) {
+        final Charge[] charges = params;
 
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
@@ -66,8 +65,9 @@ public class FieldAsyncTask extends AsyncTask<Bitmap, Bitmap, Bitmap> {
         int y = 0;
         int x1, y1, x2, y2;
 
+        bitmap.eraseColor(Color.WHITE);
         Canvas bitmapCanvas = new Canvas(bitmap);
-        plot(bitmapCanvas, x, y, resolution, resolution, size);
+        plot(charges, bitmapCanvas, x, y, resolution, resolution, size);
 
         do {
             y = 0;
@@ -81,9 +81,9 @@ public class FieldAsyncTask extends AsyncTask<Bitmap, Bitmap, Bitmap> {
                     x1 = x - resolution;
                     x2 = x;
 
-                    plot(bitmapCanvas, x1, y2, resolution, resolution, size);
-                    plot(bitmapCanvas, x2, y1, resolution, resolution, size);
-                    plot(bitmapCanvas, x2, y2, resolution, resolution, size);
+                    plot(charges, bitmapCanvas, x1, y2, resolution, resolution, size);
+                    plot(charges, bitmapCanvas, x2, y1, resolution, resolution, size);
+                    plot(charges, bitmapCanvas, x2, y2, resolution, resolution, size);
                     view.postInvalidate();
 
                     x += resolution2;
@@ -122,7 +122,7 @@ public class FieldAsyncTask extends AsyncTask<Bitmap, Bitmap, Bitmap> {
         //TODO view.clear();
     }
 
-    private void plot(Canvas canvas, int x, int y, int w, int h, double size) {
+    private void plot(Charge[] charges, Canvas canvas, int x, int y, int w, int h, double size) {
         double dx, dy, r;
         double v = 1;
 

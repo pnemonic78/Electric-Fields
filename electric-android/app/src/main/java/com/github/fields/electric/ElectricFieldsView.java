@@ -133,8 +133,7 @@ public class ElectricFieldsView extends View {
      * Start the task.
      */
     public void start() {
-        cancel();
-        task = new FieldAsyncTask(this, charges.toArray(new Charge[charges.size()])).execute(bitmap);
+        task = new FieldAsyncTask(this, bitmap).execute(charges.toArray(new Charge[charges.size()]));
     }
 
     /**
