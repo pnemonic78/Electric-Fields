@@ -135,34 +135,51 @@ public class ElectricFieldsView extends View {
 
             int w = bitmap.getWidth();
             int h = bitmap.getHeight();
+            int size = Math.min(w, h);
+            int resolution2 = size;
+            int resolution = resolution2 / 2;
             int x = 0;
             int y = 0;
-            int resolution = Math.min(w, h);
-            int resolution2 = resolution;
-            resolution = resolution / 2;
+            int x1, y1, x2, y2;
 
             Canvas bitmapCanvas = new Canvas(bitmap);
-            plot(bitmapCanvas, w, h, x, y, resolution, resolution);
+            plot(bitmapCanvas, x, y, resolution, resolution, size);
 
             do {
                 y = 0;
+
                 do {
+                    y1 = y;
+                    y2 = y + resolution;
                     x = resolution;
+
                     do {
-                        plot(bitmapCanvas, w, h, x, y, resolution, resolution);
-                        plot(bitmapCanvas, w, h, x - resolution, y + resolution, resolution, resolution);
-                        plot(bitmapCanvas, w, h, x, y + resolution, resolution, resolution);
+                        x1 = x - resolution;
+                        x2 = x;
+
+                        plot(bitmapCanvas, x1, y2, resolution, resolution, size);
+                        plot(bitmapCanvas, x2, y1, resolution, resolution, size);
+                        plot(bitmapCanvas, x2, y2, resolution, resolution, size);
                         postInvalidate();
 
                         x += resolution2;
-                    } while (x <= w);
+                        if (isCancelled()) {
+                            return null;
+                        }
+                    } while ((x <= w) && !isCancelled());
 
                     y += resolution2;
-                } while (y <= h);
+                    if (isCancelled()) {
+                        return null;
+                    }
+                } while ((y <= h) && !isCancelled());
 
                 resolution2 = resolution;
-                resolution = resolution / 2;
-            } while (resolution > 1);
+                resolution = resolution2 / 2;
+                if (isCancelled()) {
+                    return null;
+                }
+            } while ((resolution2 > 1) && !isCancelled());
 
             return bitmap;
         }
@@ -176,15 +193,14 @@ public class ElectricFieldsView extends View {
         @Override
         protected void onPostExecute(Bitmap result) {
             super.onPostExecute(result);
-            clear();
             invalidate();
             Toast.makeText(getContext(), "Finished.", Toast.LENGTH_SHORT).show();
+            clear();
         }
 
-        protected void plot(Canvas canvas, int canvasWidth, int canvasHeight, int x, int y, int w, int h) {
-            int c;
+        protected void plot(Canvas canvas, int x, int y, int w, int h, double size) {
+            double dx, dy, r;
             double v = 1;
-            double r, dx, dy, z;
 
             for (Charge charge : charges) {
                 dx = x - charge.x;
@@ -197,20 +213,16 @@ public class ElectricFieldsView extends View {
                 v += charge.size / r;
             }
 
-            z = v * canvasHeight;
-            c = filterColor(z);
-
-            paint.setColor(c);
+            paint.setColor(filterColor(v * size));
             rect.set(x, y, x + w, y + h);
             canvas.drawRect(rect, paint);
         }
 
         private int filterColor(double z) {
-            //TODO z = MaxColor * ((z / MaxColor) - Round(z / MaxColor));
-            int c = (int) Math.round(z);
-            int r = (c & 0xF00) >> 4;
-            int g = (c & 0x0F0);
-            int b = (c & 0x00F) << 4;
+            int c = (int) Math.round(z * 10000.0);
+            int r = Color.red(c);
+            int g = Color.green(c);
+            int b = Color.blue(c);
             return Color.rgb(r, g, b);
         }
     }
