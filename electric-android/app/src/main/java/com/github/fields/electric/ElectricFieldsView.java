@@ -18,6 +18,7 @@
 package com.github.fields.electric;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -37,24 +38,32 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class ElectricFieldsView extends View {
 
-    private static final int DELTA_TOUCH_PX = 100;
-
     private static final int MAX_CHARGES = 10;
 
     private final List<Charge> charges = new CopyOnWriteArrayList<>();
     private Bitmap bitmap;
     private AsyncTask task;
+    private int sameChargeDistance;
 
     public ElectricFieldsView(Context context) {
         super(context);
+        init(context);
     }
 
     public ElectricFieldsView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init(context);
     }
 
     public ElectricFieldsView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init(context);
+    }
+
+    private void init(Context context) {
+        Resources res = context.getResources();
+        sameChargeDistance = res.getDimensionPixelSize(R.dimen.same_charge);
+        sameChargeDistance = sameChargeDistance * sameChargeDistance;
     }
 
     public boolean addCharge(int x, int y, double size) {
@@ -71,12 +80,24 @@ public class ElectricFieldsView extends View {
     public boolean invertCharge(int x, int y) {
         final int count = charges.size();
         Charge charge;
+        Charge chargeNearest = null;
+        int dx, dy, d;
+        int dMin = Integer.MAX_VALUE;
+
         for (int i = 0; i < count; i++) {
             charge = charges.get(i);
-            if ((Math.abs(x - charge.x) <= DELTA_TOUCH_PX) && (Math.abs(y - charge.y) <= DELTA_TOUCH_PX)) {
-                charge.size = -charge.size;
-                return true;
+            dx = x - charge.x;
+            dy = y - charge.y;
+            d = (dx * dx) + (dy * dy);
+            if ((d <= sameChargeDistance) && (d < dMin)) {
+                chargeNearest = charge;
+                dMin = d;
             }
+        }
+
+        if (chargeNearest != null) {
+            chargeNearest.size = -chargeNearest.size;
+            return true;
         }
         return false;
     }
