@@ -23,8 +23,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.AsyncTask;
-import android.view.View;
-import android.widget.Toast;
 
 /**
  * Electric Fields task.
@@ -33,13 +31,43 @@ import android.widget.Toast;
  */
 public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
 
-    private final View view;
+    public interface FieldAsyncTaskListener {
+        /**
+         * Notify the listener that the task has started processing the charges.
+         *
+         * @param task the caller task.
+         */
+        void onTaskStarted(FieldAsyncTask task);
+
+        /**
+         * Notify the listener that the task has finished.
+         *
+         * @param task the caller task.
+         */
+        void onTaskFinished(FieldAsyncTask task);
+
+        /**
+         * Notify the listener that the task has aborted.
+         *
+         * @param task the caller task.
+         */
+        void onTaskCancelled(FieldAsyncTask task);
+
+        /**
+         * Notify the listener to repaint its bitmap.
+         *
+         * @param task the caller task.
+         */
+        void repaint(FieldAsyncTask task);
+    }
+
+    private final FieldAsyncTaskListener listener;
     private final Bitmap bitmap;
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF rect = new RectF();
 
-    public FieldAsyncTask(View view, Bitmap bitmap) {
-        this.view = view;
+    public FieldAsyncTask(FieldAsyncTaskListener listener, Bitmap bitmap) {
+        this.listener = listener;
         this.bitmap = bitmap;
     }
 
@@ -50,6 +78,8 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
         paint.setStrokeCap(Paint.Cap.SQUARE);
         paint.setStyle(Paint.Style.FILL);
         paint.setStrokeWidth(1);
+
+        listener.onTaskStarted(this);
     }
 
     @Override
@@ -84,7 +114,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
                     plot(charges, bitmapCanvas, x1, y2, resolution, resolution, size);
                     plot(charges, bitmapCanvas, x2, y1, resolution, resolution, size);
                     plot(charges, bitmapCanvas, x2, y2, resolution, resolution, size);
-                    view.postInvalidate();
+                    listener.repaint(this);
 
                     x += resolution2;
                     if (isCancelled()) {
@@ -111,15 +141,19 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
     @Override
     protected void onProgressUpdate(Bitmap... values) {
         super.onProgressUpdate(values);
-        view.invalidate();
+        listener.repaint(this);
     }
 
     @Override
     protected void onPostExecute(Bitmap result) {
         super.onPostExecute(result);
-        view.invalidate();
-        Toast.makeText(view.getContext(), "Finished.", Toast.LENGTH_SHORT).show();
-        //TODO view.clear();
+        listener.onTaskFinished(this);
+    }
+
+    @Override
+    protected void onCancelled() {
+        super.onCancelled();
+        listener.onTaskCancelled(this);
     }
 
     private void plot(Charge[] charges, Canvas canvas, int x, int y, int w, int h, double size) {

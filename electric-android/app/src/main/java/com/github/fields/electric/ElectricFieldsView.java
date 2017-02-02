@@ -24,6 +24,7 @@ import android.graphics.Canvas;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -33,7 +34,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author Moshe Waisberg
  */
-public class ElectricFieldsView extends View {
+public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyncTaskListener {
 
     private static final int MAX_CHARGES = 10;
 
@@ -151,5 +152,27 @@ public class ElectricFieldsView extends View {
     public void restart() {
         cancel();
         start();
+    }
+
+    @Override
+    public void onTaskStarted(FieldAsyncTask task) {
+    }
+
+    @Override
+    public void onTaskFinished(FieldAsyncTask task) {
+        if (task == this.task) {
+            invalidate();
+            Toast.makeText(getContext(), "Finished.", Toast.LENGTH_SHORT).show();
+            clear();
+        }
+    }
+
+    @Override
+    public void onTaskCancelled(FieldAsyncTask task) {
+    }
+
+    @Override
+    public void repaint(FieldAsyncTask task) {
+        postInvalidate();
     }
 }
