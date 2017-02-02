@@ -39,6 +39,8 @@ public class ElectricFieldsView extends View {
 
     private static final int DELTA_TOUCH_PX = 100;
 
+    private static final int MAX_CHARGES = 10;
+
     private final List<Charge> charges = new CopyOnWriteArrayList<>();
     private Bitmap bitmap;
     private AsyncTask task;
@@ -55,16 +57,22 @@ public class ElectricFieldsView extends View {
         super(context, attrs, defStyleAttr);
     }
 
-    public void addCharge(int x, int y, double size) {
-        addCharge(new Charge(x, y, size));
+    public boolean addCharge(int x, int y, double size) {
+        return addCharge(new Charge(x, y, size));
     }
 
-    public void addCharge(Charge field) {
-        charges.add(field);
+    public boolean addCharge(Charge field) {
+        if (charges.size() < MAX_CHARGES) {
+            return charges.add(field);
+        }
+        return false;
     }
 
     public boolean invertCharge(int x, int y) {
-        for (Charge charge : charges) {
+        final int count = charges.size();
+        Charge charge;
+        for (int i = 0; i < count; i++) {
+            charge = charges.get(i);
             if ((Math.abs(x - charge.x) <= DELTA_TOUCH_PX) && (Math.abs(y - charge.y) <= DELTA_TOUCH_PX)) {
                 charge.size = -charge.size;
                 return true;
@@ -112,6 +120,11 @@ public class ElectricFieldsView extends View {
         if (task != null) {
             task.cancel(true);
         }
+    }
+
+    public void restart() {
+        cancel();
+        start();
     }
 
     private class FieldAsyncTask extends AsyncTask<Bitmap, Bitmap, Bitmap> {
@@ -198,11 +211,14 @@ public class ElectricFieldsView extends View {
             clear();
         }
 
-        protected void plot(Canvas canvas, int x, int y, int w, int h, double size) {
+        private void plot(Canvas canvas, int x, int y, int w, int h, double size) {
             double dx, dy, r;
             double v = 1;
 
-            for (Charge charge : charges) {
+            final int count = charges.size();
+            Charge charge;
+            for (int i = 0; i < count; i++) {
+                charge = charges.get(i);
                 dx = x - charge.x;
                 dy = y - charge.y;
                 r = Math.sqrt((dx * dx) + (dy * dy));

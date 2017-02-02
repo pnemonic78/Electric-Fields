@@ -113,10 +113,8 @@ public class MainActivity extends Activity implements
     }
 
     private void fieldClicked(int x, int y, double size) {
-        fieldsView.cancel();
-        if (!fieldsView.invertCharge(x, y)) {
-            fieldsView.addCharge(x, y, size);
+        if (fieldsView.invertCharge(x, y) || fieldsView.addCharge(x, y, size)) {
+            fieldsView.restart();
         }
-        fieldsView.start();
     }
 }
