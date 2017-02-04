@@ -165,7 +165,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
     }
 
     private void plot(Charge[] charges, Canvas canvas, int x, int y, int w, int h, double size) {
-        double dx, dy, r;
+        double dx, dy, rSqr;
         double v = 1;
 
         final int count = charges.length;
@@ -174,12 +174,12 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
             charge = charges[i];
             dx = x - charge.x;
             dy = y - charge.y;
-            r = Math.sqrt((dx * dx) + (dy * dy));
-            if (r == 0) {
+            rSqr = (dx * dx) + (dy * dy);
+            if (rSqr == 0) {
                 v = 0;//Force black for "overflow".
                 break;
             }
-            v += charge.size / r;
+            v += Math.signum(charge.size) * (charge.size * charge.size) / rSqr;
         }
 
         paint.setColor(filterColor(v * size));
