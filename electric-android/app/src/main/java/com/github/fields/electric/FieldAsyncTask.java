@@ -88,9 +88,17 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
 
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
-        int size = Math.min(w, h);
-        int resolution2 = size;
-        int resolution = resolution2 / 2;
+        int size = Math.max(w, h);
+
+        int shifts = 0;
+        while (size > 1) {
+            size >>>= 1;
+            shifts++;
+        }
+
+        // Make "resolution2" a power of 2, so that "resolution" is always divisible by 2.
+        int resolution2 = 1 << shifts;
+        int resolution = resolution2 >> 1;
         int x = 0;
         int y = 0;
         int x1, y1, x2, y2;
@@ -129,7 +137,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
             } while ((y <= h) && !isCancelled());
 
             resolution2 = resolution;
-            resolution = resolution2 / 2;
+            resolution = resolution2 >> 1;
             if (isCancelled()) {
                 return null;
             }
