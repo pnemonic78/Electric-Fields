@@ -84,8 +84,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(Charge... params) {
-        final Charge[] charges = params;
-
+        final ChargeHolder[] charges = ChargeHolder.toChargedParticles(params);
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
         int size = Math.max(w, h);
@@ -99,13 +98,13 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
         // Make "resolution2" a power of 2, so that "resolution" is always divisible by 2.
         int resolution2 = 1 << shifts;
         int resolution = resolution2 >> 1;
-        int x = 0;
-        int y = 0;
-        int x1, y1, x2, y2;
 
         bitmap.eraseColor(Color.WHITE);
         Canvas bitmapCanvas = new Canvas(bitmap);
-        plot(charges, bitmapCanvas, x, y, resolution, resolution, size);
+        plot(charges, bitmapCanvas, 0, 0, resolution, resolution, size);
+
+        int x, y;
+        int x1, y1, x2, y2;
 
         do {
             y = 0;
@@ -141,7 +140,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
             if (isCancelled()) {
                 return null;
             }
-        } while ((resolution2 > 1) && !isCancelled());
+        } while ((resolution >= 1) && !isCancelled());
 
         return bitmap;
     }
@@ -164,12 +163,12 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
         listener.onTaskCancelled(this);
     }
 
-    private void plot(Charge[] charges, Canvas canvas, int x, int y, int w, int h, double size) {
-        double dx, dy, rSqr;
+    private void plot(ChargeHolder[] charges, Canvas canvas, int x, int y, int w, int h, double size) {
+        int dx, dy, rSqr;
         double v = 1;
-
         final int count = charges.length;
-        Charge charge;
+        ChargeHolder charge;
+
         for (int i = 0; i < count; i++) {
             charge = charges[i];
             dx = x - charge.x;
@@ -179,19 +178,48 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
                 v = 0;//Force black for "overflow".
                 break;
             }
-            v += Math.signum(charge.size) * (charge.size * charge.size) / rSqr;
+            v += charge.sizeSqr / rSqr;
         }
 
-        paint.setColor(filterColor(v * size));
+        paint.setColor(mapColor(v * size));
         rect.set(x, y, x + w, y + h);
         canvas.drawRect(rect, paint);
     }
 
-    private int filterColor(double z) {
+    private int mapColor(double z) {
         int c = (int) Math.round(z * 10000.0);
         int r = Color.red(c);
         int g = Color.green(c);
         int b = Color.blue(c);
         return Color.rgb(r, g, b);
+    }
+
+    private static class ChargeHolder {
+        public final int x;
+        public final int y;
+        public final double size;
+        public final double sizeSqr;
+
+        public ChargeHolder(Charge charge) {
+            this(charge.x, charge.y, charge.size);
+        }
+
+        public ChargeHolder(int x, int y, double size) {
+            this.x = x;
+            this.y = y;
+            this.size = size;
+            this.sizeSqr = Math.signum(size) * size * size;
+        }
+
+        public static ChargeHolder[] toChargedParticles(Charge[] charges) {
+            final int length = charges.length;
+            ChargeHolder[] result = new ChargeHolder[length];
+
+            for (int i = 0; i < length; i++) {
+                result[i] = new ChargeHolder(charges[i]);
+            }
+
+            return result;
+        }
     }
 }
