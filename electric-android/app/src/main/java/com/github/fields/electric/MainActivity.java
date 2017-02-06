@@ -64,6 +64,7 @@ public class MainActivity extends Activity implements
     private final DateFormat timestampFormat = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US);
     private AsyncTask saveTask;
     private Charge chargeToScale;
+    private float scaleFactor = 1f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,21 +138,25 @@ public class MainActivity extends Activity implements
 
     @Override
     public boolean onScaleBegin(ScaleGestureDetector detector) {
-        float x = detector.getCurrentSpanX();
-        float y = detector.getCurrentSpanY();
+        scaleFactor = 1f;
+        float x = detector.getFocusX();
+        float y = detector.getFocusY();
         chargeToScale = fieldsView.findCharge((int) x, (int) y);
         return chargeToScale != null;
     }
 
     @Override
     public boolean onScale(ScaleGestureDetector detector) {
+        scaleFactor *= detector.getScaleFactor();
         return chargeToScale != null;
     }
 
     @Override
     public void onScaleEnd(ScaleGestureDetector detector) {
-        chargeToScale.size *= detector.getScaleFactor();
-        fieldsView.restart();
+        if ((chargeToScale != null) && (scaleFactor != 1f)) {
+            chargeToScale.size *= scaleFactor;
+            fieldsView.restart();
+        }
     }
 
     private void fieldClicked(MotionEvent e) {
