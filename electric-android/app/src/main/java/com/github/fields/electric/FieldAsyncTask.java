@@ -65,6 +65,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
     private final Bitmap bitmap;
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF rect = new RectF();
+    private final float[] hsv = {0f, 1f, 1f};
 
     public FieldAsyncTask(FieldAsyncTaskListener listener, Bitmap bitmap) {
         this.listener = listener;
@@ -94,7 +95,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
             size >>>= 1;
             shifts++;
         }
-        double zoom = 1;
+        double zoom = 1e+4;
 
         // Make "resolution2" a power of 2, so that "resolution" is always divisible by 2.
         int resolution2 = 1 << shifts;
@@ -141,7 +142,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
             if (isCancelled()) {
                 return null;
             }
-        } while ((resolution >= 1) && !isCancelled());
+        } while ((resolution >= 4) && !isCancelled());
 
         return bitmap;
     }
@@ -188,11 +189,9 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
     }
 
     private int mapColor(double z) {
-        int c = (int) Math.round(z * 10000.0);
-        int r = Color.red(c);
-        int g = Color.green(c);
-        int b = Color.blue(c);
-        return Color.rgb(r, g, b);
+        int i = (int) Math.rint(z);
+        hsv[0] = i % 360;
+        return Color.HSVToColor(hsv);
     }
 
     private static class ChargeHolder {
