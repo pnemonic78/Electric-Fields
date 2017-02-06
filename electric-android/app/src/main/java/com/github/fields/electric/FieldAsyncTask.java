@@ -94,6 +94,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
             size >>>= 1;
             shifts++;
         }
+        double zoom = 1;
 
         // Make "resolution2" a power of 2, so that "resolution" is always divisible by 2.
         int resolution2 = 1 << shifts;
@@ -101,7 +102,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
 
         bitmap.eraseColor(Color.WHITE);
         Canvas bitmapCanvas = new Canvas(bitmap);
-        plot(charges, bitmapCanvas, 0, 0, resolution, resolution, size);
+        plot(charges, bitmapCanvas, 0, 0, resolution, resolution, zoom);
 
         int x, y;
         int x1, y1, x2, y2;
@@ -118,9 +119,9 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
                     x1 = x - resolution;
                     x2 = x;
 
-                    plot(charges, bitmapCanvas, x1, y2, resolution, resolution, size);
-                    plot(charges, bitmapCanvas, x2, y1, resolution, resolution, size);
-                    plot(charges, bitmapCanvas, x2, y2, resolution, resolution, size);
+                    plot(charges, bitmapCanvas, x1, y2, resolution, resolution, zoom);
+                    plot(charges, bitmapCanvas, x2, y1, resolution, resolution, zoom);
+                    plot(charges, bitmapCanvas, x2, y2, resolution, resolution, zoom);
                     listener.repaint(this);
 
                     x += resolution2;
@@ -163,7 +164,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
         listener.onTaskCancelled(this);
     }
 
-    private void plot(ChargeHolder[] charges, Canvas canvas, int x, int y, int w, int h, double size) {
+    private void plot(ChargeHolder[] charges, Canvas canvas, int x, int y, int w, int h, double zoom) {
         int dx, dy, rSqr;
         double v = 1;
         final int count = charges.length;
@@ -181,7 +182,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
             v += charge.sizeSqr / rSqr;
         }
 
-        paint.setColor(mapColor(v * size));
+        paint.setColor(mapColor(v * zoom));
         rect.set(x, y, x + w, y + h);
         canvas.drawRect(rect, paint);
     }
