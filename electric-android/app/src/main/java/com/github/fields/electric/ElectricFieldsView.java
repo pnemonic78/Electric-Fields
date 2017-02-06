@@ -76,6 +76,15 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
     }
 
     public boolean invertCharge(int x, int y) {
+        Charge charge = findCharge(x, y);
+        if (charge != null) {
+            charge.size = -charge.size;
+            return true;
+        }
+        return false;
+    }
+
+    public Charge findCharge(int x, int y) {
         final int count = charges.size();
         Charge charge;
         Charge chargeNearest = null;
@@ -93,11 +102,7 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
             }
         }
 
-        if (chargeNearest != null) {
-            chargeNearest.size = -chargeNearest.size;
-            return true;
-        }
-        return false;
+        return chargeNearest;
     }
 
     public void clear() {

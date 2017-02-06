@@ -32,6 +32,7 @@ import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.widget.Toast;
 
 import java.io.File;
@@ -50,7 +51,8 @@ import java.util.Locale;
  */
 public class MainActivity extends Activity implements
         GestureDetector.OnGestureListener,
-        GestureDetector.OnDoubleTapListener {
+        GestureDetector.OnDoubleTapListener,
+        ScaleGestureDetector.OnScaleGestureListener {
 
     private static final String TAG = "MainActivity";
 
@@ -58,8 +60,10 @@ public class MainActivity extends Activity implements
 
     private ElectricFieldsView fieldsView;
     private GestureDetector gestureDetector;
+    private ScaleGestureDetector scaleGestureDetector;
     private final DateFormat timestampFormat = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US);
     private AsyncTask saveTask;
+    private Charge chargeToScale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +73,8 @@ public class MainActivity extends Activity implements
 
         gestureDetector = new GestureDetector(this, this);
         gestureDetector.setOnDoubleTapListener(this);
+
+        scaleGestureDetector = new ScaleGestureDetector(this, this);
     }
 
     @Override
@@ -79,11 +85,9 @@ public class MainActivity extends Activity implements
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (gestureDetector.onTouchEvent(event)) {
-            return true;
-        }
-        // Be sure to call the superclass implementation
-        return super.onTouchEvent(event);
+        boolean result = scaleGestureDetector.onTouchEvent(event);
+        result = gestureDetector.onTouchEvent(event) || result;
+        return result || super.onTouchEvent(event);
     }
 
     @Override
@@ -129,6 +133,25 @@ public class MainActivity extends Activity implements
     public boolean onSingleTapConfirmed(MotionEvent e) {
         fieldClicked(e);
         return true;
+    }
+
+    @Override
+    public boolean onScaleBegin(ScaleGestureDetector detector) {
+        float x = detector.getCurrentSpanX();
+        float y = detector.getCurrentSpanY();
+        chargeToScale = fieldsView.findCharge((int) x, (int) y);
+        return chargeToScale != null;
+    }
+
+    @Override
+    public boolean onScale(ScaleGestureDetector detector) {
+        return chargeToScale != null;
+    }
+
+    @Override
+    public void onScaleEnd(ScaleGestureDetector detector) {
+        chargeToScale.size *= detector.getScaleFactor();
+        fieldsView.restart();
     }
 
     private void fieldClicked(MotionEvent e) {
