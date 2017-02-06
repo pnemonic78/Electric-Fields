@@ -175,4 +175,13 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
     public void repaint(FieldAsyncTask task) {
         postInvalidate();
     }
+
+    /**
+     * Get the bitmap.
+     *
+     * @return the bitmap.
+     */
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
 }

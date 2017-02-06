@@ -18,13 +18,27 @@
 package com.github.fields.electric;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.widget.Toast;
 
-import java.util.Random;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Main activity.
@@ -35,9 +49,12 @@ public class MainActivity extends Activity implements
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener {
 
+    private static final String TAG = "MainActivity";
+
     private ElectricFieldsView fieldsView;
-    private final Random random = new Random();
     private GestureDetector gestureDetector;
+    private final DateFormat timestampFormat = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US);
+    private AsyncTask saveTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +93,7 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onLongPress(MotionEvent e) {
-        fieldClicked(e);
+        openOptionsMenu();
     }
 
     @Override
@@ -121,5 +138,74 @@ public class MainActivity extends Activity implements
         if (fieldsView.invertCharge(x, y) || fieldsView.addCharge(x, y, size)) {
             fieldsView.restart();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_save_file:
+                saveToFile();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Save the bitmap to a file.
+     */
+    private void saveToFile() {
+        // Busy saving?
+        if (saveTask != null) {
+            return;
+        }
+        saveTask = new AsyncTask<Bitmap, File, File>() {
+
+            @Override
+            protected File doInBackground(Bitmap... params) {
+                File folderPictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                File folder = new File(folderPictures, getString(R.string.app_folder_pictures));
+                folder.mkdirs();
+
+                Bitmap bitmap = params[0];
+                File file = new File(folder, "ef-" + timestampFormat.format(new Date()) + ".jpg");
+
+                OutputStream out = null;
+                try {
+                    out = new FileOutputStream(file);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    Log.i(TAG, "saved to " + file);
+                    return file;
+                } catch (IOException e) {
+                    Log.e(TAG, "save failed to " + file, e);
+                } finally {
+                    if (out != null) {
+                        try {
+                            out.close();
+                        } catch (Exception e) {
+                            // ignore
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(File file) {
+                if (file != null) {
+                    saveTask = null;// Allow to save another.
+                    Toast.makeText(MainActivity.this, getString(R.string.saved, file.getPath()), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, R.string.save_failed, Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute(fieldsView.getBitmap());
     }
 }

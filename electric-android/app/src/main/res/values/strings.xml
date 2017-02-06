@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">Electric Fields</string>
+    <string name="app_folder_pictures" translatable="false">Electric Fields</string>
+
+    <!-- Toasts. -->
     <string name="finished">Finished.</string>
+    <string name="saved">Saved to %s.</string>
+    <string name="save_failed">Save failed.</string>
+
+    <!-- Menu -->
+    <string name="menu_save_file">Save to file</string>
 </resources>
