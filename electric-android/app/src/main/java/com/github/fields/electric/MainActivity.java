@@ -17,9 +17,12 @@
  */
 package com.github.fields.electric;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
@@ -50,6 +53,8 @@ public class MainActivity extends Activity implements
         GestureDetector.OnDoubleTapListener {
 
     private static final String TAG = "MainActivity";
+
+    private static final int REQUEST_SAVE = 1;
 
     private ElectricFieldsView fieldsView;
     private GestureDetector gestureDetector;
@@ -161,6 +166,14 @@ public class MainActivity extends Activity implements
      * Save the bitmap to a file.
      */
     private void saveToFile() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Activity activity = MainActivity.this;
+            if (activity.checkCallingOrSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                activity.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_SAVE);
+                return;
+            }
+        }
+
         // Busy saving?
         if (saveTask != null) {
             return;
@@ -180,10 +193,10 @@ public class MainActivity extends Activity implements
                 try {
                     out = new FileOutputStream(file);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                    Log.i(TAG, "saved to " + file);
+                    Log.i(TAG, "save success: " + file);
                     return file;
                 } catch (IOException e) {
-                    Log.e(TAG, "save failed to " + file, e);
+                    Log.e(TAG, "save failed: " + file, e);
                 } finally {
                     if (out != null) {
                         try {
@@ -199,12 +212,18 @@ public class MainActivity extends Activity implements
 
             @Override
             protected void onPostExecute(File file) {
+                saveTask = null;// Allow to save another.
                 if (file != null) {
-                    saveTask = null;// Allow to save another.
                     Toast.makeText(MainActivity.this, getString(R.string.saved, file.getPath()), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, R.string.save_failed, Toast.LENGTH_SHORT).show();
                 }
+            }
+
+            @Override
+            protected void onCancelled(File file) {
+                super.onCancelled(file);
+                file.delete();
             }
         }.execute(fieldsView.getBitmap());
     }
