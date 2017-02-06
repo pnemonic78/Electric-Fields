@@ -162,7 +162,7 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
     public void onTaskFinished(FieldAsyncTask task) {
         if (task == this.task) {
             invalidate();
-            Toast.makeText(getContext(), "Finished.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.finished, Toast.LENGTH_SHORT).show();
             clear();
         }
     }
