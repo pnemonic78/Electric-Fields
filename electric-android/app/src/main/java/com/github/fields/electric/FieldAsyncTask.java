@@ -142,7 +142,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
             if (isCancelled()) {
                 return null;
             }
-        } while ((resolution >= 4) && !isCancelled());
+        } while ((resolution >= 1) && !isCancelled());
 
         return bitmap;
     }
@@ -189,8 +189,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
     }
 
     private int mapColor(double z) {
-        int i = (int) Math.rint(z);
-        hsv[0] = i % 360;
+        hsv[0] = (float) (z % 360);
         return Color.HSVToColor(hsv);
     }
 
