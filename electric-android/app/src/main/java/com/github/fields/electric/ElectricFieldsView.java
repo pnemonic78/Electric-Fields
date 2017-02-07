@@ -36,7 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyncTaskListener {
 
-    private static final int MAX_CHARGES = 10;
+    public static final int MAX_CHARGES = 10;
 
     private final List<Charge> charges = new CopyOnWriteArrayList<>();
     private Bitmap bitmap;

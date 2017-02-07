@@ -43,6 +43,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 
 /**
  * Main activity.
@@ -65,6 +66,7 @@ public class MainActivity extends Activity implements
     private AsyncTask saveTask;
     private Charge chargeToScale;
     private float scaleFactor = 1f;
+    private final Random random = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,7 +165,7 @@ public class MainActivity extends Activity implements
         int x = (int) e.getX();
         int y = (int) e.getY();
         long duration = Math.min(SystemClock.uptimeMillis() - e.getDownTime(), DateUtils.SECOND_IN_MILLIS);
-        double size = 1.0 + (int) (duration / 10L);
+        double size = 1.0 + (int) (duration / 20L);
         fieldClicked(x, y, size);
     }
 
@@ -182,12 +184,29 @@ public class MainActivity extends Activity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_random:
+                randomise();
+                return true;
             case R.id.menu_save_file:
                 saveToFile();
                 return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Add random charges.
+     */
+    private void randomise() {
+        int w = fieldsView.getMeasuredWidth();
+        int h = fieldsView.getMeasuredHeight();
+        int count = random.nextInt(ElectricFieldsView.MAX_CHARGES);
+        fieldsView.clear();
+        for (int i = 0; i < count; i++) {
+            fieldsView.addCharge(random.nextInt(w), random.nextInt(h), random.nextDouble() * 20);
+        }
+        fieldsView.restart();
     }
 
     /**

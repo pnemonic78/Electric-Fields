@@ -8,5 +8,6 @@
     <string name="save_failed">Save failed.</string>
 
     <!-- Menu -->
+    <string name="menu_random">Randomise</string>
     <string name="menu_save_file">Save to file</string>
 </resources>
