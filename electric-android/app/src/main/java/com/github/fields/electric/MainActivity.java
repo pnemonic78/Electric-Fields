@@ -53,7 +53,8 @@ import java.util.Random;
 public class MainActivity extends Activity implements
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener,
-        ScaleGestureDetector.OnScaleGestureListener {
+        ScaleGestureDetector.OnScaleGestureListener,
+        ElectricFieldsListener {
 
     private static final String TAG = "MainActivity";
 
@@ -73,6 +74,7 @@ public class MainActivity extends Activity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         fieldsView = (ElectricFieldsView) findViewById(R.id.electric_fields);
+        fieldsView.setElectricFieldsListener(this);
 
         gestureDetector = new GestureDetector(this, this);
         gestureDetector.setOnDoubleTapListener(this);
@@ -273,5 +275,28 @@ public class MainActivity extends Activity implements
                 file.delete();
             }
         }.execute(fieldsView.getBitmap());
+    }
+
+    @Override
+    public void onChargeAdded(ElectricFieldsView view, Charge charge) {
+    }
+
+    @Override
+    public void onChargeInverted(ElectricFieldsView view, Charge charge) {
+    }
+
+    @Override
+    public void onRenderFieldStarted(ElectricFieldsView view) {
+    }
+
+    @Override
+    public void onRenderFieldFinished(ElectricFieldsView view) {
+        if (view == fieldsView) {
+            Toast.makeText(this, R.string.finished, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRenderFieldCancelled(ElectricFieldsView view) {
     }
 }

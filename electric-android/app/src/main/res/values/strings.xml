@@ -3,7 +3,7 @@
     <string name="app_folder_pictures" translatable="false">Electric Fields</string>
 
     <!-- Toasts. -->
-    <string name="finished">Finished.</string>
+    <string name="finished">Finished rendering.</string>
     <string name="saved">Saved to %s.</string>
     <string name="save_failed">Save failed.</string>
 

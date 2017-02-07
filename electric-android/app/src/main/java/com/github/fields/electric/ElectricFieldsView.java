@@ -24,7 +24,6 @@ import android.graphics.Canvas;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.Toast;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -42,6 +41,7 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
     private Bitmap bitmap;
     private AsyncTask task;
     private int sameChargeDistance;
+    private ElectricFieldsListener listener;
 
     public ElectricFieldsView(Context context) {
         super(context);
@@ -68,9 +68,14 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
         return addCharge(new Charge(x, y, size));
     }
 
-    public boolean addCharge(Charge field) {
+    public boolean addCharge(Charge charge) {
         if (charges.size() < MAX_CHARGES) {
-            return charges.add(field);
+            if (charges.add(charge)) {
+                if (listener != null) {
+                    listener.onChargeAdded(this, charge);
+                }
+                return true;
+            }
         }
         return false;
     }
@@ -79,6 +84,9 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
         Charge charge = findCharge(x, y);
         if (charge != null) {
             charge.size = -charge.size;
+            if (listener != null) {
+                listener.onChargeInverted(this, charge);
+            }
             return true;
         }
         return false;
@@ -161,19 +169,27 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
 
     @Override
     public void onTaskStarted(FieldAsyncTask task) {
+        if (listener != null) {
+            listener.onRenderFieldStarted(this);
+        }
     }
 
     @Override
     public void onTaskFinished(FieldAsyncTask task) {
         if (task == this.task) {
             invalidate();
-            Toast.makeText(getContext(), R.string.finished, Toast.LENGTH_SHORT).show();
+            if (listener != null) {
+                listener.onRenderFieldFinished(this);
+            }
             clear();
         }
     }
 
     @Override
     public void onTaskCancelled(FieldAsyncTask task) {
+        if (listener != null) {
+            listener.onRenderFieldCancelled(this);
+        }
     }
 
     @Override
@@ -188,5 +204,14 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
      */
     public Bitmap getBitmap() {
         return bitmap;
+    }
+
+    /**
+     * Set the listener for events.
+     *
+     * @param listener the listener.
+     */
+    public void setElectricFieldsListener(ElectricFieldsListener listener) {
+        this.listener = listener;
     }
 }
