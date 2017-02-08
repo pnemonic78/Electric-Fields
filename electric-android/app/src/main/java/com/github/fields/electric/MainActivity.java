@@ -195,7 +195,7 @@ public class MainActivity extends Activity implements
         int count = random.nextInt(ElectricFieldsView.MAX_CHARGES);
         fieldsView.clear();
         for (int i = 0; i < count; i++) {
-            fieldsView.addCharge(random.nextInt(w), random.nextInt(h), random.nextDouble() * 20);
+            fieldsView.addCharge(random.nextInt(w), random.nextInt(h), (random.nextBoolean() ? +1 : -1) * random.nextDouble() * 20);
         }
         fieldsView.restart();
     }
