@@ -177,19 +177,23 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
             dy = y - charge.y;
             rSqr = (dx * dx) + (dy * dy);
             if (rSqr == 0) {
-                v = 0;//Force black for "overflow".
+                //Force "overflow".
+                v = Double.POSITIVE_INFINITY;
                 break;
             }
             v += charge.sizeSqr / rSqr;
         }
 
-        paint.setColor(mapColor(v * zoom));
+        paint.setColor(mapColor(v, zoom));
         rect.set(x, y, x + w, y + h);
         canvas.drawRect(rect, paint);
     }
 
-    private int mapColor(double z) {
-        hsv[0] = (float) (z % 360);
+    private int mapColor(double z, double zoom) {
+        if (Double.isInfinite(z)) {
+            return Color.WHITE;
+        }
+        hsv[0] = (float) ((z * zoom) % 360);
         return Color.HSVToColor(hsv);
     }
 
