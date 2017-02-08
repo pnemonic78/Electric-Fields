@@ -21,14 +21,11 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.SystemClock;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,14 +33,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Random;
 
 /**
@@ -64,7 +53,6 @@ public class MainActivity extends Activity implements
     private ElectricFieldsView fieldsView;
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
-    private final DateFormat timestampFormat = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US);
     private AsyncTask saveTask;
     private Charge chargeToScale;
     private float scaleFactor = 1f;
@@ -225,57 +213,10 @@ public class MainActivity extends Activity implements
         }
 
         // Busy saving?
-        if (saveTask != null) {
+        if ((saveTask != null) && (saveTask.getStatus() == AsyncTask.Status.RUNNING)) {
             return;
         }
-        saveTask = new AsyncTask<Bitmap, File, File>() {
-
-            @Override
-            protected File doInBackground(Bitmap... params) {
-                File folderPictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                File folder = new File(folderPictures, getString(R.string.app_folder_pictures));
-                folder.mkdirs();
-
-                Bitmap bitmap = params[0];
-                File file = new File(folder, "ef-" + timestampFormat.format(new Date()) + ".jpg");
-
-                OutputStream out = null;
-                try {
-                    out = new FileOutputStream(file);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                    Log.i(TAG, "save success: " + file);
-                    return file;
-                } catch (IOException e) {
-                    Log.e(TAG, "save failed: " + file, e);
-                } finally {
-                    if (out != null) {
-                        try {
-                            out.close();
-                        } catch (Exception e) {
-                            // ignore
-                        }
-                    }
-                }
-
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(File file) {
-                saveTask = null;// Allow to save another.
-                if (file != null) {
-                    Toast.makeText(MainActivity.this, getString(R.string.saved, file.getPath()), Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this, R.string.save_failed, Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            protected void onCancelled(File file) {
-                super.onCancelled(file);
-                file.delete();
-            }
-        }.execute(fieldsView.getBitmap());
+        saveTask = new SaveFileTask(this).execute(fieldsView.getBitmap());
     }
 
     @Override
