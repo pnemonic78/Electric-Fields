@@ -31,6 +31,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.util.Random;
@@ -270,6 +272,16 @@ public class MainActivity extends Activity implements
      * Maximise the image in fullscreen mode.
      */
     private void showFullscreen() {
+        // Hide the status bar.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else {
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+        }
+
+        // Hide the action bar.
         getActionBar().hide();
     }
 
@@ -277,6 +289,15 @@ public class MainActivity extends Activity implements
      * Restore the image to non-fullscreen mode.
      */
     private void hideFullscreen() {
+        // Show the status bar.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else {
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        }
+
+        // Show the action bar.
         getActionBar().show();
     }
 }
