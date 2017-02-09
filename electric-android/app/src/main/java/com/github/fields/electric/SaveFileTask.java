@@ -89,8 +89,8 @@ public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
             PendingIntent pendingIntent = PendingIntent.getActivity(context, REQUEST_VIEW, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             Notification.Builder builder = new Notification.Builder(context)
-                    .setContentTitle(context.getText(R.string.app_name))
-                    .setContentText(context.getText(R.string.saved))
+                    .setContentTitle(context.getText(R.string.saved_title))
+                    .setContentText(context.getText(R.string.saved_text))
                     .setSmallIcon(R.drawable.stat_notify)
                     .setLargeIcon(largeIcon)
                     .setContentIntent(pendingIntent)
