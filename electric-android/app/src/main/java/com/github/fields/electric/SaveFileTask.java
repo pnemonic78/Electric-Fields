@@ -90,7 +90,7 @@ public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
 
             Notification.Builder builder = new Notification.Builder(context)
                     .setContentTitle(context.getText(R.string.app_name))
-                    .setContentText(context.getString(R.string.saved, file.getPath()))
+                    .setContentText(context.getText(R.string.saved))
                     .setSmallIcon(R.drawable.stat_notify)
                     .setLargeIcon(largeIcon)
                     .setContentIntent(pendingIntent)

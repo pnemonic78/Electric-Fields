@@ -5,8 +5,8 @@
     <!-- Notifications. -->
     <string name="notification_title" translatable="false">@string/app_name</string>
     <string name="finished">Finished rendering.</string>
-    <string name="saved">Saved to %s.</string>
-    <string name="save_failed">Save failed.</string>
+    <string name="saved">Image saved.</string>
+    <string name="save_failed">Saving image failed.</string>
 
     <!-- Menu -->
     <string name="menu_preview">Fullscreen</string>
