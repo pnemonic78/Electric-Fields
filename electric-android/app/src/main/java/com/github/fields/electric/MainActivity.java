@@ -97,7 +97,7 @@ public class MainActivity extends Activity implements
     @Override
     public void onLongPress(MotionEvent e) {
         if (!getActionBar().isShowing()) {
-            getActionBar().show();
+            hideFullscreen();
         }
     }
 
@@ -178,7 +178,11 @@ public class MainActivity extends Activity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_preview:
-                getActionBar().hide();
+                if (getActionBar().isShowing()) {
+                    showFullscreen();
+                } else {
+                    hideFullscreen();
+                }
                 return true;
             case R.id.menu_random:
                 randomise();
@@ -260,5 +264,19 @@ public class MainActivity extends Activity implements
                 }
             }
         }
+    }
+
+    /**
+     * Maximise the image in fullscreen mode.
+     */
+    private void showFullscreen() {
+        getActionBar().hide();
+    }
+
+    /**
+     * Restore the image to non-fullscreen mode.
+     */
+    private void hideFullscreen() {
+        getActionBar().show();
     }
 }
