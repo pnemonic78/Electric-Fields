@@ -25,7 +25,6 @@ import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.WindowManager;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -123,9 +122,7 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
-        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics metrics = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(metrics);
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
         int w = metrics.widthPixels;
         int h = metrics.heightPixels;
 
