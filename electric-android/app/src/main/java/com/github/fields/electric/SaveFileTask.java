@@ -1,8 +1,15 @@
 package com.github.fields.electric;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
@@ -25,8 +32,14 @@ import static android.content.ContentValues.TAG;
  */
 public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
 
+    private static final int REQUEST_VIEW = 0x7133; // "VIEW"
+
+    private static final int ID_NOTIFY = 0x5473; // "SAVE"
+
     protected final Context context;
     protected final DateFormat timestampFormat = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US);
+
+    protected Bitmap bitmap;
 
     public SaveFileTask(Context context) {
         this.context = context;
@@ -39,6 +52,7 @@ public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
         folder.mkdirs();
 
         Bitmap bitmap = params[0];
+        this.bitmap = bitmap;
         File file = new File(folder, generateFileName());
 
         OutputStream out = null;
@@ -64,8 +78,33 @@ public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
 
     @Override
     protected void onPostExecute(File file) {
-        if (file != null) {
-            Toast.makeText(context, context.getString(R.string.saved, file.getPath()), Toast.LENGTH_SHORT).show();
+        if ((file != null) && (bitmap != null)) {
+            Resources res = context.getResources();
+            int iconWidth = res.getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+            int iconHeight = res.getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+            Bitmap largeIcon = Bitmap.createScaledBitmap(bitmap, iconWidth, iconHeight, false);
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.fromFile(file), "image/png");
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, REQUEST_VIEW, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            Notification.Builder builder = new Notification.Builder(context)
+                    .setContentTitle(context.getText(R.string.app_name))
+                    .setContentText(context.getString(R.string.saved, file.getPath()))
+                    .setSmallIcon(R.drawable.stat_notify)
+                    .setLargeIcon(largeIcon)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true);
+
+            Notification notification;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                notification = builder.build();
+            } else {
+                notification = builder.getNotification();
+            }
+
+            NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            nm.notify(ID_NOTIFY, notification);
         } else {
             Toast.makeText(context, R.string.save_failed, Toast.LENGTH_SHORT).show();
         }
@@ -74,7 +113,9 @@ public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
     @Override
     protected void onCancelled(File file) {
         super.onCancelled(file);
-        file.delete();
+        if (file != null) {
+            file.delete();
+        }
     }
 
     protected String generateFileName() {
