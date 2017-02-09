@@ -96,7 +96,9 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onLongPress(MotionEvent e) {
-        openOptionsMenu();
+        if (!getActionBar().isShowing()) {
+            getActionBar().show();
+        }
     }
 
     @Override
@@ -175,6 +177,9 @@ public class MainActivity extends Activity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_preview:
+                getActionBar().hide();
+                return true;
             case R.id.menu_random:
                 randomise();
                 return true;
