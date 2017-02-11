@@ -44,6 +44,7 @@ import java.util.Random;
  * @author Moshe Waisberg
  */
 public class MainActivity extends Activity implements
+        View.OnTouchListener,
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener,
         ScaleGestureDetector.OnScaleGestureListener,
@@ -66,6 +67,7 @@ public class MainActivity extends Activity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         fieldsView = (ElectricFieldsView) findViewById(R.id.electric_fields);
+        fieldsView.setOnTouchListener(this);
         fieldsView.setElectricFieldsListener(this);
 
         gestureDetector = new GestureDetector(this, this);
@@ -81,10 +83,13 @@ public class MainActivity extends Activity implements
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        boolean result = scaleGestureDetector.onTouchEvent(event);
-        result = gestureDetector.onTouchEvent(event) || result;
-        return result || super.onTouchEvent(event);
+    public boolean onTouch(View v, MotionEvent event) {
+        if (v == fieldsView) {
+            boolean result = scaleGestureDetector.onTouchEvent(event);
+            result = gestureDetector.onTouchEvent(event) || result;
+            return result || super.onTouchEvent(event);
+        }
+        return false;
     }
 
     @Override
@@ -297,7 +302,7 @@ public class MainActivity extends Activity implements
      */
     private boolean hideFullscreen() {
         ActionBar actionBar = getActionBar();
-        if ((actionBar != null) && actionBar.isShowing()) {
+        if ((actionBar != null) && !actionBar.isShowing()) {
             // Show the status bar.
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
