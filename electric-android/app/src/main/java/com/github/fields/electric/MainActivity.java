@@ -182,6 +182,9 @@ public class MainActivity extends Activity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_stop:
+                cancel();
+                return true;
             case R.id.menu_preview:
                 if (getActionBar().isShowing()) {
                     showFullscreen();
@@ -324,5 +327,10 @@ public class MainActivity extends Activity implements
             return;
         }
         super.onBackPressed();
+    }
+
+    private void cancel() {
+        fieldsView.cancel();
+        fieldsView.clear();
     }
 }

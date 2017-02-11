@@ -12,6 +12,11 @@
         android:showAsAction="ifRoom"
         android:title="@string/menu_random"/>
     <item
+        android:id="@+id/menu_stop"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_cancel"/>
+    <item
         android:id="@+id/menu_save_file"
         android:icon="@android:drawable/ic_menu_save"
         android:showAsAction="ifRoom"
