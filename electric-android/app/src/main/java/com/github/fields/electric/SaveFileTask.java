@@ -40,6 +40,7 @@ public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
     protected final DateFormat timestampFormat = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US);
 
     protected Bitmap bitmap;
+    protected Notification.Builder builder;
 
     public SaveFileTask(Context context) {
         this.context = context;
@@ -54,6 +55,29 @@ public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
         Bitmap bitmap = params[0];
         this.bitmap = bitmap;
         File file = new File(folder, generateFileName());
+
+        Resources res = context.getResources();
+        int iconWidth = res.getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+        int iconHeight = res.getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+        Bitmap largeIcon = Bitmap.createScaledBitmap(bitmap, iconWidth, iconHeight, false);
+
+        builder = new Notification.Builder(context)
+                .setContentTitle(context.getText(R.string.saving_title))
+                .setContentText(context.getText(R.string.saving_text))
+                .setSmallIcon(R.drawable.stat_notify)
+                .setLargeIcon(largeIcon)
+                .setAutoCancel(true)
+                .setOngoing(true);
+
+        Notification notification;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            notification = builder.build();
+        } else {
+            notification = builder.getNotification();
+        }
+
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.notify(ID_NOTIFY, notification);
 
         OutputStream out = null;
         try {
@@ -79,22 +103,14 @@ public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
     @Override
     protected void onPostExecute(File file) {
         if ((file != null) && (bitmap != null)) {
-            Resources res = context.getResources();
-            int iconWidth = res.getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
-            int iconHeight = res.getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
-            Bitmap largeIcon = Bitmap.createScaledBitmap(bitmap, iconWidth, iconHeight, false);
-
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(Uri.fromFile(file), "image/png");
             PendingIntent pendingIntent = PendingIntent.getActivity(context, REQUEST_VIEW, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            Notification.Builder builder = new Notification.Builder(context)
-                    .setContentTitle(context.getText(R.string.saved_title))
+            builder.setContentTitle(context.getText(R.string.saved_title))
                     .setContentText(context.getText(R.string.saved_text))
-                    .setSmallIcon(R.drawable.stat_notify)
-                    .setLargeIcon(largeIcon)
                     .setContentIntent(pendingIntent)
-                    .setAutoCancel(true);
+                    .setOngoing(false);
 
             Notification notification;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
