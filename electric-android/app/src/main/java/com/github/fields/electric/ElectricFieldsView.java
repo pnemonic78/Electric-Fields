@@ -21,7 +21,10 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.os.AsyncTask;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -132,9 +135,20 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
             int bh = bitmapOld.getHeight();
 
             if ((w != bw) || (h != bh)) {
-                bitmap = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh);
-                if (bitmapOld != bitmap) {
+                Matrix m = new Matrix();
+                // Changed orientation?
+                if ((w < bw) && (h > bh)) {// Portrait?
+                    m.postRotate(90, bw / 2, bh / 2);
+                } else {// Landscape?
+                    m.postRotate(270, bw / 2, bh / 2);
+                }
+                Bitmap rotated = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh, m, true);
+                if (bitmapOld != rotated) {
                     bitmapOld.recycle();
+                }
+                bitmap = Bitmap.createScaledBitmap(rotated, w, h, true);
+                if (rotated != bitmap) {
+                    rotated.recycle();
                 }
             }
         } else {
@@ -218,5 +232,64 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
      */
     public void setElectricFieldsListener(ElectricFieldsListener listener) {
         this.listener = listener;
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+
+        if (bitmap != null) {
+            SavedState ss = new SavedState(superState);
+            ss.bitmap = bitmap;
+            return ss;
+        }
+
+        return superState;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof SavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+
+        if (ss.bitmap != null) {
+            this.bitmap = ss.bitmap;
+        }
+    }
+
+    public static class SavedState extends BaseSavedState {
+
+        Bitmap bitmap;
+
+        protected SavedState(Parcel source) {
+            super(source);
+            bitmap = Bitmap.CREATOR.createFromParcel(source);
+        }
+
+        protected SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            bitmap.writeToParcel(out, flags);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR
+                = new Parcelable.Creator<SavedState>() {
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 }
