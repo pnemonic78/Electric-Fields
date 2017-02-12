@@ -189,11 +189,11 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
         canvas.drawRect(rect, paint);
     }
 
-    private int mapColor(double z, double zoom) {
+    private int mapColor(double z, double density) {
         if (Double.isInfinite(z)) {
             return Color.WHITE;
         }
-        hsv[0] = (float) ((z * zoom) % 360);
+        hsv[0] = (float) ((z * density) % 360);
         return Color.HSVToColor(hsv);
     }
 
