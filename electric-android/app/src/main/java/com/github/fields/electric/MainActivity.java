@@ -185,7 +185,7 @@ public class MainActivity extends Activity implements
             case R.id.menu_stop:
                 cancel();
                 return true;
-            case R.id.menu_preview:
+            case R.id.menu_fullscreen:
                 if (getActionBar().isShowing()) {
                     showFullscreen();
                 } else {

@@ -14,7 +14,7 @@
     <string name="save_failed">Saving image failed.</string>
 
     <!-- Menu -->
-    <string name="menu_preview">Fullscreen</string>
+    <string name="menu_fullscreen">Fullscreen</string>
     <string name="menu_random">Randomise</string>
-    <string name="menu_cancel">@android:string/cancel</string>
+    <string name="menu_stop">@android:string/cancel</string>
 </resources>
