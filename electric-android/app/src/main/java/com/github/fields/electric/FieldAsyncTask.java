@@ -29,7 +29,7 @@ import android.os.AsyncTask;
  *
  * @author Moshe Waisberg
  */
-public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
+public class FieldAsyncTask extends AsyncTask<Charge, Canvas, Canvas> {
 
     public interface FieldAsyncTaskListener {
         /**
@@ -62,14 +62,14 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
     }
 
     private final FieldAsyncTaskListener listener;
-    private final Bitmap bitmap;
+    private final Canvas canvas;
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF rect = new RectF();
     private final float[] hsv = {0f, 1f, 1f};
 
     public FieldAsyncTask(FieldAsyncTaskListener listener, Bitmap bitmap) {
         this.listener = listener;
-        this.bitmap = bitmap;
+        this.canvas = new Canvas(bitmap);
     }
 
     @Override
@@ -84,10 +84,10 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
     }
 
     @Override
-    protected Bitmap doInBackground(Charge... params) {
+    protected Canvas doInBackground(Charge... params) {
         final ChargeHolder[] charges = ChargeHolder.toChargedParticles(params);
-        int w = bitmap.getWidth();
-        int h = bitmap.getHeight();
+        int w = canvas.getWidth();
+        int h = canvas.getHeight();
         int size = Math.max(w, h);
 
         int shifts = 0;
@@ -101,9 +101,8 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
         int resolution2 = 1 << shifts;
         int resolution = resolution2 >> 1;
 
-        bitmap.eraseColor(Color.WHITE);
-        Canvas bitmapCanvas = new Canvas(bitmap);
-        plot(charges, bitmapCanvas, 0, 0, resolution, resolution, density);
+        canvas.drawColor(Color.WHITE);
+        plot(charges, canvas, 0, 0, resolution, resolution, density);
 
         int x, y;
         int x1, y1, x2, y2;
@@ -120,9 +119,9 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
                     x1 = x - resolution;
                     x2 = x;
 
-                    plot(charges, bitmapCanvas, x1, y2, resolution, resolution, density);
-                    plot(charges, bitmapCanvas, x2, y1, resolution, resolution, density);
-                    plot(charges, bitmapCanvas, x2, y2, resolution, resolution, density);
+                    plot(charges, canvas, x1, y2, resolution, resolution, density);
+                    plot(charges, canvas, x2, y1, resolution, resolution, density);
+                    plot(charges, canvas, x2, y2, resolution, resolution, density);
                     listener.repaint(this);
 
                     x += resolution2;
@@ -144,17 +143,17 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
             }
         } while ((resolution >= 1) && !isCancelled());
 
-        return bitmap;
+        return canvas;
     }
 
     @Override
-    protected void onProgressUpdate(Bitmap... values) {
+    protected void onProgressUpdate(Canvas... values) {
         super.onProgressUpdate(values);
         listener.repaint(this);
     }
 
     @Override
-    protected void onPostExecute(Bitmap result) {
+    protected void onPostExecute(Canvas result) {
         super.onPostExecute(result);
         listener.onTaskFinished(this);
     }
