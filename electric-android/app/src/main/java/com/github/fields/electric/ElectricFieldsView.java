@@ -166,7 +166,7 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
      * Start the task.
      */
     public void start() {
-        task = new FieldAsyncTask(this, bitmap).execute(charges.toArray(new Charge[charges.size()]));
+        task = new FieldAsyncTask(this, new Canvas(bitmap)).execute(charges.toArray(new Charge[charges.size()]));
     }
 
     /**
