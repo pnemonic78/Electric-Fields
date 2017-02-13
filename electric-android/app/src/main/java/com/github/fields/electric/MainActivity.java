@@ -332,5 +332,9 @@ public class MainActivity extends Activity implements
     private void cancel() {
         fieldsView.cancel();
         fieldsView.clear();
+
+        if (saveTask != null) {
+            saveTask.cancel(true);
+        }
     }
 }
