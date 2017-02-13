@@ -95,7 +95,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
             size >>>= 1;
             shifts++;
         }
-        double zoom = 1e+4;
+        double density = 1e+3;
 
         // Make "resolution2" a power of 2, so that "resolution" is always divisible by 2.
         int resolution2 = 1 << shifts;
@@ -103,7 +103,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
 
         bitmap.eraseColor(Color.WHITE);
         Canvas bitmapCanvas = new Canvas(bitmap);
-        plot(charges, bitmapCanvas, 0, 0, resolution, resolution, zoom);
+        plot(charges, bitmapCanvas, 0, 0, resolution, resolution, density);
 
         int x, y;
         int x1, y1, x2, y2;
@@ -120,9 +120,9 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
                     x1 = x - resolution;
                     x2 = x;
 
-                    plot(charges, bitmapCanvas, x1, y2, resolution, resolution, zoom);
-                    plot(charges, bitmapCanvas, x2, y1, resolution, resolution, zoom);
-                    plot(charges, bitmapCanvas, x2, y2, resolution, resolution, zoom);
+                    plot(charges, bitmapCanvas, x1, y2, resolution, resolution, density);
+                    plot(charges, bitmapCanvas, x2, y1, resolution, resolution, density);
+                    plot(charges, bitmapCanvas, x2, y2, resolution, resolution, density);
                     listener.repaint(this);
 
                     x += resolution2;
@@ -166,7 +166,8 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
     }
 
     private void plot(ChargeHolder[] charges, Canvas canvas, int x, int y, int w, int h, double zoom) {
-        int dx, dy, rSqr;
+        int dx, dy, d;
+        double r;
         double v = 1;
         final int count = charges.length;
         ChargeHolder charge;
@@ -175,13 +176,14 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
             charge = charges[i];
             dx = x - charge.x;
             dy = y - charge.y;
-            rSqr = (dx * dx) + (dy * dy);
-            if (rSqr == 0) {
+            d = (dx * dx) + (dy * dy);
+            r = Math.sqrt(d);
+            if (r == 0) {
                 //Force "overflow".
                 v = Double.POSITIVE_INFINITY;
                 break;
             }
-            v += charge.sizeSqr / rSqr;
+            v += charge.size / r;
         }
 
         paint.setColor(mapColor(v, zoom));
@@ -189,11 +191,11 @@ public class FieldAsyncTask extends AsyncTask<Charge, Bitmap, Bitmap> {
         canvas.drawRect(rect, paint);
     }
 
-    private int mapColor(double z, double zoom) {
+    private int mapColor(double z, double density) {
         if (Double.isInfinite(z)) {
             return Color.WHITE;
         }
-        hsv[0] = (float) ((z * zoom) % 360);
+        hsv[0] = (float) ((z * density) % 360);
         return Color.HSVToColor(hsv);
     }
 

@@ -2,18 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/menu_preview"
-        android:icon="@android:drawable/ic_menu_crop"
+        android:id="@+id/menu_fullscreen"
+        android:icon="@drawable/ic_menu_fullscreen"
         android:showAsAction="always"
-        android:title="@string/menu_preview"/>
+        android:title="@string/menu_fullscreen"/>
     <item
         android:id="@+id/menu_random"
-        android:icon="@android:drawable/ic_menu_slideshow"
-        android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_menu_random"
+        android:showAsAction="always"
         android:title="@string/menu_random"/>
     <item
+        android:id="@+id/menu_stop"
+        android:icon="@drawable/ic_menu_stop"
+        android:showAsAction="always"
+        android:title="@string/menu_stop"/>
+    <item
         android:id="@+id/menu_save_file"
-        android:icon="@android:drawable/ic_menu_save"
+        android:icon="@drawable/ic_menu_save"
         android:showAsAction="ifRoom"
         android:title="@string/menu_save_file"/>
 </menu>

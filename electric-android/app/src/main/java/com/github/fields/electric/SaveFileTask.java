@@ -12,7 +12,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,6 +31,7 @@ import static android.content.ContentValues.TAG;
  */
 public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
 
+    private static final int REQUEST_APP = 0x0466; // "APP"
     private static final int REQUEST_VIEW = 0x7133; // "VIEW"
 
     private static final int ID_NOTIFY = 0x5473; // "SAVE"
@@ -40,6 +40,7 @@ public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
     protected final DateFormat timestampFormat = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US);
 
     protected Bitmap bitmap;
+    protected Notification.Builder builder;
 
     public SaveFileTask(Context context) {
         this.context = context;
@@ -54,6 +55,33 @@ public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
         Bitmap bitmap = params[0];
         this.bitmap = bitmap;
         File file = new File(folder, generateFileName());
+
+        Resources res = context.getResources();
+        int iconWidth = res.getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+        int iconHeight = res.getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+        Bitmap largeIcon = Bitmap.createScaledBitmap(bitmap, iconWidth, iconHeight, false);
+
+        Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, REQUEST_APP, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        builder = new Notification.Builder(context)
+                .setContentTitle(context.getText(R.string.saving_title))
+                .setContentText(context.getText(R.string.saving_text))
+                .setContentIntent(pendingIntent)
+                .setSmallIcon(R.drawable.stat_notify)
+                .setLargeIcon(largeIcon)
+                .setAutoCancel(true)
+                .setOngoing(true);
+
+        Notification notification;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            notification = builder.build();
+        } else {
+            notification = builder.getNotification();
+        }
+
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.notify(ID_NOTIFY, notification);
 
         OutputStream out = null;
         try {
@@ -78,36 +106,29 @@ public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
 
     @Override
     protected void onPostExecute(File file) {
-        if ((file != null) && (bitmap != null)) {
-            Resources res = context.getResources();
-            int iconWidth = res.getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
-            int iconHeight = res.getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
-            Bitmap largeIcon = Bitmap.createScaledBitmap(bitmap, iconWidth, iconHeight, false);
+        builder.setOngoing(false);
 
+        if ((file != null) && (bitmap != null)) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(Uri.fromFile(file), "image/png");
             PendingIntent pendingIntent = PendingIntent.getActivity(context, REQUEST_VIEW, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            Notification.Builder builder = new Notification.Builder(context)
-                    .setContentTitle(context.getText(R.string.saved_title))
+            builder.setContentTitle(context.getText(R.string.saved_title))
                     .setContentText(context.getText(R.string.saved_text))
-                    .setSmallIcon(R.drawable.stat_notify)
-                    .setLargeIcon(largeIcon)
-                    .setContentIntent(pendingIntent)
-                    .setAutoCancel(true);
-
-            Notification notification;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                notification = builder.build();
-            } else {
-                notification = builder.getNotification();
-            }
-
-            NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            nm.notify(ID_NOTIFY, notification);
+                    .setContentIntent(pendingIntent);
         } else {
-            Toast.makeText(context, R.string.save_failed, Toast.LENGTH_SHORT).show();
+            builder.setContentText(context.getText(R.string.save_failed));
         }
+
+        Notification notification;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            notification = builder.build();
+        } else {
+            notification = builder.getNotification();
+        }
+
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.notify(ID_NOTIFY, notification);
     }
 
     @Override
@@ -115,6 +136,9 @@ public class SaveFileTask extends AsyncTask<Bitmap, File, File> {
         super.onCancelled(file);
         if (file != null) {
             file.delete();
+        } else {
+            NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            nm.cancel(ID_NOTIFY);
         }
     }
 
