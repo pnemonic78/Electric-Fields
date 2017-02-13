@@ -126,18 +126,18 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
         super.onAttachedToWindow();
 
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int w = metrics.widthPixels;
-        int h = metrics.heightPixels;
+        int width = metrics.widthPixels;
+        int height = metrics.heightPixels;
 
         Bitmap bitmapOld = bitmap;
         if (bitmapOld != null) {
             int bw = bitmapOld.getWidth();
             int bh = bitmapOld.getHeight();
 
-            if ((w != bw) || (h != bh)) {
+            if ((width != bw) || (height != bh)) {
                 Matrix m = new Matrix();
                 // Changed orientation?
-                if ((w < bw) && (h > bh)) {// Portrait?
+                if ((width < bw) && (height > bh)) {// Portrait?
                     m.postRotate(90, bw / 2, bh / 2);
                 } else {// Landscape?
                     m.postRotate(270, bw / 2, bh / 2);
@@ -146,13 +146,13 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
                 if (bitmapOld != rotated) {
                     bitmapOld.recycle();
                 }
-                bitmap = Bitmap.createScaledBitmap(rotated, w, h, true);
+                bitmap = Bitmap.createScaledBitmap(rotated, width, height, true);
                 if (rotated != bitmap) {
                     rotated.recycle();
                 }
             }
         } else {
-            bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         }
     }
 

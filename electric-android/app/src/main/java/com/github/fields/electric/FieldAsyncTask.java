@@ -17,7 +17,6 @@
  */
 package com.github.fields.electric;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -67,9 +66,9 @@ public class FieldAsyncTask extends AsyncTask<Charge, Canvas, Canvas> {
     private final RectF rect = new RectF();
     private final float[] hsv = {0f, 1f, 1f};
 
-    public FieldAsyncTask(FieldAsyncTaskListener listener, Bitmap bitmap) {
+    public FieldAsyncTask(FieldAsyncTaskListener listener, Canvas canvas) {
         this.listener = listener;
-        this.canvas = new Canvas(bitmap);
+        this.canvas = canvas;
     }
 
     @Override
