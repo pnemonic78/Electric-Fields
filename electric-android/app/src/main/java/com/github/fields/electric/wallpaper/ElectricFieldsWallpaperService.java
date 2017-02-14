@@ -88,20 +88,17 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
 
         @Override
         public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            super.onSurfaceChanged(holder, format, width, height);
             fieldsView.setSize(width, height);
             randomise();
         }
 
         @Override
         public void onSurfaceDestroyed(SurfaceHolder holder) {
-            super.onSurfaceDestroyed(holder);
             fieldsView.cancel();
         }
 
         @Override
         public void onSurfaceRedrawNeeded(SurfaceHolder holder) {
-            super.onSurfaceRedrawNeeded(holder);
             draw();
         }
 
