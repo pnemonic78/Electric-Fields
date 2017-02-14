@@ -155,10 +155,14 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
             drawing = true;
             SurfaceHolder surfaceHolder = getSurfaceHolder();
             if (surfaceHolder.getSurface().isValid()) {
-                Canvas canvas = surfaceHolder.lockCanvas();
-                if (canvas != null) {
-                    fieldsView.draw(canvas);
-                    surfaceHolder.unlockCanvasAndPost(canvas);
+                try {
+                    Canvas canvas = surfaceHolder.lockCanvas();
+                    if (canvas != null) {
+                        fieldsView.draw(canvas);
+                        surfaceHolder.unlockCanvasAndPost(canvas);
+                    }
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
                 }
             }
             drawing = false;
