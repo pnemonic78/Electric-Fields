@@ -23,7 +23,10 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.service.wallpaper.WallpaperService;
+import android.text.format.DateUtils;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
@@ -56,16 +59,25 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
      * @author moshe.w
      */
     protected class ElectricFieldsWallpaperEngine extends Engine implements
+            GestureDetector.OnGestureListener,
+            GestureDetector.OnDoubleTapListener,
             FieldAsyncTask.FieldAsyncTaskListener {
 
         private WallpaperView fieldsView;
+        private GestureDetector gestureDetector;
         private final Random random = new Random();
+        private boolean drawing;
 
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
             super.onCreate(surfaceHolder);
             setTouchEventsEnabled(true);
-            fieldsView = new WallpaperView(ElectricFieldsWallpaperService.this, this);
+
+            Context context = ElectricFieldsWallpaperService.this;
+            fieldsView = new WallpaperView(context, this);
+
+            gestureDetector = new GestureDetector(context, this);
+            gestureDetector.setOnDoubleTapListener(this);
         }
 
         @Override
@@ -95,8 +107,7 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
 
         @Override
         public void onTouchEvent(MotionEvent event) {
-            super.onTouchEvent(event);
-            //TODO implement gesture detector!
+            gestureDetector.onTouchEvent(event);
         }
 
         @Override
@@ -141,11 +152,76 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
         }
 
         public void draw() {
+            if (drawing) {
+                return;
+            }
+            drawing = true;
             SurfaceHolder surfaceHolder = getSurfaceHolder();
-            Canvas canvas = surfaceHolder.lockCanvas();
-            if (canvas != null) {
-                fieldsView.draw(canvas);
-                surfaceHolder.unlockCanvasAndPost(canvas);
+            if (surfaceHolder.getSurface().isValid()) {
+                Canvas canvas = surfaceHolder.lockCanvas();
+                if (canvas != null) {
+                    fieldsView.draw(canvas);
+                    surfaceHolder.unlockCanvasAndPost(canvas);
+                }
+            }
+            drawing = false;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent e) {
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return false;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            fieldClicked(e);
+            return true;
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onDoubleTapEvent(MotionEvent e) {
+            return false;
+        }
+
+        private void fieldClicked(MotionEvent e) {
+            int x = (int) e.getX();
+            int y = (int) e.getY();
+            long duration = Math.min(SystemClock.uptimeMillis() - e.getDownTime(), DateUtils.SECOND_IN_MILLIS);
+            double size = 1.0 + (int) (duration / 20L);
+            fieldClicked(x, y, size);
+        }
+
+        private void fieldClicked(int x, int y, double size) {
+            if (fieldsView.invertCharge(x, y) || fieldsView.addCharge(x, y, size)) {
+                fieldsView.restart();
             }
         }
     }
@@ -155,7 +231,7 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
         private int width, height;
         private final List<Charge> charges = new CopyOnWriteArrayList<>();
         private Bitmap bitmap;
-        private AsyncTask task;
+        private FieldAsyncTask task;
         private int sameChargeDistance;
         private final ElectricFieldsWallpaperEngine listener;
 
@@ -225,7 +301,12 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
          * Start the task.
          */
         public void start() {
-            new FieldAsyncTask(this, new Canvas(bitmap)).execute(charges.toArray(new Charge[charges.size()]));
+            if ((task == null) || task.isCancelled() || (task.getStatus() == AsyncTask.Status.FINISHED)) {
+                task = new FieldAsyncTask(this, new Canvas(bitmap));
+                task.setSaturation(0.5f);
+                task.setBrightness(0.75f);
+                task.execute(charges.toArray(new Charge[charges.size()]));
+            }
         }
 
         /**

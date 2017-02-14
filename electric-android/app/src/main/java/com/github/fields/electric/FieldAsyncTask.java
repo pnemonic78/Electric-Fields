@@ -197,6 +197,24 @@ public class FieldAsyncTask extends AsyncTask<Charge, Canvas, Canvas> {
         return Color.HSVToColor(hsv);
     }
 
+    /**
+     * Set the HSV saturation.
+     *
+     * @param value a value between [0..1] inclusive.
+     */
+    public void setSaturation(float value) {
+        hsv[1] = value;
+    }
+
+    /**
+     * Set the HSV brightness.
+     *
+     * @param value a value between [0..1] inclusive.
+     */
+    public void setBrightness(float value) {
+        hsv[2] = value;
+    }
+
     private static class ChargeHolder {
         public final int x;
         public final int y;

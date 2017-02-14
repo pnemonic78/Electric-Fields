@@ -43,7 +43,7 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
 
     private final List<Charge> charges = new CopyOnWriteArrayList<>();
     private Bitmap bitmap;
-    private AsyncTask task;
+    private FieldAsyncTask task;
     private int sameChargeDistance;
     private ElectricFieldsListener listener;
 
@@ -166,7 +166,10 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
      * Start the task.
      */
     public void start() {
-        task = new FieldAsyncTask(this, new Canvas(bitmap)).execute(charges.toArray(new Charge[charges.size()]));
+        if ((task == null) || task.isCancelled() || (task.getStatus() == AsyncTask.Status.FINISHED)) {
+            task = new FieldAsyncTask(this, new Canvas(bitmap));
+            task.execute(charges.toArray(new Charge[charges.size()]));
+        }
     }
 
     /**
