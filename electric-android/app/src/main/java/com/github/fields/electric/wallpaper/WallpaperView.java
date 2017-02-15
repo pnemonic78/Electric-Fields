@@ -159,13 +159,7 @@ public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
                     m.postRotate(270, bw / 2, bh / 2);
                 }
                 Bitmap rotated = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh, m, true);
-                if (bitmapOld != rotated) {
-                    bitmapOld.recycle();
-                }
                 bitmap = Bitmap.createScaledBitmap(rotated, width, height, true);
-                if (rotated != bitmap) {
-                    rotated.recycle();
-                }
             }
         } else {
             bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
