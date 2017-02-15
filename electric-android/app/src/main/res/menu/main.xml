@@ -19,6 +19,6 @@
     <item
         android:id="@+id/menu_save_file"
         android:icon="@drawable/ic_menu_save"
-        android:showAsAction="ifRoom"
+        android:showAsAction="always"
         android:title="@string/menu_save_file"/>
 </menu>
