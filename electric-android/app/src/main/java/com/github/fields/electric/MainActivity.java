@@ -71,8 +71,6 @@ public class MainActivity extends Activity implements
         fieldsView.setElectricFieldsListener(this);
 
         gestureDetector = new GestureDetector(this, this);
-        gestureDetector.setOnDoubleTapListener(this);
-
         scaleGestureDetector = new ScaleGestureDetector(this, this);
     }
 

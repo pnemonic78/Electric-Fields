@@ -67,7 +67,6 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
             fieldsView = new WallpaperView(context, this);
 
             gestureDetector = new GestureDetector(context, this);
-            gestureDetector.setOnDoubleTapListener(this);
         }
 
         @Override
