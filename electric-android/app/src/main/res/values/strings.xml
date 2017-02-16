@@ -17,7 +17,7 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">Fullscreen</string>
     <string name="menu_random">Randomise</string>
-    <string name="menu_stop">@android:string/cancel</string>
+    <string name="menu_stop" translatable="false">@android:string/cancel</string>
 
     <!-- Live wallpaper. -->
     <string name="wallpaper_description" translatable="false">@string/app_name</string>
