@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Electric Fields</string>
+    <string name="app_name">Campos Elétricos</string>
 
     <!-- Notifications. -->
-    <string name="finished">Finished rendering.</string>
+    <string name="finished">O desenho está concluído.</string>
 
     <!-- Saved. -->
-    <string name="menu_save_file">Save to file</string>
-    <string name="saving_text">Saving image to file…</string>
-    <string name="saved_title">Electric fields saved.</string>
-    <string name="saved_text">Touch to view your fields.</string>
-    <string name="save_failed">Saving image failed.</string>
+    <string name="menu_save_file">Salvar em arquivo</string>
+    <string name="saving_text">Salvando imagem para arquivo…</string>
+    <string name="saved_title">Os campos elétricos são salvos.</string>
+    <string name="saved_text">Toque para visualizar os campos.</string>
+    <string name="save_failed">Falha ao salvar a imagem.</string>
 
     <!-- Menu. -->
-    <string name="menu_fullscreen">Fullscreen</string>
-    <string name="menu_random">Randomise</string>
+    <string name="menu_fullscreen">Tela cheia</string>
+    <string name="menu_random">Aleatória</string>
 </resources>

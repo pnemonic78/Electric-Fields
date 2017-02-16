@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Electric Fields</string>
+    <string name="app_name">Elektriväljade</string>
 
     <!-- Notifications. -->
-    <string name="finished">Finished rendering.</string>
+    <string name="finished">Joonistus on lõppenud.</string>
 
     <!-- Saved. -->
-    <string name="menu_save_file">Save to file</string>
-    <string name="saving_text">Saving image to file…</string>
-    <string name="saved_title">Electric fields saved.</string>
-    <string name="saved_text">Touch to view your fields.</string>
-    <string name="save_failed">Saving image failed.</string>
+    <string name="menu_save_file">Salvesta faili</string>
+    <string name="saving_text">Pildi salvestamine faili…</string>
+    <string name="saved_title">Elektriväljade salvestatakse.</string>
+    <string name="saved_text">Puudutage, et vaadata oma valdkonnas.</string>
+    <string name="save_failed">Õnnestunud salvestada pilti.</string>
 
     <!-- Menu. -->
-    <string name="menu_fullscreen">Fullscreen</string>
-    <string name="menu_random">Randomise</string>
+    <string name="menu_fullscreen">Täisekraan</string>
+    <string name="menu_random">Juhuslikumaks</string>
 </resources>

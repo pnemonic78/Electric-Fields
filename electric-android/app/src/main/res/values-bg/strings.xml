@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Electric Fields</string>
+    <string name="app_name">Електрически Полета</string>
 
     <!-- Notifications. -->
-    <string name="finished">Finished rendering.</string>
+    <string name="finished">Визуализация е завършен.</string>
 
     <!-- Saved. -->
-    <string name="menu_save_file">Save to file</string>
-    <string name="saving_text">Saving image to file…</string>
-    <string name="saved_title">Electric fields saved.</string>
-    <string name="saved_text">Touch to view your fields.</string>
-    <string name="save_failed">Saving image failed.</string>
+    <string name="menu_save_file">Запазване на файл</string>
+    <string name="saving_text">Запазване на изображението във файл…</string>
+    <string name="saved_title">Електрически полета са запазени.</string>
+    <string name="saved_text">Докоснете, за да видите полета си.</string>
+    <string name="save_failed">Неуспешно запазване на изображението.</string>
 
     <!-- Menu. -->
-    <string name="menu_fullscreen">Fullscreen</string>
-    <string name="menu_random">Randomise</string>
+    <string name="menu_fullscreen">Цял екран</string>
+    <string name="menu_random">Случаен</string>
 </resources>

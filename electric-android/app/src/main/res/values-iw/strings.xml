@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Electric Fields</string>
+    <string name="app_name">שדות חשמליים</string>
 
     <!-- Notifications. -->
-    <string name="finished">Finished rendering.</string>
+    <string name="finished">העיבוד סיים.</string>
 
     <!-- Saved. -->
-    <string name="menu_save_file">Save to file</string>
-    <string name="saving_text">Saving image to file…</string>
-    <string name="saved_title">Electric fields saved.</string>
-    <string name="saved_text">Touch to view your fields.</string>
-    <string name="save_failed">Saving image failed.</string>
+    <string name="menu_save_file">שמור לקובץ</string>
+    <string name="saving_text">שמירת תמונה לקובץ…</string>
+    <string name="saved_title">שדות חשמליים נשמרות.</string>
+    <string name="saved_text">גע כדי להציג שדות שלך.</string>
+    <string name="save_failed">שמירת תמונה נכשלה.</string>
 
     <!-- Menu. -->
-    <string name="menu_fullscreen">Fullscreen</string>
-    <string name="menu_random">Randomise</string>
+    <string name="menu_fullscreen">מסך מלא</string>
+    <string name="menu_random">אקראי</string>
 </resources>
