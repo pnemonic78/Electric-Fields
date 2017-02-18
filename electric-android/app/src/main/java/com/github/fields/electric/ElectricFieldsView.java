@@ -123,38 +123,9 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
     }
 
     @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int width = metrics.widthPixels;
-        int height = metrics.heightPixels;
-
-        Bitmap bitmapOld = bitmap;
-        if (bitmapOld != null) {
-            int bw = bitmapOld.getWidth();
-            int bh = bitmapOld.getHeight();
-
-            if ((width != bw) || (height != bh)) {
-                Matrix m = new Matrix();
-                // Changed orientation?
-                if ((width < bw) && (height > bh)) {// Portrait?
-                    m.postRotate(90, bw / 2, bh / 2);
-                } else {// Landscape?
-                    m.postRotate(270, bw / 2, bh / 2);
-                }
-                Bitmap rotated = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh, m, true);
-                bitmap = Bitmap.createScaledBitmap(rotated, width, height, true);
-            }
-        } else {
-            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        }
-    }
-
-    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawBitmap(bitmap, 0, 0, null);
+        canvas.drawBitmap(getBitmap(), 0, 0, null);
     }
 
     /**
@@ -162,7 +133,7 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
      */
     public void start() {
         if ((task == null) || task.isCancelled() || (task.getStatus() == AsyncTask.Status.FINISHED)) {
-            task = new FieldAsyncTask(this, new Canvas(bitmap));
+            task = new FieldAsyncTask(this, new Canvas(getBitmap()));
             task.execute(charges.toArray(new Charge[charges.size()]));
         }
     }
@@ -220,6 +191,29 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
      * @return the bitmap.
      */
     public Bitmap getBitmap() {
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int width = metrics.widthPixels;
+        int height = metrics.heightPixels;
+
+        Bitmap bitmapOld = bitmap;
+        if (bitmapOld != null) {
+            int bw = bitmapOld.getWidth();
+            int bh = bitmapOld.getHeight();
+
+            if ((width != bw) || (height != bh)) {
+                Matrix m = new Matrix();
+                // Changed orientation?
+                if ((width < bw) && (height > bh)) {// Portrait?
+                    m.postRotate(90, bw / 2, bh / 2);
+                } else {// Landscape?
+                    m.postRotate(270, bw / 2, bh / 2);
+                }
+                Bitmap rotated = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh, m, true);
+                bitmap = Bitmap.createScaledBitmap(rotated, width, height, true);
+            }
+        } else {
+            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        }
         return bitmap;
     }
 
@@ -260,6 +254,7 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
             for (Charge charge : ss.charges) {
                 addCharge(charge);
             }
+            restart();
         }
     }
 
