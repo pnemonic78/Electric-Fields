@@ -98,7 +98,7 @@ public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
         if ((task == null) || task.isCancelled() || (task.getStatus() == AsyncTask.Status.FINISHED)) {
             task = new FieldAsyncTask(this, new Canvas(bitmap));
             task.setSaturation(0.5f);
-            task.setBrightness(0.75f);
+            task.setBrightness(0.5f);
             task.execute(charges.toArray(new Charge[charges.size()]));
         }
     }
