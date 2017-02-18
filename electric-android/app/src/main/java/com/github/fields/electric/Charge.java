@@ -18,6 +18,8 @@
 package com.github.fields.electric;
 
 import android.graphics.Point;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Electric charge particle.
@@ -27,6 +29,9 @@ import android.graphics.Point;
 public class Charge extends Point {
 
     public double size;
+
+    private Charge() {
+    }
 
     public Charge(int x, int y, double size) {
         super(x, y);
@@ -40,5 +45,29 @@ public class Charge extends Point {
         set(x, y);
         this.size = size;
     }
+
+    @Override
+    public String toString() {
+        return "Charge(" + x + ", " + y + ", " + size + ")";
+    }
+
+    @Override
+    public void readFromParcel(Parcel in) {
+        super.readFromParcel(in);
+        size = in.readDouble();
+    }
+
+    public static final Parcelable.Creator<Charge> CREATOR = new Parcelable.Creator<Charge>() {
+
+        public Charge createFromParcel(Parcel in) {
+            Charge r = new Charge();
+            r.readFromParcel(in);
+            return r;
+        }
+
+        public Charge[] newArray(int size) {
+            return new Charge[size];
+        }
+    };
 
 }

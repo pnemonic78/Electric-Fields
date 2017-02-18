@@ -29,6 +29,7 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -235,9 +236,9 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
     protected Parcelable onSaveInstanceState() {
         Parcelable superState = super.onSaveInstanceState();
 
-        if (bitmap != null) {
+        if (charges.size() > 0) {
             SavedState ss = new SavedState(superState);
-            ss.bitmap = bitmap;
+            ss.charges = charges;
             return ss;
         }
 
@@ -254,18 +255,22 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
 
-        if (ss.bitmap != null) {
-            this.bitmap = ss.bitmap;
+        if (ss.charges != null) {
+            clear();
+            for (Charge charge : ss.charges) {
+                addCharge(charge);
+            }
         }
     }
 
     public static class SavedState extends BaseSavedState {
 
-        Bitmap bitmap;
+        List<Charge> charges;
 
         protected SavedState(Parcel source) {
             super(source);
-            bitmap = Bitmap.CREATOR.createFromParcel(source);
+            charges = new ArrayList<>();
+            source.readTypedList(charges, Charge.CREATOR);
         }
 
         protected SavedState(Parcelable superState) {
@@ -275,7 +280,7 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
-            bitmap.writeToParcel(out, flags);
+            out.writeTypedList(charges);
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR
