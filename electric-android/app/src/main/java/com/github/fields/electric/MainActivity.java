@@ -19,6 +19,7 @@ package com.github.fields.electric;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -43,6 +44,7 @@ import java.util.Random;
  * @author Moshe Waisberg
  */
 public class MainActivity extends Activity implements
+        View.OnTouchListener,
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener,
         ScaleGestureDetector.OnScaleGestureListener,
@@ -65,11 +67,10 @@ public class MainActivity extends Activity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         fieldsView = (ElectricFieldsView) findViewById(R.id.electric_fields);
+        fieldsView.setOnTouchListener(this);
         fieldsView.setElectricFieldsListener(this);
 
         gestureDetector = new GestureDetector(this, this);
-        gestureDetector.setOnDoubleTapListener(this);
-
         scaleGestureDetector = new ScaleGestureDetector(this, this);
     }
 
@@ -80,10 +81,13 @@ public class MainActivity extends Activity implements
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        boolean result = scaleGestureDetector.onTouchEvent(event);
-        result = gestureDetector.onTouchEvent(event) || result;
-        return result || super.onTouchEvent(event);
+    public boolean onTouch(View v, MotionEvent event) {
+        if (v == fieldsView) {
+            boolean result = scaleGestureDetector.onTouchEvent(event);
+            result = gestureDetector.onTouchEvent(event) || result;
+            return result || super.onTouchEvent(event);
+        }
+        return false;
     }
 
     @Override
@@ -98,9 +102,6 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onLongPress(MotionEvent e) {
-        if (!getActionBar().isShowing()) {
-            hideFullscreen();
-        }
     }
 
     @Override
@@ -179,7 +180,10 @@ public class MainActivity extends Activity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_preview:
+            case R.id.menu_stop:
+                cancel();
+                return true;
+            case R.id.menu_fullscreen:
                 if (getActionBar().isShowing()) {
                     showFullscreen();
                 } else {
@@ -270,34 +274,65 @@ public class MainActivity extends Activity implements
 
     /**
      * Maximise the image in fullscreen mode.
+     *
+     * @return {@code true} if screen is now fullscreen.
      */
-    private void showFullscreen() {
-        // Hide the status bar.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
-            View decorView = getWindow().getDecorView();
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-        }
+    private boolean showFullscreen() {
+        ActionBar actionBar = getActionBar();
+        if ((actionBar != null) && actionBar.isShowing()) {
+            // Hide the status bar.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            } else {
+                View decorView = getWindow().getDecorView();
+                decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+            }
 
-        // Hide the action bar.
-        getActionBar().hide();
+            // Hide the action bar.
+            actionBar.hide();
+            return true;
+        }
+        return false;
     }
 
     /**
      * Restore the image to non-fullscreen mode.
+     *
+     * @return {@code true} if screen was fullscreen.
      */
-    private void hideFullscreen() {
-        // Show the status bar.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
-            View decorView = getWindow().getDecorView();
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-        }
+    private boolean hideFullscreen() {
+        ActionBar actionBar = getActionBar();
+        if ((actionBar != null) && !actionBar.isShowing()) {
+            // Show the status bar.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            } else {
+                View decorView = getWindow().getDecorView();
+                decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+            }
 
-        // Show the action bar.
-        getActionBar().show();
+            // Show the action bar.
+            actionBar.show();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (hideFullscreen()) {
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    private void cancel() {
+        fieldsView.cancel();
+        fieldsView.clear();
+
+        if (saveTask != null) {
+            saveTask.cancel(true);
+        }
     }
 }
