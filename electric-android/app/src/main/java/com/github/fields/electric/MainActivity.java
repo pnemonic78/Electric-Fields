@@ -61,6 +61,7 @@ public class MainActivity extends Activity implements
     private Charge chargeToScale;
     private float scaleFactor = 1f;
     private final Random random = new Random();
+    private MenuItem menuStop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,6 +175,9 @@ public class MainActivity extends Activity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+
+        menuStop = menu.findItem(R.id.menu_stop);
+
         return true;
     }
 
@@ -181,7 +185,7 @@ public class MainActivity extends Activity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_stop:
-                cancel();
+                stop();
                 return true;
             case R.id.menu_fullscreen:
                 if (getActionBar().isShowing()) {
@@ -244,17 +248,30 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onRenderFieldStarted(ElectricFieldsView view) {
+        if (view == fieldsView) {
+            if (menuStop != null) {
+                menuStop.setEnabled(true);
+            }
+        }
     }
 
     @Override
     public void onRenderFieldFinished(ElectricFieldsView view) {
         if (view == fieldsView) {
+            if (menuStop != null) {
+                menuStop.setEnabled(false);
+            }
             Toast.makeText(this, R.string.finished, Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void onRenderFieldCancelled(ElectricFieldsView view) {
+        if (view == fieldsView) {
+            if (menuStop != null) {
+                menuStop.setEnabled(false);
+            }
+        }
     }
 
     @Override
@@ -327,7 +344,7 @@ public class MainActivity extends Activity implements
         super.onBackPressed();
     }
 
-    private void cancel() {
+    private void stop() {
         fieldsView.cancel();
         fieldsView.clear();
 
