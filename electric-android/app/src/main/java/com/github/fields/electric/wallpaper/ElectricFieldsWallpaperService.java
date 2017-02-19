@@ -26,8 +26,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
+import com.github.fields.electric.Charge;
 import com.github.fields.electric.ElectricFieldsView;
-import com.github.fields.electric.FieldAsyncTask;
 
 import java.util.Random;
 
@@ -51,7 +51,7 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
     protected class ElectricFieldsWallpaperEngine extends Engine implements
             GestureDetector.OnGestureListener,
             GestureDetector.OnDoubleTapListener,
-            FieldAsyncTask.FieldAsyncTaskListener {
+            WallpaperListener {
 
         private WallpaperView fieldsView;
         private GestureDetector gestureDetector;
@@ -120,21 +120,33 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
         }
 
         @Override
-        public void onTaskStarted(FieldAsyncTask task) {
+        public void onChargeAdded(WallpaperView view, Charge charge) {
         }
 
         @Override
-        public void onTaskFinished(FieldAsyncTask task) {
-            randomise();
+        public void onChargeInverted(WallpaperView view, Charge charge) {
         }
 
         @Override
-        public void onTaskCancelled(FieldAsyncTask task) {
+        public void onRenderFieldStarted(WallpaperView view) {
         }
 
         @Override
-        public void repaint(FieldAsyncTask task) {
-            draw();
+        public void onRenderFieldFinished(WallpaperView view) {
+            if (view == fieldsView) {
+                randomise();
+            }
+        }
+
+        @Override
+        public void onRenderFieldCancelled(WallpaperView view) {
+        }
+
+        @Override
+        public void onDraw(WallpaperView view) {
+            if (view == fieldsView) {
+                draw();
+            }
         }
 
         public void draw() {

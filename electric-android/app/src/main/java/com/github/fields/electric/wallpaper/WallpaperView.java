@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import com.github.fields.electric.Charge;
 import com.github.fields.electric.FieldAsyncTask;
 import com.github.fields.electric.R;
-import com.github.fields.electric.wallpaper.ElectricFieldsWallpaperService.ElectricFieldsWallpaperEngine;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -27,13 +26,13 @@ public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
     private Bitmap bitmap;
     private FieldAsyncTask task;
     private int sameChargeDistance;
-    private final ElectricFieldsWallpaperEngine listener;
+    private WallpaperListener listener;
 
-    public WallpaperView(Context context, ElectricFieldsWallpaperEngine listener) {
+    public WallpaperView(Context context, WallpaperListener listener) {
         Resources res = context.getResources();
         sameChargeDistance = res.getDimensionPixelSize(R.dimen.same_charge);
         sameChargeDistance = sameChargeDistance * sameChargeDistance;
-        this.listener = listener;
+        setWallpaperListener(listener);
     }
 
     public boolean addCharge(int x, int y, double size) {
@@ -43,6 +42,9 @@ public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
     public boolean addCharge(Charge charge) {
         if (charges.size() < MAX_CHARGES) {
             if (charges.add(charge)) {
+                if (listener != null) {
+                    listener.onChargeAdded(this, charge);
+                }
                 return true;
             }
         }
@@ -53,6 +55,9 @@ public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
         Charge charge = findCharge(x, y);
         if (charge != null) {
             charge.size = -charge.size;
+            if (listener != null) {
+                listener.onChargeInverted(this, charge);
+            }
             return true;
         }
         return false;
@@ -120,25 +125,49 @@ public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
         start();
     }
 
+    /**
+     * Set the listener for events.
+     *
+     * @param listener the listener.
+     */
+    public void setWallpaperListener(WallpaperListener listener) {
+        this.listener = listener;
+    }
+
     @Override
     public void onTaskStarted(FieldAsyncTask task) {
+        if (listener != null) {
+            listener.onRenderFieldStarted(this);
+        }
     }
 
     @Override
     public void onTaskFinished(FieldAsyncTask task) {
         if (task == this.task) {
-            listener.draw();
+            if (listener != null) {
+                invalidate();
+                listener.onRenderFieldFinished(this);
+            }
             clear();
         }
     }
 
     @Override
     public void onTaskCancelled(FieldAsyncTask task) {
+        if (listener != null) {
+            listener.onRenderFieldCancelled(this);
+        }
     }
 
     @Override
     public void repaint(FieldAsyncTask task) {
-        listener.draw();
+        invalidate();
+    }
+
+    private void invalidate() {
+        if (listener != null) {
+            listener.onDraw(this);
+        }
     }
 
     public void setSize(int width, int height) {
