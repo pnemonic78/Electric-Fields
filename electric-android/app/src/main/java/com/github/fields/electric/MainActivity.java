@@ -250,7 +250,7 @@ public class MainActivity extends Activity implements
     public void onRenderFieldStarted(ElectricFieldsView view) {
         if (view == fieldsView) {
             if (menuStop != null) {
-                menuStop.setEnabled(true);
+                menuStop.setEnabled(view.isRendering());
             }
         }
     }
@@ -259,7 +259,7 @@ public class MainActivity extends Activity implements
     public void onRenderFieldFinished(ElectricFieldsView view) {
         if (view == fieldsView) {
             if (menuStop != null) {
-                menuStop.setEnabled(false);
+                menuStop.setEnabled(view.isRendering());
             }
             Toast.makeText(this, R.string.finished, Toast.LENGTH_SHORT).show();
         }
@@ -269,7 +269,7 @@ public class MainActivity extends Activity implements
     public void onRenderFieldCancelled(ElectricFieldsView view) {
         if (view == fieldsView) {
             if (menuStop != null) {
-                menuStop.setEnabled(false);
+                menuStop.setEnabled(view.isRendering());
             }
         }
     }

@@ -95,7 +95,7 @@ public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
      * Start the task.
      */
     public void start() {
-        if ((task == null) || task.isCancelled() || (task.getStatus() == AsyncTask.Status.FINISHED)) {
+        if (!isRendering()) {
             task = new FieldAsyncTask(this, new Canvas(bitmap));
             task.setSaturation(0.5f);
             task.setBrightness(0.5f);
@@ -172,5 +172,14 @@ public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
 
     public int getHeight() {
         return height;
+    }
+
+    /**
+     * Is the task busy rendering the fields?
+     *
+     * @return {@code true} if rendering.
+     */
+    public boolean isRendering() {
+        return (task != null) && !task.isCancelled() && (task.getStatus() != AsyncTask.Status.FINISHED);
     }
 }

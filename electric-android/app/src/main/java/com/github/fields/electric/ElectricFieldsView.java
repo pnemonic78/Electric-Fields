@@ -132,7 +132,7 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
      * Start the task.
      */
     public void start() {
-        if ((task == null) || task.isCancelled() || (task.getStatus() == AsyncTask.Status.FINISHED)) {
+        if (!isRendering()) {
             task = new FieldAsyncTask(this, new Canvas(getBitmap()));
             task.execute(charges.toArray(new Charge[charges.size()]));
         }
@@ -256,6 +256,15 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
             }
             restart();
         }
+    }
+
+    /**
+     * Is the task busy rendering the fields?
+     *
+     * @return {@code true} if rendering.
+     */
+    public boolean isRendering() {
+        return (task != null) && !task.isCancelled() && (task.getStatus() != AsyncTask.Status.FINISHED);
     }
 
     public static class SavedState extends BaseSavedState {
