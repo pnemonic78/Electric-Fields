@@ -65,6 +65,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Canvas, Canvas> {
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF rect = new RectF();
     private final float[] hsv = {0f, 1f, 1f};
+    private long startDelay = 0L;
 
     public FieldAsyncTask(FieldAsyncTaskListener listener, Canvas canvas) {
         this.listener = listener;
@@ -84,6 +85,12 @@ public class FieldAsyncTask extends AsyncTask<Charge, Canvas, Canvas> {
 
     @Override
     protected Canvas doInBackground(Charge... params) {
+        try {
+            Thread.sleep(startDelay);
+        } catch (InterruptedException e) {
+            // Ignore.
+        }
+
         final ChargeHolder[] charges = ChargeHolder.toChargedParticles(params);
         int w = canvas.getWidth();
         int h = canvas.getHeight();
@@ -98,49 +105,47 @@ public class FieldAsyncTask extends AsyncTask<Charge, Canvas, Canvas> {
 
         // Make "resolution2" a power of 2, so that "resolution" is always divisible by 2.
         int resolution2 = 1 << shifts;
-        int resolution = resolution2 >> 1;
+        int resolution = resolution2;
 
         canvas.drawColor(Color.WHITE);
         plot(charges, canvas, 0, 0, resolution, resolution, density);
 
-        int x, y;
         int x1, y1, x2, y2;
 
         do {
-            y = 0;
+            y1 = 0;
+            y2 = resolution;
 
-            do {
-                y1 = y;
-                y2 = y + resolution;
-                x = resolution;
+            while (y1 < h) {
+                x1 = 0;
+                x2 = resolution;
 
-                do {
-                    x1 = x - resolution;
-                    x2 = x;
-
+                while (x1 < w) {
                     plot(charges, canvas, x1, y2, resolution, resolution, density);
                     plot(charges, canvas, x2, y1, resolution, resolution, density);
                     plot(charges, canvas, x2, y2, resolution, resolution, density);
-                    listener.repaint(this);
 
-                    x += resolution2;
+                    x1 += resolution2;
+                    x2 += resolution2;
                     if (isCancelled()) {
                         return null;
                     }
-                } while ((x <= w) && !isCancelled());
+                }
+                listener.repaint(this);
 
-                y += resolution2;
+                y1 += resolution2;
+                y2 += resolution2;
                 if (isCancelled()) {
                     return null;
                 }
-            } while ((y <= h) && !isCancelled());
+            }
 
             resolution2 = resolution;
             resolution = resolution2 >> 1;
             if (isCancelled()) {
                 return null;
             }
-        } while ((resolution >= 1) && !isCancelled());
+        } while (resolution >= 1);
 
         return canvas;
     }
@@ -213,6 +218,15 @@ public class FieldAsyncTask extends AsyncTask<Charge, Canvas, Canvas> {
      */
     public void setBrightness(float value) {
         hsv[2] = value;
+    }
+
+    /**
+     * Set the start delay.
+     *
+     * @param delay the start delay, in milliseconds.
+     */
+    public void setStartDelay(long delay) {
+        startDelay = delay;
     }
 
     private static class ChargeHolder {

@@ -53,6 +53,11 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
             GestureDetector.OnDoubleTapListener,
             WallpaperListener {
 
+        /**
+         * Enough time for user to admire the wallpaper before starting the next rendition.
+         */
+        private static final long DELAY = 10 * DateUtils.SECOND_IN_MILLIS;
+
         private WallpaperView fieldsView;
         private GestureDetector gestureDetector;
         private final Random random = new Random();
@@ -109,6 +114,15 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
          * Add random charges.
          */
         private void randomise() {
+            randomise(0L);
+        }
+
+        /**
+         * Add random charges.
+         *
+         * @param delay the start delay, in milliseconds.
+         */
+        private void randomise(long delay) {
             int w = fieldsView.getWidth();
             int h = fieldsView.getHeight();
             int count = 1 + random.nextInt(ElectricFieldsView.MAX_CHARGES);
@@ -116,7 +130,7 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
             for (int i = 0; i < count; i++) {
                 fieldsView.addCharge(random.nextInt(w), random.nextInt(h), (random.nextBoolean() ? +1 : -1) * (1 + (random.nextDouble() * 20)));
             }
-            fieldsView.restart();
+            fieldsView.restart(delay);
         }
 
         @Override
@@ -134,7 +148,7 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
         @Override
         public void onRenderFieldFinished(WallpaperView view) {
             if (view == fieldsView) {
-                randomise();
+                randomise(DELAY);
             }
         }
 

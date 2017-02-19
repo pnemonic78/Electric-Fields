@@ -100,10 +100,20 @@ public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
      * Start the task.
      */
     public void start() {
+        start(0L);
+    }
+
+    /**
+     * Start the task.
+     *
+     * @param delay the start delay, in milliseconds.
+     */
+    public void start(long delay) {
         if (!isRendering()) {
             task = new FieldAsyncTask(this, new Canvas(bitmap));
             task.setSaturation(0.5f);
             task.setBrightness(0.5f);
+            task.setStartDelay(delay);
             task.execute(charges.toArray(new Charge[charges.size()]));
         }
     }
@@ -121,8 +131,17 @@ public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
      * Restart the task with modified charges.
      */
     public void restart() {
+        restart(0L);
+    }
+
+    /**
+     * Restart the task with modified charges.
+     *
+     * @param delay the start delay, in milliseconds.
+     */
+    public void restart(long delay) {
         cancel();
-        start();
+        start(delay);
     }
 
     /**
@@ -191,7 +210,7 @@ public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
                 bitmap = Bitmap.createScaledBitmap(rotated, width, height, true);
             }
         } else {
-            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
         }
     }
 
