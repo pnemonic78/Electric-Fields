@@ -34,7 +34,7 @@ import java.util.Random;
 /**
  * Electric Fields wallpaper service.
  *
- * @author moshe.w
+ * @author Moshe Waisberg
  */
 public class ElectricFieldsWallpaperService extends WallpaperService {
 
@@ -46,7 +46,7 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
     /**
      * Electric Fields wallpaper engine.
      *
-     * @author moshe.w
+     * @author Moshe Waisberg
      */
     protected class ElectricFieldsWallpaperEngine extends Engine implements
             GestureDetector.OnGestureListener,
