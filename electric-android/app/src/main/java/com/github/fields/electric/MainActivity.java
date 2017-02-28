@@ -177,6 +177,7 @@ public class MainActivity extends Activity implements
         getMenuInflater().inflate(R.menu.main, menu);
 
         menuStop = menu.findItem(R.id.menu_stop);
+        menuStop.setEnabled(fieldsView.isRendering());
 
         return true;
     }
