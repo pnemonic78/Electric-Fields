@@ -28,6 +28,14 @@ public interface ElectricFieldsListener {
 
     void onChargeInverted(ElectricFieldsView view, Charge charge);
 
+    boolean onChargeScaleBegin(ElectricFieldsView view, Charge charge);
+
+    boolean onChargeScale(ElectricFieldsView view, Charge charge);
+
+    boolean onChargeScaleEnd(ElectricFieldsView view, Charge charge);
+
+    boolean onRenderFieldClicked(ElectricFieldsView view, int x, int y, double size);
+
     void onRenderFieldStarted(ElectricFieldsView view);
 
     void onRenderFieldFinished(ElectricFieldsView view);

@@ -25,8 +25,13 @@ import android.graphics.Matrix;
 import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemClock;
+import android.text.format.DateUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -38,15 +43,23 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author Moshe Waisberg
  */
-public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyncTaskListener {
+public class ElectricFieldsView extends View implements
+        FieldAsyncTask.FieldAsyncTaskListener,
+        GestureDetector.OnGestureListener,
+        GestureDetector.OnDoubleTapListener,
+        ScaleGestureDetector.OnScaleGestureListener {
 
     public static final int MAX_CHARGES = 10;
 
     private final List<Charge> charges = new CopyOnWriteArrayList<>();
     private Bitmap bitmap;
     private FieldAsyncTask task;
-    private int sameChargeDistance;
     private ElectricFieldsListener listener;
+    private GestureDetector gestureDetector;
+    private ScaleGestureDetector scaleGestureDetector;
+    private int sameChargeDistance;
+    private Charge chargeToScale;
+    private float scaleFactor = 1f;
 
     public ElectricFieldsView(Context context) {
         super(context);
@@ -67,6 +80,9 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
         Resources res = context.getResources();
         sameChargeDistance = res.getDimensionPixelSize(R.dimen.same_charge);
         sameChargeDistance = sameChargeDistance * sameChargeDistance;
+
+        gestureDetector = new GestureDetector(context, this);
+        scaleGestureDetector = new ScaleGestureDetector(context, this);
     }
 
     public boolean addCharge(int x, int y, double size) {
@@ -265,6 +281,87 @@ public class ElectricFieldsView extends View implements FieldAsyncTask.FieldAsyn
      */
     public boolean isRendering() {
         return (task != null) && !task.isCancelled() && (task.getStatus() != AsyncTask.Status.FINISHED);
+    }
+
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        int x = (int) e.getX();
+        int y = (int) e.getY();
+        long duration = Math.min(SystemClock.uptimeMillis() - e.getDownTime(), DateUtils.SECOND_IN_MILLIS);
+        double size = 1.0 + (int) (duration / 20L);
+        return (listener != null) && listener.onRenderFieldClicked(this, x, y, size);
+    }
+
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        return false;
+    }
+
+    @Override
+    public boolean onScaleBegin(ScaleGestureDetector detector) {
+        scaleFactor = 1f;
+        int x = (int) detector.getFocusX();
+        int y = (int) detector.getFocusY();
+        chargeToScale = findCharge(x, y);
+        return (listener != null) && listener.onChargeScaleBegin(this, chargeToScale);
+    }
+
+    @Override
+    public boolean onScale(ScaleGestureDetector detector) {
+        scaleFactor *= detector.getScaleFactor();
+        return (listener != null) && (listener.onChargeScale(this, chargeToScale));
+    }
+
+    @Override
+    public void onScaleEnd(ScaleGestureDetector detector) {
+        if (chargeToScale != null) {
+            chargeToScale.size *= scaleFactor;
+        }
+        if (listener != null) {
+            listener.onChargeScaleEnd(this, chargeToScale);
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        boolean result = scaleGestureDetector.onTouchEvent(event);
+        result = gestureDetector.onTouchEvent(event) || result;
+        return result || super.onTouchEvent(event);
     }
 
     public static class SavedState extends BaseSavedState {

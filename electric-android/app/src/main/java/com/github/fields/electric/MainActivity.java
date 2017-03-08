@@ -25,13 +25,8 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.text.format.DateUtils;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -44,10 +39,6 @@ import java.util.Random;
  * @author Moshe Waisberg
  */
 public class MainActivity extends Activity implements
-        View.OnTouchListener,
-        GestureDetector.OnGestureListener,
-        GestureDetector.OnDoubleTapListener,
-        ScaleGestureDetector.OnScaleGestureListener,
         ElectricFieldsListener {
 
     private static final String TAG = "MainActivity";
@@ -55,11 +46,7 @@ public class MainActivity extends Activity implements
     private static final int REQUEST_SAVE = 1;
 
     private ElectricFieldsView fieldsView;
-    private GestureDetector gestureDetector;
-    private ScaleGestureDetector scaleGestureDetector;
     private AsyncTask saveTask;
-    private Charge chargeToScale;
-    private float scaleFactor = 1f;
     private final Random random = new Random();
     private MenuItem menuStop;
 
@@ -68,108 +55,13 @@ public class MainActivity extends Activity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         fieldsView = (ElectricFieldsView) findViewById(R.id.electric_fields);
-        fieldsView.setOnTouchListener(this);
         fieldsView.setElectricFieldsListener(this);
-
-        gestureDetector = new GestureDetector(this, this);
-        scaleGestureDetector = new ScaleGestureDetector(this, this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         fieldsView.cancel();
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        if (v == fieldsView) {
-            boolean result = scaleGestureDetector.onTouchEvent(event);
-            result = gestureDetector.onTouchEvent(event) || result;
-            return result || super.onTouchEvent(event);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean onDown(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        return false;
-    }
-
-    @Override
-    public void onLongPress(MotionEvent e) {
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        return false;
-    }
-
-    @Override
-    public void onShowPress(MotionEvent e) {
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean onDoubleTap(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean onDoubleTapEvent(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean onSingleTapConfirmed(MotionEvent e) {
-        fieldClicked(e);
-        return true;
-    }
-
-    @Override
-    public boolean onScaleBegin(ScaleGestureDetector detector) {
-        scaleFactor = 1f;
-        float x = detector.getFocusX();
-        float y = detector.getFocusY();
-        chargeToScale = fieldsView.findCharge((int) x, (int) y);
-        return chargeToScale != null;
-    }
-
-    @Override
-    public boolean onScale(ScaleGestureDetector detector) {
-        scaleFactor *= detector.getScaleFactor();
-        return chargeToScale != null;
-    }
-
-    @Override
-    public void onScaleEnd(ScaleGestureDetector detector) {
-        if ((chargeToScale != null) && (scaleFactor != 1f)) {
-            chargeToScale.size *= scaleFactor;
-            fieldsView.restart();
-        }
-    }
-
-    private void fieldClicked(MotionEvent e) {
-        int x = (int) e.getX();
-        int y = (int) e.getY();
-        long duration = Math.min(SystemClock.uptimeMillis() - e.getDownTime(), DateUtils.SECOND_IN_MILLIS);
-        double size = 1.0 + (int) (duration / 20L);
-        fieldClicked(x, y, size);
-    }
-
-    private void fieldClicked(int x, int y, double size) {
-        if (fieldsView.invertCharge(x, y) || fieldsView.addCharge(x, y, size)) {
-            fieldsView.restart();
-        }
     }
 
     @Override
@@ -244,6 +136,34 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onChargeInverted(ElectricFieldsView view, Charge charge) {
+    }
+
+    @Override
+    public boolean onChargeScaleBegin(ElectricFieldsView view, Charge charge) {
+        return charge != null;
+    }
+
+    @Override
+    public boolean onChargeScale(ElectricFieldsView view, Charge charge) {
+        return charge != null;
+    }
+
+    @Override
+    public boolean onChargeScaleEnd(ElectricFieldsView view, Charge charge) {
+        if (charge != null) {
+            fieldsView.restart();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onRenderFieldClicked(ElectricFieldsView view, int x, int y, double size) {
+        if (fieldsView.invertCharge(x, y) || fieldsView.addCharge(x, y, size)) {
+            fieldsView.restart();
+            return true;
+        }
+        return false;
     }
 
     @Override
