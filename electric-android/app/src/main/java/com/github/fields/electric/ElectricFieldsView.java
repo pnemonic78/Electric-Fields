@@ -30,6 +30,7 @@ import android.text.format.DateUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
+import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -289,7 +290,11 @@ public class ElectricFieldsView extends View implements
         int y = (int) e.getY();
         long duration = Math.min(SystemClock.uptimeMillis() - e.getDownTime(), DateUtils.SECOND_IN_MILLIS);
         double size = 1.0 + (int) (duration / 20L);
-        return (listener != null) && listener.onRenderFieldClicked(this, x, y, size);
+        if ((listener != null) && listener.onRenderFieldClicked(this, x, y, size)) {
+            performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+            return true;
+        }
+        return false;
     }
 
     @Override
