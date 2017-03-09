@@ -69,6 +69,7 @@ public class MainActivity extends Activity implements
         getMenuInflater().inflate(R.menu.main, menu);
 
         menuStop = menu.findItem(R.id.menu_stop);
+        menuStop.setEnabled(fieldsView.isRendering());
 
         return true;
     }
@@ -179,7 +180,7 @@ public class MainActivity extends Activity implements
     public void onRenderFieldFinished(ElectricFieldsView view) {
         if (view == fieldsView) {
             if (menuStop != null) {
-                menuStop.setEnabled(view.isRendering());
+                menuStop.setEnabled(false);
             }
             Toast.makeText(this, R.string.finished, Toast.LENGTH_SHORT).show();
         }
@@ -189,7 +190,7 @@ public class MainActivity extends Activity implements
     public void onRenderFieldCancelled(ElectricFieldsView view) {
         if (view == fieldsView) {
             if (menuStop != null) {
-                menuStop.setEnabled(view.isRendering());
+                menuStop.setEnabled(false);
             }
         }
     }
