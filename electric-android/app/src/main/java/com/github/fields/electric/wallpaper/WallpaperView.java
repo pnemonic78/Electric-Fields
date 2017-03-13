@@ -23,6 +23,10 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.os.AsyncTask;
+import android.os.SystemClock;
+import android.text.format.DateUtils;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 
 import com.github.fields.electric.Charge;
 import com.github.fields.electric.FieldAsyncTask;
@@ -38,7 +42,10 @@ import static com.github.fields.electric.ElectricFieldsView.MAX_CHARGES;
  *
  * @author Moshe Waisberg
  */
-public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
+public class WallpaperView implements
+        FieldAsyncTask.FieldAsyncTaskListener,
+        GestureDetector.OnGestureListener,
+        GestureDetector.OnDoubleTapListener {
 
     private int width, height;
     private final List<Charge> charges = new CopyOnWriteArrayList<>();
@@ -46,11 +53,13 @@ public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
     private FieldAsyncTask task;
     private int sameChargeDistance;
     private WallpaperListener listener;
+    private GestureDetector gestureDetector;
 
     public WallpaperView(Context context, WallpaperListener listener) {
         Resources res = context.getResources();
         sameChargeDistance = res.getDimensionPixelSize(R.dimen.same_charge);
         sameChargeDistance = sameChargeDistance * sameChargeDistance;
+        gestureDetector = new GestureDetector(context, this);
         setWallpaperListener(listener);
     }
 
@@ -248,5 +257,56 @@ public class WallpaperView implements FieldAsyncTask.FieldAsyncTaskListener {
      */
     public boolean isRendering() {
         return (task != null) && !task.isCancelled() && (task.getStatus() != AsyncTask.Status.FINISHED);
+    }
+
+    public void onTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        return false;
+    }
+
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        int x = (int) e.getX();
+        int y = (int) e.getY();
+        long duration = Math.min(SystemClock.uptimeMillis() - e.getDownTime(), DateUtils.SECOND_IN_MILLIS);
+        double size = 1.0 + (int) (duration / 20L);
+        return (listener != null) && listener.onRenderFieldClicked(this, x, y, size);
+    }
+
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent e) {
+        return false;
     }
 }

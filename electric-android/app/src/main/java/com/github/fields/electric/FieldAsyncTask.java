@@ -85,10 +85,12 @@ public class FieldAsyncTask extends AsyncTask<Charge, Canvas, Canvas> {
 
     @Override
     protected Canvas doInBackground(Charge... params) {
-        try {
-            Thread.sleep(startDelay);
-        } catch (InterruptedException e) {
-            // Ignore.
+        if (startDelay > 0L) {
+            try {
+                Thread.sleep(startDelay);
+            } catch (InterruptedException e) {
+                // Ignore.
+            }
         }
 
         final ChargeHolder[] charges = ChargeHolder.toChargedParticles(params);

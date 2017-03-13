@@ -19,10 +19,8 @@ package com.github.fields.electric.wallpaper;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.os.SystemClock;
 import android.service.wallpaper.WallpaperService;
 import android.text.format.DateUtils;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
@@ -49,8 +47,6 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
      * @author Moshe Waisberg
      */
     protected class ElectricFieldsWallpaperEngine extends Engine implements
-            GestureDetector.OnGestureListener,
-            GestureDetector.OnDoubleTapListener,
             WallpaperListener {
 
         /**
@@ -59,7 +55,6 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
         private static final long DELAY = 10 * DateUtils.SECOND_IN_MILLIS;
 
         private WallpaperView fieldsView;
-        private GestureDetector gestureDetector;
         private final Random random = new Random();
         private boolean drawing;
 
@@ -70,8 +65,6 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
 
             Context context = ElectricFieldsWallpaperService.this;
             fieldsView = new WallpaperView(context, this);
-
-            gestureDetector = new GestureDetector(context, this);
         }
 
         @Override
@@ -98,7 +91,7 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
 
         @Override
         public void onTouchEvent(MotionEvent event) {
-            gestureDetector.onTouchEvent(event);
+            fieldsView.onTouchEvent(event);
         }
 
         @Override
@@ -142,6 +135,15 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
         }
 
         @Override
+        public boolean onRenderFieldClicked(WallpaperView view, int x, int y, double size) {
+            if (fieldsView.invertCharge(x, y) || fieldsView.addCharge(x, y, size)) {
+                fieldsView.restart();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
         public void onRenderFieldStarted(WallpaperView view) {
         }
 
@@ -181,64 +183,6 @@ public class ElectricFieldsWallpaperService extends WallpaperService {
                 }
             }
             drawing = false;
-        }
-
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return false;
-        }
-
-        @Override
-        public void onShowPress(MotionEvent e) {
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            return false;
-        }
-
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            return false;
-        }
-
-        @Override
-        public void onLongPress(MotionEvent e) {
-        }
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            return false;
-        }
-
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            fieldClicked(e);
-            return true;
-        }
-
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-            return false;
-        }
-
-        @Override
-        public boolean onDoubleTapEvent(MotionEvent e) {
-            return false;
-        }
-
-        private void fieldClicked(MotionEvent e) {
-            int x = (int) e.getX();
-            int y = (int) e.getY();
-            long duration = Math.min(SystemClock.uptimeMillis() - e.getDownTime(), DateUtils.SECOND_IN_MILLIS);
-            double size = 1.0 + (int) (duration / 20L);
-            fieldClicked(x, y, size);
-        }
-
-        private void fieldClicked(int x, int y, double size) {
-            if (fieldsView.invertCharge(x, y) || fieldsView.addCharge(x, y, size)) {
-                fieldsView.restart();
-            }
         }
     }
 }

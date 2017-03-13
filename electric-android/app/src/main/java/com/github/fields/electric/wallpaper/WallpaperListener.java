@@ -30,6 +30,8 @@ public interface WallpaperListener {
 
     void onChargeInverted(WallpaperView view, Charge charge);
 
+    boolean onRenderFieldClicked(WallpaperView view, int x, int y, double size);
+
     void onRenderFieldStarted(WallpaperView view);
 
     void onRenderFieldFinished(WallpaperView view);
