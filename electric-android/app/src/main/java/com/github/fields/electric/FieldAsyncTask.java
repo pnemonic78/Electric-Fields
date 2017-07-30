@@ -236,7 +236,7 @@ public class FieldAsyncTask extends AsyncTask<Charge, Canvas, Canvas> {
         public final double sizeSqr;
 
         public ChargeHolder(Charge charge) {
-            this(charge.x, charge.y, charge.size);
+            this(charge.x, charge.y, charge.getSize());
         }
 
         public ChargeHolder(int x, int y, double size) {

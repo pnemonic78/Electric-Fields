@@ -103,7 +103,7 @@ public class ElectricFieldsView extends View implements
     public boolean invertCharge(int x, int y) {
         Charge charge = findCharge(x, y);
         if (charge != null) {
-            charge.size = -charge.size;
+            charge.setSize(-charge.getSize());
             if (listener != null) {
                 listener.onChargeInverted(this, charge);
             }
@@ -353,7 +353,7 @@ public class ElectricFieldsView extends View implements
     @Override
     public void onScaleEnd(ScaleGestureDetector detector) {
         if (chargeToScale != null) {
-            chargeToScale.size *= scaleFactor;
+            chargeToScale.setSize(chargeToScale.getSize() * scaleFactor);
         }
         if (listener != null) {
             listener.onChargeScaleEnd(this, chargeToScale);
@@ -374,7 +374,7 @@ public class ElectricFieldsView extends View implements
         protected SavedState(Parcel source) {
             super(source);
             charges = new ArrayList<>();
-            source.readTypedList(charges, Charge.CREATOR);
+            source.readTypedList(charges, Charge.Companion.getCREATOR());
         }
 
         protected SavedState(Parcelable superState) {

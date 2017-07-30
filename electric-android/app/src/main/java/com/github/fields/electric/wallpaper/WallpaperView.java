@@ -80,7 +80,7 @@ public class WallpaperView implements
     public boolean invertCharge(int x, int y) {
         Charge charge = findCharge(x, y);
         if (charge != null) {
-            charge.size = -charge.size;
+            charge.setSize(-charge.getSize());
             if (listener != null) {
                 listener.onChargeInverted(this, charge);
             }
