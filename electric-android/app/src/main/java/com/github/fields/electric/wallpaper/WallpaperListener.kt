@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.fields.electric.wallpaper;
+package com.github.fields.electric.wallpaper
 
-import com.github.fields.electric.Charge;
+import com.github.fields.electric.Charge
 
 /**
  * Electric fields event listener for live wallpaper.
- *
+
  * @author Moshe Waisberg
  */
-public interface WallpaperListener {
+interface WallpaperListener {
 
-    void onChargeAdded(WallpaperView view, Charge charge);
+    fun onChargeAdded(view: WallpaperView, charge: Charge)
 
-    void onChargeInverted(WallpaperView view, Charge charge);
+    fun onChargeInverted(view: WallpaperView, charge: Charge)
 
-    boolean onRenderFieldClicked(WallpaperView view, int x, int y, double size);
+    fun onRenderFieldClicked(view: WallpaperView, x: Int, y: Int, size: Double): Boolean
 
-    void onRenderFieldStarted(WallpaperView view);
+    fun onRenderFieldStarted(view: WallpaperView)
 
-    void onRenderFieldFinished(WallpaperView view);
+    fun onRenderFieldFinished(view: WallpaperView)
 
-    void onRenderFieldCancelled(WallpaperView view);
+    fun onRenderFieldCancelled(view: WallpaperView)
 
-    void onDraw(WallpaperView view);
+    fun onDraw(view: WallpaperView)
 }
