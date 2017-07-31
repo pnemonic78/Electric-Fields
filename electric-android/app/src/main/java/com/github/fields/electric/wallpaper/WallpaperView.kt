@@ -100,7 +100,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
             charge = charges[i]
             dx = x - charge.x
             dy = y - charge.y
-            d = dx * dx + dy * dy
+            d = (dx * dx) + (dy * dy)
             if ((d <= sameChargeDistance) && (d < dMin)) {
                 chargeNearest = charge
                 dMin = d
@@ -124,7 +124,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     /**
      * Start the task.
-
      * @param delay the start delay, in milliseconds.
      */
     fun start(delay: Long = 0L) {
@@ -173,8 +172,8 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     override fun onTaskFinished(task: FieldAsyncTask) {
         if (task === this.task) {
+            invalidate()
             if (listener != null) {
-                invalidate()
                 listener!!.onRenderFieldFinished(this)
             }
             clear()
@@ -206,7 +205,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
             val bw = bitmapOld.width
             val bh = bitmapOld.height
 
-            if (width != bw || height != bh) {
+            if ((width != bw) || (height != bh)) {
                 val m = Matrix()
                 // Changed orientation?
                 if (width < bw && height > bh) {// Portrait?
@@ -224,43 +223,10 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     /**
      * Is the task busy rendering the fields?
-
      * @return `true` if rendering.
      */
     val isRendering: Boolean
-        get() = task != null && !task!!.isCancelled && task!!.status != AsyncTask.Status.FINISHED
-
-    fun onTouchEvent(event: MotionEvent) {
-        gestureDetector.onTouchEvent(event)
-    }
-
-    override fun onDown(e: MotionEvent): Boolean {
-        return false
-    }
-
-    override fun onShowPress(e: MotionEvent) {}
-
-    override fun onSingleTapUp(e: MotionEvent): Boolean {
-        return false
-    }
-
-    override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
-        return false
-    }
-
-    override fun onLongPress(e: MotionEvent) {}
-
-    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-        return false
-    }
-
-    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        val x = e.x.toInt()
-        val y = e.y.toInt()
-        val duration = Math.min(SystemClock.uptimeMillis() - e.downTime, DateUtils.SECOND_IN_MILLIS)
-        val size = 1.0 + (duration / 20L).toDouble()
-        return listener != null && listener!!.onRenderFieldClicked(this, x, y, size)
-    }
+        get() = (task != null) && !task!!.isCancelled && (task!!.status != AsyncTask.Status.FINISHED)
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         return false
@@ -268,5 +234,37 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     override fun onDoubleTapEvent(e: MotionEvent): Boolean {
         return false
+    }
+
+    override fun onDown(e: MotionEvent): Boolean {
+        return false
+    }
+
+    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        return false
+    }
+
+    override fun onLongPress(e: MotionEvent) {}
+
+    override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        return false
+    }
+
+    override fun onShowPress(e: MotionEvent) {}
+
+    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+        val x = e.x.toInt()
+        val y = e.y.toInt()
+        val duration = Math.min(SystemClock.uptimeMillis() - e.downTime, DateUtils.SECOND_IN_MILLIS)
+        val size = 1.0 + (duration / 20L).toDouble()
+        return (listener != null) && listener!!.onRenderFieldClicked(this, x, y, size)
+    }
+
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
+        return false
+    }
+
+    fun onTouchEvent(event: MotionEvent) {
+        gestureDetector.onTouchEvent(event)
     }
 }

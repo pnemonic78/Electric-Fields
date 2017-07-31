@@ -72,7 +72,6 @@ class ElectricFieldsView : View,
         val res = context.resources
         sameChargeDistance = res.getDimensionPixelSize(R.dimen.same_charge)
         sameChargeDistance *= sameChargeDistance
-
         gestureDetector = GestureDetector(context, this)
         scaleGestureDetector = ScaleGestureDetector(context, this)
     }
@@ -263,23 +262,10 @@ class ElectricFieldsView : View,
 
     /**
      * Is the task busy rendering the fields?
-     *
-     * @return {@code true} if rendering.
+     * @return `true` if rendering.
      */
     val isRendering: Boolean
         get() = (task != null) && !task!!.isCancelled && (task!!.status != AsyncTask.Status.FINISHED)
-
-    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        val x = e.x.toInt()
-        val y = e.y.toInt()
-        val duration = Math.min(SystemClock.uptimeMillis() - e.downTime, DateUtils.SECOND_IN_MILLIS)
-        val size = 1.0 + (duration / 20L).toDouble()
-        if (listener != null && listener!!.onRenderFieldClicked(this, x, y, size)) {
-            performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-            return true
-        }
-        return false
-    }
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         return false
@@ -293,23 +279,13 @@ class ElectricFieldsView : View,
         return false
     }
 
-    override fun onShowPress(e: MotionEvent) {
-
-    }
-
-    override fun onSingleTapUp(e: MotionEvent): Boolean {
+    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
         return false
     }
+
+    override fun onLongPress(e: MotionEvent) {}
 
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
-        return false
-    }
-
-    override fun onLongPress(e: MotionEvent) {
-
-    }
-
-    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
         return false
     }
 
@@ -333,6 +309,24 @@ class ElectricFieldsView : View,
                 listener!!.onChargeScaleEnd(this, chargeToScale!!)
             }
         }
+    }
+
+    override fun onShowPress(e: MotionEvent) {}
+
+    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+        val x = e.x.toInt()
+        val y = e.y.toInt()
+        val duration = Math.min(SystemClock.uptimeMillis() - e.downTime, DateUtils.SECOND_IN_MILLIS)
+        val size = 1.0 + (duration / 20L).toDouble()
+        if ((listener != null) && listener!!.onRenderFieldClicked(this, x, y, size)) {
+            performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            return true
+        }
+        return false
+    }
+
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
+        return false
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
