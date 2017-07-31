@@ -102,7 +102,7 @@ public class MainActivity extends Activity implements
     private void randomise() {
         int w = fieldsView.getMeasuredWidth();
         int h = fieldsView.getMeasuredHeight();
-        int count = 1 + random.nextInt(ElectricFieldsView.MAX_CHARGES);
+        int count = 1 + random.nextInt(ElectricFieldsView.Companion.getMAX_CHARGES());
         fieldsView.clear();
         for (int i = 0; i < count; i++) {
             fieldsView.addCharge(random.nextInt(w), random.nextInt(h), (random.nextBoolean() ? +1 : -1) * (1 + (random.nextDouble() * 20)));

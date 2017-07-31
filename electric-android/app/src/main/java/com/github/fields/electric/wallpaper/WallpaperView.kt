@@ -25,7 +25,7 @@ import android.text.format.DateUtils
 import android.view.GestureDetector
 import android.view.MotionEvent
 import com.github.fields.electric.Charge
-import com.github.fields.electric.ElectricFieldsView.MAX_CHARGES
+import com.github.fields.electric.ElectricFieldsView
 import com.github.fields.electric.FieldAsyncTask
 import com.github.fields.electric.R
 import java.util.concurrent.CopyOnWriteArrayList
@@ -44,7 +44,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         private set
     var height: Int = 0
         private set
-    private val charges = CopyOnWriteArrayList<Charge>()
+    private val charges: MutableList<Charge> = CopyOnWriteArrayList<Charge>()
     private var bitmap: Bitmap? = null
     private var task: FieldAsyncTask? = null
     private var sameChargeDistance: Int = 0
@@ -64,7 +64,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     }
 
     fun addCharge(charge: Charge): Boolean {
-        if (charges.size < MAX_CHARGES) {
+        if (charges.size < ElectricFieldsView.MAX_CHARGES) {
             if (charges.add(charge)) {
                 if (listener != null) {
                     listener!!.onChargeAdded(this, charge)
