@@ -182,8 +182,8 @@ class MainActivity : Activity(),
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == REQUEST_SAVE) {
-            if ((permissions.size > 0) && (permissions[0] == Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                if ((grantResults.size > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+            if (permissions.isNotEmpty() && (permissions[0] == Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     saveToFile()
                     return
                 }
