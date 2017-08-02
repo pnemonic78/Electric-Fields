@@ -21,7 +21,7 @@ import android.os.Parcelable
 
 /**
  * Electric charge particle.
-
+ *
  * @author Moshe Waisberg
  */
 open class Charge(x: Int, y: Int, size: Double = 0.0) : Point(x, y) {

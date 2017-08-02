@@ -37,7 +37,7 @@ import java.util.*
 
 /**
  * Task to save a bitmap to a file.
-
+ *
  * @author Moshe Waisberg
  */
 class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {

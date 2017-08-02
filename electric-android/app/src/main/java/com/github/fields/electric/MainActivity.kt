@@ -31,6 +31,7 @@ import java.util.*
 
 /**
  * Main activity.
+ *
  * @author Moshe Waisberg
  */
 class MainActivity : Activity(),

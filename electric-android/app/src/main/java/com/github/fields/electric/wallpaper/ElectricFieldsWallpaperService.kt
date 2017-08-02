@@ -25,7 +25,7 @@ import java.util.*
 
 /**
  * Electric Fields wallpaper service.
-
+ *
  * @author Moshe Waisberg
  */
 class ElectricFieldsWallpaperService : WallpaperService() {
