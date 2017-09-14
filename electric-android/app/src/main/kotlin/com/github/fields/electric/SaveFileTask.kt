@@ -42,19 +42,19 @@ import java.util.*
  */
 class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {
 
-    val TAG = "SaveFileTask"
+    private val TAG = "SaveFileTask"
 
-    val REQUEST_APP = 0x0466 // "APP"
-    val REQUEST_VIEW = 0x7133 // "VIEW"
+    private val REQUEST_APP = 0x0466 // "APP"
+    private val REQUEST_VIEW = 0x7133 // "VIEW"
 
-    val ID_NOTIFY = 0x5473 // "SAVE"
+    private val ID_NOTIFY = 0x5473 // "SAVE"
 
-    val IMAGE_MIME = "image/png"
+    private val IMAGE_MIME = "image/png"
 
-    val timestampFormat: DateFormat = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US)
+    private val timestampFormat: DateFormat = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US)
 
-    var bitmap: Bitmap? = null
-    var builder: Notification.Builder? = null
+    private var bitmap: Bitmap? = null
+    private lateinit var builder: Notification.Builder
 
     override fun doInBackground(vararg params: Bitmap): Uri? {
         val folderPictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
@@ -84,9 +84,9 @@ class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {
 
         val notification: Notification
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            notification = builder!!.build()
+            notification = builder.build()
         } else {
-            notification = builder!!.notification
+            notification = builder.notification
         }
 
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -128,25 +128,25 @@ class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {
     }
 
     override fun onPostExecute(file: Uri?) {
-        builder!!.setOngoing(false)
+        builder.setOngoing(false)
 
         if (file != null && bitmap != null) {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setDataAndType(file, IMAGE_MIME)
             val pendingIntent = PendingIntent.getActivity(context, REQUEST_VIEW, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-            builder!!.setContentTitle(context.getText(R.string.saved_title))
+            builder.setContentTitle(context.getText(R.string.saved_title))
                     .setContentText(context.getText(R.string.saved_text))
                     .setContentIntent(pendingIntent)
         } else {
-            builder!!.setContentText(context.getText(R.string.save_failed))
+            builder.setContentText(context.getText(R.string.save_failed))
         }
 
         val notification: Notification
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            notification = builder!!.build()
+            notification = builder.build()
         } else {
-            notification = builder!!.notification
+            notification = builder.notification
         }
 
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

@@ -24,13 +24,7 @@ import android.os.Parcelable
  *
  * @author Moshe Waisberg
  */
-open class Charge(x: Int, y: Int, size: Double = 0.0) : Point(x, y) {
-
-    var size: Double = 0.0
-
-    init {
-        this.size = size
-    }
+open class Charge(x: Int, y: Int, var size: Double = 0.0) : Point(x, y) {
 
     /**
      * Set the point's x and y coordinates, and size.
