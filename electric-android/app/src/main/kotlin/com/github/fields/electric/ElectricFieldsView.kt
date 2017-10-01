@@ -50,8 +50,8 @@ class ElectricFieldsView : View,
     private var bitmap: Bitmap? = null
     private var task: FieldAsyncTask? = null
     private var listener: ElectricFieldsListener? = null
-    private var gestureDetector: GestureDetector? = null
-    private var scaleGestureDetector: ScaleGestureDetector? = null
+    private lateinit var gestureDetector: GestureDetector
+    private lateinit var scaleGestureDetector: ScaleGestureDetector
     private var sameChargeDistance: Int = 0
     private var chargeToScale: Charge? = null
     private var scaleFactor = 1f
@@ -330,8 +330,8 @@ class ElectricFieldsView : View,
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        var result = scaleGestureDetector!!.onTouchEvent(event)
-        result = gestureDetector!!.onTouchEvent(event) || result
+        var result = scaleGestureDetector.onTouchEvent(event)
+        result = gestureDetector.onTouchEvent(event) || result
         return result || super.onTouchEvent(event)
     }
 

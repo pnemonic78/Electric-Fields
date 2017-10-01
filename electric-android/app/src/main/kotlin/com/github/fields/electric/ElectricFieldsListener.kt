@@ -17,7 +17,7 @@ package com.github.fields.electric
 
 /**
  * Electric fields event listener.
-
+ *
  * @author Moshe Waisberg
  */
 interface ElectricFieldsListener {

@@ -37,33 +37,34 @@ import java.util.*
 
 /**
  * Task to save a bitmap to a file.
-
+ *
  * @author Moshe Waisberg
  */
 class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {
 
-    val TAG = "SaveFileTask"
+    private val TAG = "SaveFileTask"
 
-    val REQUEST_APP = 0x0466 // "APP"
-    val REQUEST_VIEW = 0x7133 // "VIEW"
+    private val REQUEST_APP = 0x0466 // "APP"
+    private val REQUEST_VIEW = 0x7133 // "VIEW"
 
-    val ID_NOTIFY = 0x5473 // "SAVE"
+    private val ID_NOTIFY = 0x5473 // "SAVE"
 
-    val IMAGE_MIME = "image/png"
+    private val IMAGE_MIME = "image/png"
 
-    val timestampFormat: DateFormat = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US)
+    private val CHANNEL_ID = "save_file"
 
-    var bitmap: Bitmap? = null
-    var builder: Notification.Builder? = null
+    private val timestampFormat: DateFormat = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US)
+
+    private lateinit var bitmap: Bitmap
+    private lateinit var builder: Notification.Builder
 
     override fun doInBackground(vararg params: Bitmap): Uri? {
+        bitmap = params[0]
+
         val folderPictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
         val folder = File(folderPictures, context.getString(R.string.app_folder_pictures))
         folder.mkdirs()
         val file = File(folder, generateFileName())
-
-        val bitmap = params[0]
-        this.bitmap = bitmap
 
         val res = context.resources
         val iconWidth = res.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
@@ -72,9 +73,18 @@ class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {
 
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
         val pendingIntent = PendingIntent.getActivity(context, REQUEST_APP, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        builder = Notification.Builder(context)
-                .setContentTitle(context.getText(R.string.saving_title))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = android.app.NotificationChannel(CHANNEL_ID, context.getText(R.string.saving_title), NotificationManager.IMPORTANCE_DEFAULT)
+            channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            nm.createNotificationChannel(channel)
+
+            builder = Notification.Builder(context, CHANNEL_ID)
+        } else {
+            builder = Notification.Builder(context)
+        }
+        builder.setContentTitle(context.getText(R.string.saving_title))
                 .setContentText(context.getText(R.string.saving_text))
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.stat_notify)
@@ -82,14 +92,12 @@ class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {
                 .setAutoCancel(true)
                 .setOngoing(true)
 
-        val notification: Notification
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            notification = builder!!.build()
+        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            builder.build()
         } else {
-            notification = builder!!.notification
+            builder.notification
         }
 
-        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nm.notify(ID_NOTIFY, notification)
 
         var url: Uri? = null
@@ -128,25 +136,24 @@ class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {
     }
 
     override fun onPostExecute(file: Uri?) {
-        builder!!.setOngoing(false)
+        builder.setOngoing(false)
 
-        if (file != null && bitmap != null) {
+        if ((file != null) && (bitmap != null)) {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setDataAndType(file, IMAGE_MIME)
             val pendingIntent = PendingIntent.getActivity(context, REQUEST_VIEW, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-            builder!!.setContentTitle(context.getText(R.string.saved_title))
+            builder.setContentTitle(context.getText(R.string.saved_title))
                     .setContentText(context.getText(R.string.saved_text))
                     .setContentIntent(pendingIntent)
         } else {
-            builder!!.setContentText(context.getText(R.string.save_failed))
+            builder.setContentText(context.getText(R.string.save_failed))
         }
 
-        val notification: Notification
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            notification = builder!!.build()
+        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            builder.build()
         } else {
-            notification = builder!!.notification
+            builder.notification
         }
 
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

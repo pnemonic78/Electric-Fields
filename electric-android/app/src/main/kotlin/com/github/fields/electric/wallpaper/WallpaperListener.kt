@@ -19,7 +19,7 @@ import com.github.fields.electric.Charge
 
 /**
  * Electric fields event listener for live wallpaper.
-
+ *
  * @author Moshe Waisberg
  */
 interface WallpaperListener {
