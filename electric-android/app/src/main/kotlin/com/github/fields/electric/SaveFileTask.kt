@@ -92,7 +92,7 @@ class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {
                 .setAutoCancel(true)
                 .setOngoing(true)
 
-        val notification: Notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             builder.build()
         } else {
             builder.notification
@@ -138,7 +138,7 @@ class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {
     override fun onPostExecute(file: Uri?) {
         builder.setOngoing(false)
 
-        if (file != null && bitmap != null) {
+        if ((file != null) && (bitmap != null)) {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setDataAndType(file, IMAGE_MIME)
             val pendingIntent = PendingIntent.getActivity(context, REQUEST_VIEW, intent, PendingIntent.FLAG_UPDATE_CURRENT)
