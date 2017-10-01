@@ -150,11 +150,10 @@ class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {
             builder.setContentText(context.getText(R.string.save_failed))
         }
 
-        val notification: Notification
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            notification = builder.build()
+        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            builder.build()
         } else {
-            notification = builder.notification
+            builder.notification
         }
 
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

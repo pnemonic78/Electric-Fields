@@ -39,28 +39,28 @@ class MainActivity : Activity(),
 
     private val REQUEST_SAVE = 1
 
-    private lateinit var fieldsView: ElectricFieldsView
-    private var saveTask: AsyncTask<*, *, *>? = null
+    private lateinit var mainView: ElectricFieldsView
+    private var saveTask: SaveFileTask? = null
     private val random = Random()
     private var menuStop: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        fieldsView = findViewById(R.id.electric_fields)
-        fieldsView.setElectricFieldsListener(this)
+        mainView = findViewById(R.id.electric_fields)
+        mainView.setElectricFieldsListener(this)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        fieldsView.cancel()
+        mainView.cancel()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
 
         menuStop = menu.findItem(R.id.menu_stop)
-        menuStop!!.isEnabled = fieldsView.isRendering
+        menuStop!!.isEnabled = mainView.isRendering
 
         return true
     }
@@ -96,14 +96,14 @@ class MainActivity : Activity(),
      * Add random charges.
      */
     private fun randomise() {
-        val w = fieldsView.measuredWidth
-        val h = fieldsView.measuredHeight
+        val w = mainView.measuredWidth
+        val h = mainView.measuredHeight
         val count = 1 + random.nextInt(ElectricFieldsView.MAX_CHARGES)
-        fieldsView.clear()
+        mainView.clear()
         for (i in 0 until count) {
-            fieldsView.addCharge(random.nextInt(w), random.nextInt(h), (if (random.nextBoolean()) +1 else -1) * (1 + random.nextDouble() * 20))
+            mainView.addCharge(random.nextInt(w), random.nextInt(h), (if (random.nextBoolean()) +1 else -1) * (1 + random.nextDouble() * 20))
         }
-        fieldsView.restart()
+        mainView.restart()
     }
 
     /**
@@ -122,7 +122,8 @@ class MainActivity : Activity(),
         if ((saveTask != null) && (saveTask!!.status == AsyncTask.Status.RUNNING)) {
             return
         }
-        saveTask = SaveFileTask(this).execute(fieldsView.getBitmap())
+        saveTask = SaveFileTask(this)
+        saveTask!!.execute(mainView.getBitmap())
     }
 
     override fun onChargeAdded(view: ElectricFieldsView, charge: Charge) {}
@@ -130,15 +131,15 @@ class MainActivity : Activity(),
     override fun onChargeInverted(view: ElectricFieldsView, charge: Charge) {}
 
     override fun onChargeScaleBegin(view: ElectricFieldsView, charge: Charge): Boolean {
-        return (view == fieldsView)
+        return (view == mainView)
     }
 
     override fun onChargeScale(view: ElectricFieldsView, charge: Charge): Boolean {
-        return (view == fieldsView)
+        return (view == mainView)
     }
 
     override fun onChargeScaleEnd(view: ElectricFieldsView, charge: Charge): Boolean {
-        if (view == fieldsView) {
+        if (view == mainView) {
             view.restart()
             return true
         }
@@ -146,7 +147,7 @@ class MainActivity : Activity(),
     }
 
     override fun onRenderFieldClicked(view: ElectricFieldsView, x: Int, y: Int, size: Double): Boolean {
-        if ((view == fieldsView) && (view.invertCharge(x, y) || view.addCharge(x, y, size))) {
+        if ((view == mainView) && (view.invertCharge(x, y) || view.addCharge(x, y, size))) {
             view.restart()
             return true
         }
@@ -154,7 +155,7 @@ class MainActivity : Activity(),
     }
 
     override fun onRenderFieldStarted(view: ElectricFieldsView) {
-        if (view == fieldsView) {
+        if (view == mainView) {
             if (menuStop != null) {
                 menuStop!!.isEnabled = view.isRendering
             }
@@ -162,7 +163,7 @@ class MainActivity : Activity(),
     }
 
     override fun onRenderFieldFinished(view: ElectricFieldsView) {
-        if (view == fieldsView) {
+        if (view == mainView) {
             if (menuStop != null) {
                 menuStop!!.isEnabled = false
             }
@@ -171,7 +172,7 @@ class MainActivity : Activity(),
     }
 
     override fun onRenderFieldCancelled(view: ElectricFieldsView) {
-        if (view == fieldsView) {
+        if (view == mainView) {
             if (menuStop != null) {
                 menuStop!!.isEnabled = false
             }
@@ -245,8 +246,8 @@ class MainActivity : Activity(),
     }
 
     private fun stop() {
-        fieldsView.cancel()
-        fieldsView.clear()
+        mainView.cancel()
+        mainView.clear()
 
         if (saveTask != null) {
             saveTask!!.cancel(true)
