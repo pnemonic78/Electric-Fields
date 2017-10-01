@@ -100,7 +100,7 @@ class MainActivity : Activity(),
         val h = fieldsView.measuredHeight
         val count = 1 + random.nextInt(ElectricFieldsView.MAX_CHARGES)
         fieldsView.clear()
-        for (i in 0..count - 1) {
+        for (i in 0 until count) {
             fieldsView.addCharge(random.nextInt(w), random.nextInt(h), (if (random.nextBoolean()) +1 else -1) * (1 + random.nextDouble() * 20))
         }
         fieldsView.restart()
@@ -119,7 +119,7 @@ class MainActivity : Activity(),
         }
 
         // Busy saving?
-        if ((saveTask) != null && saveTask!!.status == AsyncTask.Status.RUNNING) {
+        if ((saveTask != null) && (saveTask!!.status == AsyncTask.Status.RUNNING)) {
             return
         }
         saveTask = SaveFileTask(this).execute(fieldsView.getBitmap())
@@ -130,21 +130,24 @@ class MainActivity : Activity(),
     override fun onChargeInverted(view: ElectricFieldsView, charge: Charge) {}
 
     override fun onChargeScaleBegin(view: ElectricFieldsView, charge: Charge): Boolean {
-        return true
+        return (view == fieldsView)
     }
 
     override fun onChargeScale(view: ElectricFieldsView, charge: Charge): Boolean {
-        return true
+        return (view == fieldsView)
     }
 
     override fun onChargeScaleEnd(view: ElectricFieldsView, charge: Charge): Boolean {
-        fieldsView.restart()
-        return true
+        if (view == fieldsView) {
+            view.restart()
+            return true
+        }
+        return false
     }
 
     override fun onRenderFieldClicked(view: ElectricFieldsView, x: Int, y: Int, size: Double): Boolean {
-        if (fieldsView.invertCharge(x, y) || fieldsView.addCharge(x, y, size)) {
-            fieldsView.restart()
+        if ((view == fieldsView) && (view.invertCharge(x, y) || view.addCharge(x, y, size))) {
+            view.restart()
             return true
         }
         return false
