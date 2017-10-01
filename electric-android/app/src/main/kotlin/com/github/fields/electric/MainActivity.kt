@@ -47,7 +47,7 @@ class MainActivity : Activity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        fieldsView = findViewById(R.id.electric_fields)
+        fieldsView = findViewById(R.id.electric_fields) as ElectricFieldsView
         fieldsView.setElectricFieldsListener(this)
     }
 
@@ -130,19 +130,16 @@ class MainActivity : Activity(),
     override fun onChargeInverted(view: ElectricFieldsView, charge: Charge) {}
 
     override fun onChargeScaleBegin(view: ElectricFieldsView, charge: Charge): Boolean {
-        return charge != null
+        return true
     }
 
     override fun onChargeScale(view: ElectricFieldsView, charge: Charge): Boolean {
-        return charge != null
+        return true
     }
 
     override fun onChargeScaleEnd(view: ElectricFieldsView, charge: Charge): Boolean {
-        if (charge != null) {
-            fieldsView.restart()
-            return true
-        }
-        return false
+        fieldsView.restart()
+        return true
     }
 
     override fun onRenderFieldClicked(view: ElectricFieldsView, x: Int, y: Int, size: Double): Boolean {
