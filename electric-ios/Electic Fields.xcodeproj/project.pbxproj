@@ -12,6 +12,8 @@
 		46F580EB1F320F6800A5A475 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 46F580E91F320F6800A5A475 /* Main.storyboard */; };
 		46F580ED1F320F6800A5A475 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 46F580EC1F320F6800A5A475 /* Assets.xcassets */; };
 		46F580F01F320F6800A5A475 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 46F580EE1F320F6800A5A475 /* LaunchScreen.storyboard */; };
+		46F580F81F32189C00A5A475 /* Charge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F580F71F32189C00A5A475 /* Charge.swift */; };
+		46F580FA1F32FDCA00A5A475 /* ElectricFieldsListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F580F91F32FDCA00A5A475 /* ElectricFieldsListener.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +24,8 @@
 		46F580EC1F320F6800A5A475 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		46F580EF1F320F6800A5A475 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		46F580F11F320F6800A5A475 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		46F580F71F32189C00A5A475 /* Charge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Charge.swift; sourceTree = "<group>"; };
+		46F580F91F32FDCA00A5A475 /* ElectricFieldsListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElectricFieldsListener.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +64,8 @@
 				46F580EC1F320F6800A5A475 /* Assets.xcassets */,
 				46F580EE1F320F6800A5A475 /* LaunchScreen.storyboard */,
 				46F580F11F320F6800A5A475 /* Info.plist */,
+				46F580F71F32189C00A5A475 /* Charge.swift */,
+				46F580F91F32FDCA00A5A475 /* ElectricFieldsListener.swift */,
 			);
 			path = "Electic Fields";
 			sourceTree = "<group>";
@@ -138,7 +144,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				46F580E81F320F6800A5A475 /* ViewController.swift in Sources */,
+				46F580F81F32189C00A5A475 /* Charge.swift in Sources */,
 				46F580E61F320F6800A5A475 /* AppDelegate.swift in Sources */,
+				46F580FA1F32FDCA00A5A475 /* ElectricFieldsListener.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,6 +314,7 @@
 				46F580F61F320F6800A5A475 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
