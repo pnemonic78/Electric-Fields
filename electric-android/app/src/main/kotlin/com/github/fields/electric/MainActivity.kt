@@ -47,7 +47,7 @@ class MainActivity : Activity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        fieldsView = findViewById(R.id.electric_fields) as ElectricFieldsView
+        fieldsView = findViewById(R.id.electric_fields)
         fieldsView.setElectricFieldsListener(this)
     }
 
