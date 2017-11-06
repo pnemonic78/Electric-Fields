@@ -50,10 +50,11 @@ class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {
     private val ID_NOTIFY = 0x5473 // "SAVE"
 
     private val IMAGE_MIME = "image/png"
+    private val SCHEME_FILE = "file"
 
     private val CHANNEL_ID = "save_file"
 
-    private val timestampFormat: DateFormat = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US)
+    private val timestampFormat = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US)
 
     private lateinit var bitmap: Bitmap
     private lateinit var builder: Notification.Builder
@@ -106,21 +107,8 @@ class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {
         try {
             out = FileOutputStream(file)
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-            out.close()
-            out = null
             Log.i(TAG, "save success: " + file)
             url = Uri.fromFile(file)
-            MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), arrayOf(IMAGE_MIME), { path: String, uri: Uri? ->
-                if ((uri != null) && !"file".equals(uri.scheme)) {
-                    url = uri
-                }
-                synchronized(mutex) {
-                    mutex.notify()
-                }
-            })
-            synchronized(mutex) {
-                mutex.wait()
-            }
         } catch (e: IOException) {
             Log.e(TAG, "save failed: " + file, e)
         } finally {
@@ -129,6 +117,19 @@ class SaveFileTask(val context: Context) : AsyncTask<Bitmap, File, Uri>() {
                     out.close()
                 } catch (ignore: Exception) {
                 }
+            }
+        }
+        if (url != null) {
+            MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), arrayOf(IMAGE_MIME), { path: String, uri: Uri? ->
+                if ((uri != null) && !SCHEME_FILE.equals(uri.scheme)) {
+                    url = uri
+                }
+                synchronized(mutex) {
+                    mutex.notify()
+                }
+            })
+            synchronized(mutex) {
+                mutex.wait()
             }
         }
 
