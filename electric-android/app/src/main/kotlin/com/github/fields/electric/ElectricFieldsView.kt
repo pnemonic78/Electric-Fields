@@ -164,8 +164,10 @@ class ElectricFieldsView : View,
     }
 
     override fun onTaskStarted(task: FieldAsyncTask) {
-        if (listener != null) {
-            listener!!.onRenderFieldStarted(this)
+        if (task === this.task) {
+            if (listener != null) {
+                listener!!.onRenderFieldStarted(this)
+            }
         }
     }
 
@@ -180,8 +182,10 @@ class ElectricFieldsView : View,
     }
 
     override fun onTaskCancelled(task: FieldAsyncTask) {
-        if (listener != null) {
-            listener!!.onRenderFieldCancelled(this)
+        if (task === this.task) {
+            if (listener != null) {
+                listener!!.onRenderFieldCancelled(this)
+            }
         }
     }
 

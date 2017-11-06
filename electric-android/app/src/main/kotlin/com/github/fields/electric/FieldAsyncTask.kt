@@ -63,13 +63,13 @@ class FieldAsyncTask(private val listener: FieldAsyncTaskListener, private val c
     private val hsv = floatArrayOf(0f, 1f, 1f)
     private var startDelay = 0L
 
-    override fun onPreExecute() {
-        super.onPreExecute()
-
+    init {
         paint.strokeCap = Paint.Cap.SQUARE
         paint.style = Paint.Style.FILL
         paint.strokeWidth = 1f
+    }
 
+    override fun onPreExecute() {
         listener.onTaskStarted(this)
     }
 
@@ -167,7 +167,7 @@ class FieldAsyncTask(private val listener: FieldAsyncTaskListener, private val c
         val count = charges.size
         var charge: ChargeHolder
 
-        for (i in 0..count - 1) {
+        for (i in 0 until count) {
             charge = charges[i]
             dx = x - charge.x
             dy = y - charge.y
@@ -222,13 +222,8 @@ class FieldAsyncTask(private val listener: FieldAsyncTaskListener, private val c
     }
 
     private class ChargeHolder(val x: Int, val y: Int, val size: Double) {
-        val sizeSqr: Double
 
-        constructor(charge: Charge) : this(charge.x, charge.y, charge.size) {}
-
-        init {
-            this.sizeSqr = Math.signum(size) * size * size
-        }
+        constructor(charge: Charge) : this(charge.x, charge.y, charge.size)
 
         companion object {
 
@@ -236,7 +231,7 @@ class FieldAsyncTask(private val listener: FieldAsyncTaskListener, private val c
                 val length = charges.size
                 val result = arrayOfNulls<ChargeHolder?>(length)
 
-                for (i in 0..length - 1) {
+                for (i in 0 until length) {
                     result[i] = ChargeHolder(charges[i])
                 }
 

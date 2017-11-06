@@ -23,7 +23,7 @@ import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 
 /**
- * Task to save a bitmap to a file.
+ * Observable to save a bitmap to a file.
  *
  * @author Moshe Waisberg
  */
