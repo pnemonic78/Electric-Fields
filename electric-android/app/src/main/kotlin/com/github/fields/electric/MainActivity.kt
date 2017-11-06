@@ -19,7 +19,6 @@ import android.Manifest
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.pm.PackageManager
-import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
@@ -27,6 +26,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 /**
@@ -40,9 +42,10 @@ class MainActivity : Activity(),
     private val REQUEST_SAVE = 1
 
     private lateinit var mainView: ElectricFieldsView
-    private var saveTask: SaveFileTask? = null
+    private val disposables = CompositeDisposable()
     private val random = Random()
     private var menuStop: MenuItem? = null
+    private var menuSave: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +57,7 @@ class MainActivity : Activity(),
     override fun onDestroy() {
         super.onDestroy()
         mainView.cancel()
+        disposables.dispose()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -61,6 +65,9 @@ class MainActivity : Activity(),
 
         menuStop = menu.findItem(R.id.menu_stop)
         menuStop!!.isEnabled = mainView.isRendering
+
+        menuSave = menu.findItem(R.id.menu_save_file)
+        menuSave!!.isEnabled = mainView.isRendering
 
         return true
     }
@@ -119,11 +126,18 @@ class MainActivity : Activity(),
         }
 
         // Busy saving?
-        if ((saveTask != null) && (saveTask!!.status == AsyncTask.Status.RUNNING)) {
+        if ((menuSave == null) || !menuSave!!.isEnabled) {
             return
         }
-        saveTask = SaveFileTask(this)
-        saveTask!!.execute(mainView.getBitmap())
+        menuSave!!.isEnabled = false
+
+        val context = this
+        val bitmap = mainView.getBitmap()
+        val task = SaveFileObservable(context, bitmap)
+        task.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(SaveFileObserver(context, bitmap))
+        disposables.add(task)
     }
 
     override fun onChargeAdded(view: ElectricFieldsView, charge: Charge) {}
@@ -159,6 +173,9 @@ class MainActivity : Activity(),
             if (menuStop != null) {
                 menuStop!!.isEnabled = view.isRendering
             }
+            if (menuSave != null) {
+                menuSave!!.isEnabled = view.isRendering
+            }
         }
     }
 
@@ -166,6 +183,9 @@ class MainActivity : Activity(),
         if (view == mainView) {
             if (menuStop != null) {
                 menuStop!!.isEnabled = false
+            }
+            if (menuSave != null) {
+                menuSave!!.isEnabled = true
             }
             Toast.makeText(this, R.string.finished, Toast.LENGTH_SHORT).show()
         }
@@ -248,9 +268,5 @@ class MainActivity : Activity(),
     private fun stop() {
         mainView.cancel()
         mainView.clear()
-
-        if (saveTask != null) {
-            saveTask!!.cancel(true)
-        }
     }
 }
