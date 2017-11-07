@@ -19,7 +19,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
-import android.os.AsyncTask
 import android.os.SystemClock
 import android.text.format.DateUtils
 import android.view.GestureDetector
@@ -28,6 +27,8 @@ import com.github.fields.electric.Charge
 import com.github.fields.electric.ElectricFieldsView
 import com.github.fields.electric.FieldAsyncTask
 import com.github.fields.electric.R
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -128,11 +129,17 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
      */
     fun start(delay: Long = 0L) {
         if (!isRendering) {
-            task = FieldAsyncTask(this, Canvas(bitmap!!))
-            task!!.setSaturation(0.5f)
-            task!!.setBrightness(0.5f)
-            task!!.setStartDelay(delay)
-            task!!.execute(*charges.toTypedArray())
+            val t = FieldAsyncTask(charges, Canvas(bitmap!!), this)
+            task = t
+            with(t) {
+                setSaturation(0.5f)
+                setBrightness(0.5f)
+                setStartDelay(delay)
+                subscribeOn(Schedulers.computation())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({})
+                //TODO .subscribe(FieldAsyncTaskObserver(context, bitmap))
+            }
         }
     }
 
@@ -141,7 +148,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
      */
     fun cancel() {
         if (task != null) {
-            task!!.cancel(true)
+            task!!.cancel()
         }
     }
 
@@ -226,7 +233,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
      * @return `true` if rendering.
      */
     val isRendering: Boolean
-        get() = (task != null) && !task!!.isCancelled && (task!!.status != AsyncTask.Status.FINISHED)
+        get() = (task != null) && task!!.running
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         return false

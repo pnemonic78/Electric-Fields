@@ -170,31 +170,37 @@ class MainActivity : Activity(),
 
     override fun onRenderFieldStarted(view: ElectricFieldsView) {
         if (view == mainView) {
-            if (menuStop != null) {
-                menuStop!!.isEnabled = view.isRendering
-            }
-            if (menuSave != null) {
-                menuSave!!.isEnabled = view.isRendering
+            runOnUiThread {
+                if (menuStop != null) {
+                    menuStop!!.isEnabled = view.isRendering
+                }
+                if (menuSave != null) {
+                    menuSave!!.isEnabled = view.isRendering
+                }
             }
         }
     }
 
     override fun onRenderFieldFinished(view: ElectricFieldsView) {
         if (view == mainView) {
-            if (menuStop != null) {
-                menuStop!!.isEnabled = false
+            runOnUiThread {
+                if (menuStop != null) {
+                    menuStop!!.isEnabled = false
+                }
+                if (menuSave != null) {
+                    menuSave!!.isEnabled = true
+                }
+                Toast.makeText(this, R.string.finished, Toast.LENGTH_SHORT).show()
             }
-            if (menuSave != null) {
-                menuSave!!.isEnabled = true
-            }
-            Toast.makeText(this, R.string.finished, Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onRenderFieldCancelled(view: ElectricFieldsView) {
         if (view == mainView) {
-            if (menuStop != null) {
-                menuStop!!.isEnabled = false
+            runOnUiThread {
+                if (menuStop != null) {
+                    menuStop!!.isEnabled = false
+                }
             }
         }
     }

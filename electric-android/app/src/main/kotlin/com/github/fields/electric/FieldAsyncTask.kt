@@ -19,14 +19,17 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import android.os.AsyncTask
+import com.github.reactivex.DefaultDisposable
+import io.reactivex.Observable
+import io.reactivex.Observer
+import io.reactivex.disposables.Disposable
 
 /**
  * Electric Fields task.
  *
  * @author Moshe Waisberg
  */
-class FieldAsyncTask(private val listener: FieldAsyncTaskListener, private val canvas: Canvas) : AsyncTask<Charge, Canvas, Canvas>() {
+class FieldAsyncTask(val charges: Collection<Charge>, val canvas: Canvas, val listener: FieldAsyncTaskListener) : Observable<Canvas>(), Disposable {
 
     interface FieldAsyncTaskListener {
         /**
@@ -58,142 +61,185 @@ class FieldAsyncTask(private val listener: FieldAsyncTaskListener, private val c
         fun repaint(task: FieldAsyncTask)
     }
 
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val rect = RectF()
-    private val hsv = floatArrayOf(0f, 1f, 1f)
-    private var startDelay = 0L
+    private lateinit var runner: FieldRunner
 
-    init {
-        with(paint) {
-            strokeCap = Paint.Cap.SQUARE
-            style = Paint.Style.FILL
-            strokeWidth = 1f
-        }
+    override fun subscribeActual(observer: Observer<in Canvas>) {
+        val d = FieldRunner(this, charges, canvas, listener, observer)
+        runner = d
+        observer.onSubscribe(d)
+        d.run()
     }
 
-    override fun onPreExecute() {
-        listener.onTaskStarted(this)
+    override fun isDisposed(): Boolean {
+        return runner.isDisposed
     }
 
-    override fun doInBackground(vararg params: Charge): Canvas? {
-        if (startDelay > 0L) {
-            try {
-                Thread.sleep(startDelay)
-            } catch (ignore: InterruptedException) {
+    override fun dispose() {
+        runner.dispose()
+    }
+
+    private class FieldRunner(val task: FieldAsyncTask, val params: Collection<Charge>, val canvas: Canvas, val listener: FieldAsyncTaskListener, private val observer: Observer<in Canvas>) : DefaultDisposable() {
+
+        private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private val rect = RectF()
+        private val hsv = floatArrayOf(0f, 1f, 1f)
+        private var startDelay = 0L
+        var running = false
+
+        init {
+            with(paint) {
+                strokeCap = Paint.Cap.SQUARE
+                style = Paint.Style.FILL
+                strokeWidth = 1f
             }
         }
 
-        val charges: Array<ChargeHolder> = ChargeHolder.toChargedParticles(*params)
-        val w = canvas.width
-        val h = canvas.height
-        var size = Math.max(w, h)
+        fun run() {
+            running = true
+            if (startDelay > 0L) {
+                try {
+                    Thread.sleep(startDelay)
+                } catch (ignore: InterruptedException) {
+                }
+            }
+            if (isDisposed) {
+                return
+            }
+            listener.onTaskStarted(task)
 
-        var shifts = 0
-        while (size > 1) {
-            size = size ushr 1
-            shifts++
-        }
-        val density = 1e+3
+            val charges: Array<ChargeHolder> = ChargeHolder.toChargedParticles(params)
+            val w = canvas.width
+            val h = canvas.height
+            var size = Math.max(w, h)
 
-        // Make "resolution2" a power of 2, so that "resolution" is always divisible by 2.
-        var resolution2 = 1 shl shifts
-        var resolution = resolution2
+            var shifts = 0
+            while (size > 1) {
+                size = size ushr 1
+                shifts++
+            }
 
-        canvas.drawColor(Color.WHITE)
-        plot(charges, canvas, 0, 0, resolution, resolution, density)
+            val density = 1e+3
 
-        var x1: Int
-        var y1: Int
-        var x2: Int
-        var y2: Int
+            // Make "resolution2" a power of 2, so that "resolution" is always divisible by 2.
+            var resolution2 = 1 shl shifts
+            var resolution = resolution2
 
-        do {
-            y1 = 0
-            y2 = resolution
+            canvas.drawColor(Color.WHITE)
+            plot(charges, canvas, 0, 0, resolution, resolution, density)
 
-            while (y1 < h) {
-                x1 = 0
-                x2 = resolution
+            var x1: Int
+            var y1: Int
+            var x2: Int
+            var y2: Int
 
-                while (x1 < w) {
-                    plot(charges, canvas, x1, y2, resolution, resolution, density)
-                    plot(charges, canvas, x2, y1, resolution, resolution, density)
-                    plot(charges, canvas, x2, y2, resolution, resolution, density)
+            do {
+                y1 = 0
+                y2 = resolution
 
-                    x1 += resolution2
-                    x2 += resolution2
-                    if (isCancelled) {
-                        return null
+                while (y1 < h) {
+                    x1 = 0
+                    x2 = resolution
+
+                    while (x1 < w) {
+                        plot(charges, canvas, x1, y2, resolution, resolution, density)
+                        plot(charges, canvas, x2, y1, resolution, resolution, density)
+                        plot(charges, canvas, x2, y2, resolution, resolution, density)
+
+                        x1 += resolution2
+                        x2 += resolution2
+                        if (isDisposed) {
+                            break
+                        }
+                    }
+                    listener.repaint(task)
+
+                    y1 += resolution2
+                    y2 += resolution2
+                    if (isDisposed) {
+                        break
                     }
                 }
-                listener.repaint(this)
 
-                y1 += resolution2
-                y2 += resolution2
-                if (isCancelled) {
-                    return null
+                resolution2 = resolution
+                resolution = resolution2 shr 1
+                if (isDisposed) {
+                    break
                 }
+            } while (resolution >= 1)
+
+            running = false
+            if (isDisposed) {
+                listener.onTaskCancelled(task)
+            } else {
+                listener.onTaskFinished(task)
             }
-
-            resolution2 = resolution
-            resolution = resolution2 shr 1
-            if (isCancelled) {
-                return null
-            }
-        } while (resolution >= 1)
-
-        return canvas
-    }
-
-    override fun onProgressUpdate(vararg values: Canvas) {
-        super.onProgressUpdate(*values)
-        listener.repaint(this)
-    }
-
-    override fun onPostExecute(result: Canvas) {
-        super.onPostExecute(result)
-        listener.onTaskFinished(this)
-    }
-
-    override fun onCancelled() {
-        super.onCancelled()
-        listener.onTaskCancelled(this)
-    }
-
-    private fun plot(charges: Array<ChargeHolder>, canvas: Canvas, x: Int, y: Int, w: Int, h: Int, zoom: Double) {
-        var dx: Int
-        var dy: Int
-        var d: Int
-        var r: Double
-        var v = 1.0
-        val count = charges.size
-        var charge: ChargeHolder
-
-        for (i in 0 until count) {
-            charge = charges[i]
-            dx = x - charge.x
-            dy = y - charge.y
-            d = (dx * dx) + (dy * dy)
-            r = Math.sqrt(d.toDouble())
-            if (r == 0.0) {
-                //Force "overflow".
-                v = Double.POSITIVE_INFINITY
-                break
-            }
-            v += charge.size / r
         }
 
-        paint.color = mapColor(v, zoom)
-        rect.set(x.toFloat(), y.toFloat(), (x + w).toFloat(), (y + h).toFloat())
-        canvas.drawRect(rect, paint)
-    }
+        private fun plot(charges: Array<ChargeHolder>, canvas: Canvas, x: Int, y: Int, w: Int, h: Int, zoom: Double) {
+            var dx: Int
+            var dy: Int
+            var d: Int
+            var r: Double
+            var v = 1.0
+            val count = charges.size
+            var charge: ChargeHolder
 
-    private fun mapColor(z: Double, density: Double): Int {
-        if (z.isInfinite()) {
-            return Color.WHITE
+            for (i in 0 until count) {
+                charge = charges[i]
+                dx = x - charge.x
+                dy = y - charge.y
+                d = (dx * dx) + (dy * dy)
+                r = Math.sqrt(d.toDouble())
+                if (r == 0.0) {
+                    //Force "overflow".
+                    v = Double.POSITIVE_INFINITY
+                    break
+                }
+                v += charge.size / r
+            }
+
+            paint.color = mapColor(v, zoom)
+            rect.set(x.toFloat(), y.toFloat(), (x + w).toFloat(), (y + h).toFloat())
+            canvas.drawRect(rect, paint)
         }
-        hsv[0] = (z * density % 360).toFloat()
-        return Color.HSVToColor(hsv)
+
+        private fun mapColor(z: Double, density: Double): Int {
+            if (z.isInfinite()) {
+                return Color.WHITE
+            }
+            hsv[0] = (z * density % 360).toFloat()
+            return Color.HSVToColor(hsv)
+        }
+
+        /**
+         * Set the HSV saturation.
+         *
+         * @param value a value between [0..1] inclusive.
+         */
+        fun setSaturation(value: Float) {
+            hsv[1] = value
+        }
+
+        /**
+         * Set the HSV brightness.
+         *
+         * @param value a value between [0..1] inclusive.
+         */
+        fun setBrightness(value: Float) {
+            hsv[2] = value
+        }
+
+        /**
+         * Set the start delay.
+         *
+         * @param delay the start delay, in milliseconds.
+         */
+        fun setStartDelay(delay: Long) {
+            startDelay = delay
+        }
+
+        override fun onDispose() {
+        }
     }
 
     /**
@@ -202,7 +248,7 @@ class FieldAsyncTask(private val listener: FieldAsyncTaskListener, private val c
      * @param value a value between [0..1] inclusive.
      */
     fun setSaturation(value: Float) {
-        hsv[1] = value
+        runner.setSaturation(value)
     }
 
     /**
@@ -211,7 +257,7 @@ class FieldAsyncTask(private val listener: FieldAsyncTaskListener, private val c
      * @param value a value between [0..1] inclusive.
      */
     fun setBrightness(value: Float) {
-        hsv[2] = value
+        runner.setBrightness(value)
     }
 
     /**
@@ -220,7 +266,7 @@ class FieldAsyncTask(private val listener: FieldAsyncTaskListener, private val c
      * @param delay the start delay, in milliseconds.
      */
     fun setStartDelay(delay: Long) {
-        startDelay = delay
+        runner.setStartDelay(delay)
     }
 
     private class ChargeHolder(val x: Int, val y: Int, val size: Double) {
@@ -239,6 +285,24 @@ class FieldAsyncTask(private val listener: FieldAsyncTaskListener, private val c
 
                 return result.requireNoNulls()
             }
+
+            fun toChargedParticles(charges: Collection<Charge>): Array<ChargeHolder> {
+                val length = charges.size
+                val result = arrayOfNulls<ChargeHolder?>(length)
+
+                for (i in 0 until length) {
+                    result[i] = ChargeHolder(charges.elementAt(i))
+                }
+
+                return result.requireNoNulls()
+            }
         }
     }
+
+    fun cancel() {
+        dispose()
+    }
+
+    val running: Boolean
+        get() = runner.running && !runner.isDisposed
 }

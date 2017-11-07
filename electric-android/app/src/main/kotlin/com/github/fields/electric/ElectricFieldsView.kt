@@ -19,13 +19,14 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
-import android.os.AsyncTask
 import android.os.Parcel
 import android.os.Parcelable
 import android.os.SystemClock
 import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.view.*
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -141,8 +142,12 @@ class ElectricFieldsView : View,
      */
     fun start() {
         if (!isRendering) {
-            task = FieldAsyncTask(this, Canvas(getBitmap()))
-            task!!.execute(*charges.toTypedArray())
+            val t = FieldAsyncTask(charges, Canvas(getBitmap()), this)
+            task = t
+            t.subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({})
+            //TODO.subscribe(FieldAsyncTaskObserver(context, bitmap))
         }
     }
 
@@ -151,7 +156,7 @@ class ElectricFieldsView : View,
      */
     fun cancel() {
         if (task != null) {
-            task!!.cancel(true)
+            task!!.cancel()
         }
     }
 
@@ -269,7 +274,7 @@ class ElectricFieldsView : View,
      * @return `true` if rendering.
      */
     val isRendering: Boolean
-        get() = (task != null) && !task!!.isCancelled && (task!!.status != AsyncTask.Status.FINISHED)
+        get() = (task != null) && task!!.running
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         return false
