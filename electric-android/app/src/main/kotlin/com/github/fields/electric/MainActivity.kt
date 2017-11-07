@@ -133,7 +133,7 @@ class MainActivity : Activity(),
 
         val context = this
         val bitmap = mainView.getBitmap()
-        val task = SaveFileObservable(context, bitmap)
+        val task = SaveFileTask(context, bitmap)
         task.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(SaveFileObserver(context, bitmap))

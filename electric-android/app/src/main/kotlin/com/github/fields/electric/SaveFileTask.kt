@@ -21,11 +21,12 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
+import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.MainThreadDisposable
+import io.reactivex.disposables.Disposable
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,64 +36,85 @@ import java.util.*
  *
  * @author Moshe Waisberg
  */
-class SaveFileTask(val context: Context, val bitmap: Bitmap, val observer: Observer<in Uri>) : MainThreadDisposable() {
+class SaveFileTask(val context: Context, val bitmap: Bitmap) : Observable<Uri>(), Disposable {
 
-    private val TAG = "SaveFileTask"
+    private lateinit var task: Disposable
 
-    private val IMAGE_MIME = "image/png"
-    private val SCHEME_FILE = "file"
+    override fun subscribeActual(observer: Observer<in Uri>) {
+        val d = SaveFileRunner(context, bitmap, observer)
+        task = d
+        observer.onSubscribe(d)
+        d.run()
+    }
 
-    private val timestampFormat = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US)
+    override fun isDisposed(): Boolean {
+        return task.isDisposed
+    }
 
-    fun run() {
-        val folderPictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-        val folder = File(folderPictures, context.getString(R.string.app_folder_pictures))
-        folder.mkdirs()
-        val file = File(folder, generateFileName())
+    override fun dispose() {
+        task.dispose()
+    }
 
-        var url: Uri? = null
-        var out: OutputStream? = null
-        val mutex = Object()
-        try {
-            out = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-            Log.i(TAG, "save success: " + file)
-            url = Uri.fromFile(file)
-        } catch (e: IOException) {
-            Log.e(TAG, "save failed: " + file, e)
-            observer.onError(e)
-        } finally {
-            if (out != null) {
-                try {
-                    out.close()
-                } catch (ignore: Exception) {
+    private class SaveFileRunner(val context: Context, val bitmap: Bitmap, val observer: Observer<in Uri>) : MainThreadDisposable() {
+
+        private val TAG = "SaveFileTask"
+
+        private val IMAGE_MIME = "image/png"
+        private val IMAGE_EXT = ".png"
+        private val SCHEME_FILE = "file"
+
+        private val timestampFormat = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US)
+
+        fun run() {
+            val folderPictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+            val folder = File(folderPictures, context.getString(R.string.app_folder_pictures))
+            folder.mkdirs()
+            val file = File(folder, generateFileName())
+
+            var url: Uri? = null
+            var out: OutputStream? = null
+            val mutex = Object()
+            try {
+                out = FileOutputStream(file)
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                Log.i(TAG, "save success: " + file)
+                url = Uri.fromFile(file)
+            } catch (e: Exception) {
+                Log.e(TAG, "save failed: " + file, e)
+                observer.onError(e)
+            } finally {
+                if (out != null) {
+                    try {
+                        out.close()
+                    } catch (ignore: Exception) {
+                    }
                 }
             }
-        }
-        if (url != null) {
-            MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), arrayOf(IMAGE_MIME), { path: String, uri: Uri? ->
-                if ((uri != null) && !SCHEME_FILE.equals(uri.scheme)) {
-                    url = uri
-                    observer.onNext(url)
-                }
+            if (url != null) {
+                MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), arrayOf(IMAGE_MIME), { path: String, uri: Uri? ->
+                    if ((uri != null) && (SCHEME_FILE != uri.scheme)) {
+                        url = uri
+                        observer.onNext(url)
+                    }
+                    synchronized(mutex) {
+                        mutex.notify()
+                    }
+                })
                 synchronized(mutex) {
-                    mutex.notify()
+                    mutex.wait()
                 }
-            })
-            synchronized(mutex) {
-                mutex.wait()
+            }
+
+            if (!isDisposed) {
+                observer.onComplete()
             }
         }
 
-        if (!isDisposed) {
-            observer.onComplete()
+        override fun onDispose() {
         }
-    }
 
-    override fun onDispose() {
-    }
-
-    fun generateFileName(): String {
-        return "ef-" + timestampFormat.format(Date()) + ".png"
+        fun generateFileName(): String {
+            return "ef-" + timestampFormat.format(Date()) + IMAGE_EXT
+        }
     }
 }
