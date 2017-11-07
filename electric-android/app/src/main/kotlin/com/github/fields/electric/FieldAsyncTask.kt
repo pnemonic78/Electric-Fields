@@ -64,9 +64,11 @@ class FieldAsyncTask(private val listener: FieldAsyncTaskListener, private val c
     private var startDelay = 0L
 
     init {
-        paint.strokeCap = Paint.Cap.SQUARE
-        paint.style = Paint.Style.FILL
-        paint.strokeWidth = 1f
+        with(paint) {
+            strokeCap = Paint.Cap.SQUARE
+            style = Paint.Style.FILL
+            strokeWidth = 1f
+        }
     }
 
     override fun onPreExecute() {
