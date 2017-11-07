@@ -27,7 +27,6 @@ import com.github.fields.electric.Charge
 import com.github.fields.electric.ElectricFieldsView
 import com.github.fields.electric.FieldsTask
 import com.github.fields.electric.R
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -136,7 +135,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
                 brightness = 0.5f
                 setStartDelay(delay)
                 subscribeOn(Schedulers.computation())
-                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({
                             invalidate()
                         }, {
