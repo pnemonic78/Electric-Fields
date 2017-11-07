@@ -42,21 +42,21 @@ class SaveFileTask(val context: Context, val bitmap: Bitmap) : Observable<Uri>()
         val IMAGE_MIME = "image/png"
     }
 
-    private lateinit var task: Disposable
+    private lateinit var runner: SaveFileRunner
 
     override fun subscribeActual(observer: Observer<in Uri>) {
         val d = SaveFileRunner(context, bitmap, observer)
-        task = d
+        runner = d
         observer.onSubscribe(d)
         d.run()
     }
 
     override fun isDisposed(): Boolean {
-        return task.isDisposed
+        return runner.isDisposed
     }
 
     override fun dispose() {
-        task.dispose()
+        runner.dispose()
     }
 
     private class SaveFileRunner(val context: Context, val bitmap: Bitmap, val observer: Observer<in Uri>) : DefaultDisposable() {
