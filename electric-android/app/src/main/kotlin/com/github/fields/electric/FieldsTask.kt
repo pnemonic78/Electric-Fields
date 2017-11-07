@@ -29,7 +29,7 @@ import io.reactivex.disposables.Disposable
  *
  * @author Moshe Waisberg
  */
-class FieldAsyncTask(val charges: Collection<Charge>, val canvas: Canvas, val listener: FieldAsyncTaskListener) : Observable<Canvas>(), Disposable {
+class FieldsTask(val charges: Collection<Charge>, val canvas: Canvas) : Observable<Canvas>(), Disposable {
 
     interface FieldAsyncTaskListener {
         /**
@@ -37,48 +37,59 @@ class FieldAsyncTask(val charges: Collection<Charge>, val canvas: Canvas, val li
 
          * @param task the caller task.
          */
-        fun onTaskStarted(task: FieldAsyncTask)
+        fun onTaskStarted(task: FieldsTask)
 
         /**
          * Notify the listener that the task has finished.
 
          * @param task the caller task.
          */
-        fun onTaskFinished(task: FieldAsyncTask)
+        fun onTaskFinished(task: FieldsTask)
 
         /**
          * Notify the listener that the task has aborted.
 
          * @param task the caller task.
          */
-        fun onTaskCancelled(task: FieldAsyncTask)
+        fun onTaskCancelled(task: FieldsTask)
 
         /**
          * Notify the listener to repaint its bitmap.
 
          * @param task the caller task.
          */
-        fun repaint(task: FieldAsyncTask)
+        fun repaint(task: FieldsTask)
     }
 
-    private lateinit var runner: FieldRunner
+    private var runner: FieldRunner? = null
+    private var brighness = 1f
+    private var saturation = 1f
+    private var startDelay = 0L
 
     override fun subscribeActual(observer: Observer<in Canvas>) {
-        val d = FieldRunner(this, charges, canvas, listener, observer)
+        val d = FieldRunner(charges, canvas, observer)
+        d.setSaturation(brighness)
+        d.setBrightness(saturation)
+        d.setStartDelay(startDelay)
         runner = d
         observer.onSubscribe(d)
         d.run()
     }
 
     override fun isDisposed(): Boolean {
-        return runner.isDisposed
+        if (runner != null) {
+            return runner!!.isDisposed
+        }
+        return false
     }
 
     override fun dispose() {
-        runner.dispose()
+        if (runner != null) {
+            runner!!.dispose()
+        }
     }
 
-    private class FieldRunner(val task: FieldAsyncTask, val params: Collection<Charge>, val canvas: Canvas, val listener: FieldAsyncTaskListener, private val observer: Observer<in Canvas>) : DefaultDisposable() {
+    private class FieldRunner(val params: Collection<Charge>, val canvas: Canvas, val observer: Observer<in Canvas>) : DefaultDisposable() {
 
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         private val rect = RectF()
@@ -105,7 +116,7 @@ class FieldAsyncTask(val charges: Collection<Charge>, val canvas: Canvas, val li
             if (isDisposed) {
                 return
             }
-            listener.onTaskStarted(task)
+            observer.onNext(canvas)
 
             val charges: Array<ChargeHolder> = ChargeHolder.toChargedParticles(params)
             val w = canvas.width
@@ -151,7 +162,7 @@ class FieldAsyncTask(val charges: Collection<Charge>, val canvas: Canvas, val li
                             break
                         }
                     }
-                    listener.repaint(task)
+                    observer.onNext(canvas)
 
                     y1 += resolution2
                     y2 += resolution2
@@ -165,13 +176,11 @@ class FieldAsyncTask(val charges: Collection<Charge>, val canvas: Canvas, val li
                 if (isDisposed) {
                     break
                 }
-            } while (resolution >= 1)
+            } while (resolution >= 4)
 
             running = false
-            if (isDisposed) {
-                listener.onTaskCancelled(task)
-            } else {
-                listener.onTaskFinished(task)
+            if (!isDisposed) {
+                observer.onComplete()
             }
         }
 
@@ -248,7 +257,10 @@ class FieldAsyncTask(val charges: Collection<Charge>, val canvas: Canvas, val li
      * @param value a value between [0..1] inclusive.
      */
     fun setSaturation(value: Float) {
-        runner.setSaturation(value)
+        saturation = value
+        if (runner != null) {
+            runner!!.setSaturation(value)
+        }
     }
 
     /**
@@ -257,7 +269,10 @@ class FieldAsyncTask(val charges: Collection<Charge>, val canvas: Canvas, val li
      * @param value a value between [0..1] inclusive.
      */
     fun setBrightness(value: Float) {
-        runner.setBrightness(value)
+        brighness = value
+        if (runner != null) {
+            runner!!.setBrightness(value)
+        }
     }
 
     /**
@@ -266,7 +281,10 @@ class FieldAsyncTask(val charges: Collection<Charge>, val canvas: Canvas, val li
      * @param delay the start delay, in milliseconds.
      */
     fun setStartDelay(delay: Long) {
-        runner.setStartDelay(delay)
+        startDelay = delay
+        if (runner != null) {
+            runner!!.setStartDelay(delay)
+        }
     }
 
     private class ChargeHolder(val x: Int, val y: Int, val size: Double) {
@@ -274,17 +292,6 @@ class FieldAsyncTask(val charges: Collection<Charge>, val canvas: Canvas, val li
         constructor(charge: Charge) : this(charge.x, charge.y, charge.size)
 
         companion object {
-
-            fun toChargedParticles(vararg charges: Charge): Array<ChargeHolder> {
-                val length = charges.size
-                val result = arrayOfNulls<ChargeHolder?>(length)
-
-                for (i in 0 until length) {
-                    result[i] = ChargeHolder(charges[i])
-                }
-
-                return result.requireNoNulls()
-            }
 
             fun toChargedParticles(charges: Collection<Charge>): Array<ChargeHolder> {
                 val length = charges.size
@@ -304,5 +311,5 @@ class FieldAsyncTask(val charges: Collection<Charge>, val canvas: Canvas, val li
     }
 
     val running: Boolean
-        get() = runner.running && !runner.isDisposed
+        get() = (runner != null) && runner!!.running && !runner!!.isDisposed
 }

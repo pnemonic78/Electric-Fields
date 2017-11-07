@@ -33,7 +33,7 @@ class SaveFileObserver(val context: Context, val bitmap: Bitmap) : Observer<Uri>
     private val nm: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private lateinit var builder: Notification.Builder
 
-    override fun onSubscribe(d: Disposable?) {
+    override fun onSubscribe(d: Disposable) {
         if (DisposableHelper.validate(this.disposable, d)) {
             this.disposable = d
             onStart()

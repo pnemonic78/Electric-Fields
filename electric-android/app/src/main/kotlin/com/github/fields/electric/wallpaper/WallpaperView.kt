@@ -25,7 +25,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import com.github.fields.electric.Charge
 import com.github.fields.electric.ElectricFieldsView
-import com.github.fields.electric.FieldAsyncTask
+import com.github.fields.electric.FieldsTask
 import com.github.fields.electric.R
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -37,7 +37,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @author Moshe Waisberg
  */
 class WallpaperView(context: Context, listener: WallpaperListener) :
-        FieldAsyncTask.FieldAsyncTaskListener,
+        FieldsTask.FieldAsyncTaskListener,
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener {
 
@@ -47,7 +47,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         private set
     private val charges: MutableList<Charge> = CopyOnWriteArrayList<Charge>()
     private var bitmap: Bitmap? = null
-    private var task: FieldAsyncTask? = null
+    private var task: FieldsTask? = null
     private var sameChargeDistance: Int = 0
     private var listener: WallpaperListener? = null
     private val gestureDetector: GestureDetector
@@ -129,7 +129,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
      */
     fun start(delay: Long = 0L) {
         if (!isRendering) {
-            val t = FieldAsyncTask(charges, Canvas(bitmap!!), this)
+            val t = FieldsTask(charges, Canvas(bitmap!!))
             task = t
             with(t) {
                 setSaturation(0.5f)
@@ -171,13 +171,13 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         this.listener = listener
     }
 
-    override fun onTaskStarted(task: FieldAsyncTask) {
+    override fun onTaskStarted(task: FieldsTask) {
         if (listener != null) {
             listener!!.onRenderFieldStarted(this)
         }
     }
 
-    override fun onTaskFinished(task: FieldAsyncTask) {
+    override fun onTaskFinished(task: FieldsTask) {
         if (task === this.task) {
             invalidate()
             if (listener != null) {
@@ -187,13 +187,13 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         }
     }
 
-    override fun onTaskCancelled(task: FieldAsyncTask) {
+    override fun onTaskCancelled(task: FieldsTask) {
         if (listener != null) {
             listener!!.onRenderFieldCancelled(this)
         }
     }
 
-    override fun repaint(task: FieldAsyncTask) {
+    override fun repaint(task: FieldsTask) {
         invalidate()
     }
 

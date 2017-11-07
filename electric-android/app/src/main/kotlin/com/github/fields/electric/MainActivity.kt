@@ -172,10 +172,10 @@ class MainActivity : Activity(),
         if (view == mainView) {
             runOnUiThread {
                 if (menuStop != null) {
-                    menuStop!!.isEnabled = view.isRendering
+                    menuStop!!.isEnabled = true
                 }
                 if (menuSave != null) {
-                    menuSave!!.isEnabled = view.isRendering
+                    menuSave!!.isEnabled = true
                 }
             }
         }

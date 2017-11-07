@@ -36,7 +36,6 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @author Moshe Waisberg
  */
 class ElectricFieldsView : View,
-        FieldAsyncTask.FieldAsyncTaskListener,
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener,
         ScaleGestureDetector.OnScaleGestureListener {
@@ -49,7 +48,7 @@ class ElectricFieldsView : View,
 
     private val charges: MutableList<Charge> = CopyOnWriteArrayList<Charge>()
     private var bitmap: Bitmap? = null
-    private var task: FieldAsyncTask? = null
+    private var task: FieldsTask? = null
     private var listener: ElectricFieldsListener? = null
     private lateinit var gestureDetector: GestureDetector
     private lateinit var scaleGestureDetector: ScaleGestureDetector
@@ -142,12 +141,28 @@ class ElectricFieldsView : View,
      */
     fun start() {
         if (!isRendering) {
-            val t = FieldAsyncTask(charges, Canvas(getBitmap()), this)
+            val view = this
+            val t = FieldsTask(charges, Canvas(getBitmap()))
             task = t
             t.subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({})
-            //TODO.subscribe(FieldAsyncTaskObserver(context, bitmap))
+                    .subscribe({
+                        postInvalidate()
+                    }, {
+                        if (listener != null) {
+                            listener!!.onRenderFieldCancelled(view)
+                        }
+                    }, {
+                        invalidate()
+                        if (listener != null) {
+                            listener!!.onRenderFieldFinished(view)
+                        }
+                        clear()
+                    }, {
+                        if (listener != null) {
+                            listener!!.onRenderFieldStarted(view)
+                        }
+                    })
         }
     }
 
@@ -166,36 +181,6 @@ class ElectricFieldsView : View,
     fun restart() {
         cancel()
         start()
-    }
-
-    override fun onTaskStarted(task: FieldAsyncTask) {
-        if (task === this.task) {
-            if (listener != null) {
-                listener!!.onRenderFieldStarted(this)
-            }
-        }
-    }
-
-    override fun onTaskFinished(task: FieldAsyncTask) {
-        if (task === this.task) {
-            invalidate()
-            if (listener != null) {
-                listener!!.onRenderFieldFinished(this)
-            }
-            clear()
-        }
-    }
-
-    override fun onTaskCancelled(task: FieldAsyncTask) {
-        if (task === this.task) {
-            if (listener != null) {
-                listener!!.onRenderFieldCancelled(this)
-            }
-        }
-    }
-
-    override fun repaint(task: FieldAsyncTask) {
-        postInvalidate()
     }
 
     /**
