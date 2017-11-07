@@ -21,9 +21,9 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
+import com.github.reactivex.DefaultDisposable
 import io.reactivex.Observable
 import io.reactivex.Observer
-import io.reactivex.android.MainThreadDisposable
 import io.reactivex.disposables.Disposable
 import java.io.File
 import java.io.FileOutputStream
@@ -55,7 +55,7 @@ class SaveFileTask(val context: Context, val bitmap: Bitmap) : Observable<Uri>()
         task.dispose()
     }
 
-    private class SaveFileRunner(val context: Context, val bitmap: Bitmap, val observer: Observer<in Uri>) : MainThreadDisposable() {
+    private class SaveFileRunner(val context: Context, val bitmap: Bitmap, val observer: Observer<in Uri>) : DefaultDisposable() {
 
         private val TAG = "SaveFileTask"
 
