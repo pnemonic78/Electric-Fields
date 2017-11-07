@@ -27,7 +27,7 @@ class SaveFileObserver(val context: Context, val bitmap: Bitmap) : Observer<Uri>
 
     private val CHANNEL_ID = "save_file"
 
-    private val IMAGE_MIME = "image/png"
+    private val IMAGE_MIME = SaveFileTask.IMAGE_MIME
 
     private var disposable: Disposable? = null
     private val nm: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

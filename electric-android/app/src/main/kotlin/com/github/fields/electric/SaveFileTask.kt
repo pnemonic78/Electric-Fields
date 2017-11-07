@@ -38,6 +38,10 @@ import java.util.*
  */
 class SaveFileTask(val context: Context, val bitmap: Bitmap) : Observable<Uri>(), Disposable {
 
+    companion object {
+        val IMAGE_MIME = "image/png"
+    }
+
     private lateinit var task: Disposable
 
     override fun subscribeActual(observer: Observer<in Uri>) {
@@ -59,7 +63,6 @@ class SaveFileTask(val context: Context, val bitmap: Bitmap) : Observable<Uri>()
 
         private val TAG = "SaveFileTask"
 
-        private val IMAGE_MIME = "image/png"
         private val IMAGE_EXT = ".png"
         private val SCHEME_FILE = "file"
 
