@@ -142,13 +142,15 @@ class ElectricFieldsWallpaperService : WallpaperService() {
                 try {
                     val canvas = surfaceHolder.lockCanvas()
                     if (canvas != null) {
-                        fieldsView.draw(canvas)
-                        surfaceHolder.unlockCanvasAndPost(canvas)
+                        try {
+                            fieldsView.draw(canvas)
+                        } finally {
+                            surfaceHolder.unlockCanvasAndPost(canvas)
+                        }
                     }
-                } catch (e: IllegalArgumentException) {
+                } catch (e: Exception) {
                     e.printStackTrace()
                 }
-
             }
             drawing = false
         }

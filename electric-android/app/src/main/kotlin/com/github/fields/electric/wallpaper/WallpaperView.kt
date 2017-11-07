@@ -37,7 +37,6 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @author Moshe Waisberg
  */
 class WallpaperView(context: Context, listener: WallpaperListener) :
-        FieldsTask.FieldAsyncTaskListener,
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener {
 
@@ -97,7 +96,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         var d: Int
         var dMin = Integer.MAX_VALUE
 
-        for (i in 0..count - 1) {
+        for (i in 0 until count) {
             charge = charges[i]
             dx = x - charge.x
             dy = y - charge.y
@@ -129,16 +128,32 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
      */
     fun start(delay: Long = 0L) {
         if (!isRendering) {
+            val view = this
             val t = FieldsTask(charges, Canvas(bitmap!!))
             task = t
             with(t) {
-                setSaturation(0.5f)
-                setBrightness(0.5f)
+                saturation = 0.5f
+                brightness = 0.5f
                 setStartDelay(delay)
                 subscribeOn(Schedulers.computation())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({})
-                //TODO .subscribe(FieldAsyncTaskObserver(context, bitmap))
+                        .subscribe({
+                            invalidate()
+                        }, {
+                            if (listener != null) {
+                                listener!!.onRenderFieldCancelled(view)
+                            }
+                        }, {
+                            invalidate()
+                            if (listener != null) {
+                                listener!!.onRenderFieldFinished(view)
+                            }
+                            clear()
+                        }, {
+                            if (listener != null) {
+                                listener!!.onRenderFieldStarted(view)
+                            }
+                        })
             }
         }
     }
@@ -169,32 +184,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
      */
     fun setWallpaperListener(listener: WallpaperListener) {
         this.listener = listener
-    }
-
-    override fun onTaskStarted(task: FieldsTask) {
-        if (listener != null) {
-            listener!!.onRenderFieldStarted(this)
-        }
-    }
-
-    override fun onTaskFinished(task: FieldsTask) {
-        if (task === this.task) {
-            invalidate()
-            if (listener != null) {
-                listener!!.onRenderFieldFinished(this)
-            }
-            clear()
-        }
-    }
-
-    override fun onTaskCancelled(task: FieldsTask) {
-        if (listener != null) {
-            listener!!.onRenderFieldCancelled(this)
-        }
-    }
-
-    override fun repaint(task: FieldsTask) {
-        invalidate()
     }
 
     private fun invalidate() {

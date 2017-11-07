@@ -31,46 +31,29 @@ import io.reactivex.disposables.Disposable
  */
 class FieldsTask(val charges: Collection<Charge>, val canvas: Canvas) : Observable<Canvas>(), Disposable {
 
-    interface FieldAsyncTaskListener {
-        /**
-         * Notify the listener that the task has started processing the charges.
-
-         * @param task the caller task.
-         */
-        fun onTaskStarted(task: FieldsTask)
-
-        /**
-         * Notify the listener that the task has finished.
-
-         * @param task the caller task.
-         */
-        fun onTaskFinished(task: FieldsTask)
-
-        /**
-         * Notify the listener that the task has aborted.
-
-         * @param task the caller task.
-         */
-        fun onTaskCancelled(task: FieldsTask)
-
-        /**
-         * Notify the listener to repaint its bitmap.
-
-         * @param task the caller task.
-         */
-        fun repaint(task: FieldsTask)
-    }
-
     private var runner: FieldRunner? = null
-    private var brighness = 1f
-    private var saturation = 1f
+    var brightness: Float = 1f
+        set(value) {
+            field = value
+            if (runner != null) {
+                runner!!.brightness = value
+            }
+        }
+    var saturation: Float = 1f
+        set(value) {
+            field = value
+            if (runner != null) {
+                runner!!.saturation = value
+            }
+        }
+
     private var startDelay = 0L
 
     override fun subscribeActual(observer: Observer<in Canvas>) {
         val d = FieldRunner(charges, canvas, observer)
-        d.setSaturation(brighness)
-        d.setBrightness(saturation)
-        d.setStartDelay(startDelay)
+        d.brightness = brightness
+        d.saturation = saturation
+        d.startDelay = startDelay
         runner = d
         observer.onSubscribe(d)
         d.run()
@@ -94,8 +77,20 @@ class FieldsTask(val charges: Collection<Charge>, val canvas: Canvas) : Observab
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         private val rect = RectF()
         private val hsv = floatArrayOf(0f, 1f, 1f)
-        private var startDelay = 0L
+        var startDelay = 0L
         var running = false
+            private set
+
+        var saturation: Float
+            get() = hsv[1]
+            set(value) {
+                hsv[1] = value
+            }
+        var brightness: Float
+            get() = hsv[2]
+            set(value) {
+                hsv[2] = value
+            }
 
         init {
             with(paint) {
@@ -176,7 +171,7 @@ class FieldsTask(val charges: Collection<Charge>, val canvas: Canvas) : Observab
                 if (isDisposed) {
                     break
                 }
-            } while (resolution >= 4)
+            } while (resolution >= 1)
 
             running = false
             if (!isDisposed) {
@@ -220,58 +215,7 @@ class FieldsTask(val charges: Collection<Charge>, val canvas: Canvas) : Observab
             return Color.HSVToColor(hsv)
         }
 
-        /**
-         * Set the HSV saturation.
-         *
-         * @param value a value between [0..1] inclusive.
-         */
-        fun setSaturation(value: Float) {
-            hsv[1] = value
-        }
-
-        /**
-         * Set the HSV brightness.
-         *
-         * @param value a value between [0..1] inclusive.
-         */
-        fun setBrightness(value: Float) {
-            hsv[2] = value
-        }
-
-        /**
-         * Set the start delay.
-         *
-         * @param delay the start delay, in milliseconds.
-         */
-        fun setStartDelay(delay: Long) {
-            startDelay = delay
-        }
-
         override fun onDispose() {
-        }
-    }
-
-    /**
-     * Set the HSV saturation.
-     *
-     * @param value a value between [0..1] inclusive.
-     */
-    fun setSaturation(value: Float) {
-        saturation = value
-        if (runner != null) {
-            runner!!.setSaturation(value)
-        }
-    }
-
-    /**
-     * Set the HSV brightness.
-     *
-     * @param value a value between [0..1] inclusive.
-     */
-    fun setBrightness(value: Float) {
-        brighness = value
-        if (runner != null) {
-            runner!!.setBrightness(value)
         }
     }
 
@@ -283,7 +227,7 @@ class FieldsTask(val charges: Collection<Charge>, val canvas: Canvas) : Observab
     fun setStartDelay(delay: Long) {
         startDelay = delay
         if (runner != null) {
-            runner!!.setStartDelay(delay)
+            runner!!.startDelay = delay
         }
     }
 
