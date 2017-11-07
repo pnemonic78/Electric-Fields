@@ -142,7 +142,7 @@ class ElectricFieldsView : View,
     fun start() {
         if (!isRendering) {
             val view = this
-            val t = FieldsTask(charges, Canvas(getBitmap()))
+            val t = FieldsTask(charges, getBitmap())
             task = t
             t.subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread())

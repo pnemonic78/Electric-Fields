@@ -15,10 +15,7 @@
  */
 package com.github.fields.electric
 
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import com.github.reactivex.DefaultDisposable
 import io.reactivex.Observable
 import io.reactivex.Observer
@@ -29,7 +26,7 @@ import io.reactivex.disposables.Disposable
  *
  * @author Moshe Waisberg
  */
-class FieldsTask(val charges: Collection<Charge>, val canvas: Canvas) : Observable<Canvas>(), Disposable {
+class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observable<Bitmap>(), Disposable {
 
     private var runner: FieldRunner? = null
     var brightness: Float = 1f
@@ -49,8 +46,8 @@ class FieldsTask(val charges: Collection<Charge>, val canvas: Canvas) : Observab
 
     private var startDelay = 0L
 
-    override fun subscribeActual(observer: Observer<in Canvas>) {
-        val d = FieldRunner(charges, canvas, observer)
+    override fun subscribeActual(observer: Observer<in Bitmap>) {
+        val d = FieldRunner(charges, bitmap, observer)
         d.brightness = brightness
         d.saturation = saturation
         d.startDelay = startDelay
@@ -72,7 +69,7 @@ class FieldsTask(val charges: Collection<Charge>, val canvas: Canvas) : Observab
         }
     }
 
-    private class FieldRunner(val params: Collection<Charge>, val canvas: Canvas, val observer: Observer<in Canvas>) : DefaultDisposable() {
+    private class FieldRunner(val params: Collection<Charge>, val bitmap: Bitmap, val observer: Observer<in Bitmap>) : DefaultDisposable() {
 
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         private val rect = RectF()
@@ -111,11 +108,11 @@ class FieldsTask(val charges: Collection<Charge>, val canvas: Canvas) : Observab
             if (isDisposed) {
                 return
             }
-            observer.onNext(canvas)
+            observer.onNext(bitmap)
 
             val charges: Array<ChargeHolder> = ChargeHolder.toChargedParticles(params)
-            val w = canvas.width
-            val h = canvas.height
+            val w = bitmap.width
+            val h = bitmap.height
             var size = Math.max(w, h)
 
             var shifts = 0
@@ -130,6 +127,7 @@ class FieldsTask(val charges: Collection<Charge>, val canvas: Canvas) : Observab
             var resolution2 = 1 shl shifts
             var resolution = resolution2
 
+            val canvas = Canvas(bitmap)
             canvas.drawColor(Color.WHITE)
             plot(charges, canvas, 0, 0, resolution, resolution, density)
 
@@ -157,7 +155,7 @@ class FieldsTask(val charges: Collection<Charge>, val canvas: Canvas) : Observab
                             break
                         }
                     }
-                    observer.onNext(canvas)
+                    observer.onNext(bitmap)
 
                     y1 += resolution2
                     y2 += resolution2

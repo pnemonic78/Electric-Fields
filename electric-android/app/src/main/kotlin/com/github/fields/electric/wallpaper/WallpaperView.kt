@@ -129,7 +129,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     fun start(delay: Long = 0L) {
         if (!isRendering) {
             val view = this
-            val t = FieldsTask(charges, Canvas(bitmap!!))
+            val t = FieldsTask(charges, bitmap!!)
             task = t
             with(t) {
                 saturation = 0.5f
