@@ -23,7 +23,11 @@ import android.os.SystemClock
 import android.text.format.DateUtils
 import android.view.GestureDetector
 import android.view.MotionEvent
-import com.github.fields.electric.*
+import com.github.fields.electric.Charge
+import com.github.fields.electric.ElectricFields
+import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
+import com.github.fields.electric.FieldsTask
+import com.github.fields.electric.R
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -50,6 +54,8 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     private var sameChargeDistance: Int = 0
     private var listener: WallpaperListener? = null
     private val gestureDetector: GestureDetector
+    var idle = false
+        private set
 
     init {
         val res = context.resources
@@ -64,7 +70,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     }
 
     override fun addCharge(charge: Charge): Boolean {
-        if (charges.size < ElectricFieldsView.MAX_CHARGES) {
+        if (charges.size < MAX_CHARGES) {
             if (charges.add(charge)) {
                 if (listener != null) {
                     listener!!.onChargeAdded(this, charge)
@@ -123,7 +129,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     }
 
     override fun start(delay: Long) {
-        if (!isRendering) {
+        if (idle) {
             val observer = this
             val t = FieldsTask(charges, bitmap!!)
             task = t
@@ -141,6 +147,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         if (task != null) {
             task!!.cancel()
         }
+        idle = true
     }
 
     /**
@@ -182,13 +189,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
             bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
         }
     }
-
-    /**
-     * Is the task busy rendering the fields?
-     * @return `true` if rendering.
-     */
-    val isRendering: Boolean
-        get() = (task != null) && task!!.running
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         return false
@@ -235,12 +235,14 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     }
 
     override fun onError(e: Throwable) {
+        idle = true
         if (listener != null) {
             listener!!.onRenderFieldCancelled(this)
         }
     }
 
     override fun onComplete() {
+        idle = true
         invalidate()
         if (listener != null) {
             listener!!.onRenderFieldFinished(this)
@@ -249,6 +251,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     }
 
     override fun onSubscribe(d: Disposable) {
+        idle = false
         if (listener != null) {
             listener!!.onRenderFieldStarted(this)
         }

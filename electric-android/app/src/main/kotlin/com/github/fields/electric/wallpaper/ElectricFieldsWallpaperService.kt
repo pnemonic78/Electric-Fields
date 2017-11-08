@@ -21,7 +21,7 @@ import android.view.MotionEvent
 import android.view.SurfaceHolder
 import com.github.fields.electric.Charge
 import com.github.fields.electric.ElectricFields
-import com.github.fields.electric.ElectricFieldsView
+import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -67,7 +67,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
 
         override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
             fieldsView.setSize(width, height)
-            fieldsView.restart()
+            randomise()
         }
 
         override fun onSurfaceDestroyed(holder: SurfaceHolder) {
@@ -98,7 +98,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
         private fun randomise(delay: Long = 0L) {
             val w = fieldsView.width
             val h = fieldsView.height
-            val count = 1 + random.nextInt(ElectricFieldsView.MAX_CHARGES)
+            val count = 1 + random.nextInt(MAX_CHARGES)
             fieldsView.clear()
             for (i in 0 until count) {
                 fieldsView.addCharge(random.nextInt(w), random.nextInt(h), (if (random.nextBoolean()) +1 else -1) * (1 + random.nextDouble() * 20))
@@ -147,7 +147,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
         }
 
         fun draw() {
-            if (drawing.compareAndSet(false, true)) {
+            if (!drawing.compareAndSet(false, true)) {
                 return
             }
             val surfaceHolder = this.surfaceHolder

@@ -165,7 +165,7 @@ class ElectricFieldsView : View,
     }
 
     override fun start(delay: Long) {
-        if (!isRendering) {
+        if (isIdle()) {
             val observer = this
             val t = FieldsTask(charges, bitmap!!)
             task = t
@@ -222,11 +222,10 @@ class ElectricFieldsView : View,
     }
 
     /**
-     * Is the task busy rendering the fields?
-     * @return `true` if rendering.
+     * Is the task idle and not rendering the fields?
+     * @return `true` if idle.
      */
-    val isRendering: Boolean
-        get() = (task != null) && task!!.running
+    fun isIdle(): Boolean = (task == null) || task!!.isIdle()
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         return false

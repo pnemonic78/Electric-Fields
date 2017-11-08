@@ -63,11 +63,13 @@ class MainActivity : Activity(),
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
 
+        val rendering = !mainView.isIdle()
+
         menuStop = menu.findItem(R.id.menu_stop)
-        menuStop!!.isEnabled = mainView.isRendering
+        menuStop!!.isEnabled = rendering
 
         menuSave = menu.findItem(R.id.menu_save_file)
-        menuSave!!.isEnabled = mainView.isRendering
+        menuSave!!.isEnabled = rendering
 
         return true
     }

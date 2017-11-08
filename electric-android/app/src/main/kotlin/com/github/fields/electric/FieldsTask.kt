@@ -145,36 +145,28 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
                 y1 = 0
                 y2 = resolution
 
-                while (y1 < h) {
+                do {
                     x1 = 0
                     x2 = resolution
 
-                    while (x1 < w) {
+                    do {
                         plot(charges, canvas, x1, y2, resolution, resolution, density)
                         plot(charges, canvas, x2, y1, resolution, resolution, density)
                         plot(charges, canvas, x2, y2, resolution, resolution, density)
 
                         x1 += resolution2
                         x2 += resolution2
-                        if (isDisposed) {
-                            break
-                        }
-                    }
+                    } while ((x1 < w) && !isDisposed)
+
                     observer.onNext(bitmap)
 
                     y1 += resolution2
                     y2 += resolution2
-                    if (isDisposed) {
-                        break
-                    }
-                }
+                } while ((y1 < h) && !isDisposed)
 
                 resolution2 = resolution
                 resolution = resolution2 shr 1
-                if (isDisposed) {
-                    break
-                }
-            } while (resolution >= 1)
+            } while ((resolution >= 1) && !isDisposed)
 
             running = false
             if (!isDisposed) {
@@ -245,6 +237,5 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
         dispose()
     }
 
-    val running: Boolean
-        get() = (runner != null) && runner!!.running && !runner!!.isDisposed
+    fun isIdle(): Boolean = (runner == null) || !runner!!.running || isDisposed
 }
