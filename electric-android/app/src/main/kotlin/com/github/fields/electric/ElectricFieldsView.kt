@@ -38,6 +38,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 class ElectricFieldsView : View,
         ElectricFields,
+        Observer<Bitmap>,
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener,
         ScaleGestureDetector.OnScaleGestureListener {
@@ -57,7 +58,6 @@ class ElectricFieldsView : View,
     private var sameChargeDistance: Int = 0
     private var chargeToScale: Charge? = null
     private var scaleFactor = 1f
-    private var observer: Observer<Bitmap>? = null
 
     constructor(context: Context) : super(context) {
         init(context)
@@ -141,36 +141,7 @@ class ElectricFieldsView : View,
 
     override fun start(delay: Long) {
         if (!isRendering) {
-            var observer = this.observer
-            if (observer == null) {
-                val view = this
-                observer = object : Observer<Bitmap> {
-                    override fun onNext(value: Bitmap) {
-                        postInvalidate()
-                    }
-
-                    override fun onError(e: Throwable) {
-                        if (listener != null) {
-                            listener!!.onRenderFieldCancelled(view)
-                        }
-                    }
-
-                    override fun onComplete() {
-                        invalidate()
-                        if (listener != null) {
-                            listener!!.onRenderFieldFinished(view)
-                        }
-                        clear()
-                    }
-
-                    override fun onSubscribe(d: Disposable) {
-                        if (listener != null) {
-                            listener!!.onRenderFieldStarted(view)
-                        }
-                    }
-                }
-                this.observer = observer
-            }
+            val observer = this
             val t = FieldsTask(charges, getBitmap())
             task = t
             t.startDelay = delay
@@ -330,6 +301,30 @@ class ElectricFieldsView : View,
         var result = scaleGestureDetector.onTouchEvent(event)
         result = gestureDetector.onTouchEvent(event) || result
         return result || super.onTouchEvent(event)
+    }
+
+    override fun onNext(value: Bitmap) {
+        postInvalidate()
+    }
+
+    override fun onError(e: Throwable) {
+        if (listener != null) {
+            listener!!.onRenderFieldCancelled(this)
+        }
+    }
+
+    override fun onComplete() {
+        invalidate()
+        if (listener != null) {
+            listener!!.onRenderFieldFinished(this)
+        }
+        clear()
+    }
+
+    override fun onSubscribe(d: Disposable) {
+        if (listener != null) {
+            listener!!.onRenderFieldStarted(this)
+        }
     }
 
     class SavedState : View.BaseSavedState {

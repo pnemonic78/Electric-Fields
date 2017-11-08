@@ -36,6 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 class WallpaperView(context: Context, listener: WallpaperListener) :
         ElectricFields,
+        Observer<Bitmap>,
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener {
 
@@ -49,7 +50,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     private var sameChargeDistance: Int = 0
     private var listener: WallpaperListener? = null
     private val gestureDetector: GestureDetector
-    private var observer: Observer<Bitmap>? = null
 
     init {
         val res = context.resources
@@ -124,36 +124,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     override fun start(delay: Long) {
         if (!isRendering) {
-            var observer = this.observer
-            if (observer == null) {
-                val view = this
-                observer = object : Observer<Bitmap> {
-                    override fun onNext(value: Bitmap) {
-                        invalidate()
-                    }
-
-                    override fun onError(e: Throwable) {
-                        if (listener != null) {
-                            listener!!.onRenderFieldCancelled(view)
-                        }
-                    }
-
-                    override fun onComplete() {
-                        invalidate()
-                        if (listener != null) {
-                            listener!!.onRenderFieldFinished(view)
-                        }
-                        clear()
-                    }
-
-                    override fun onSubscribe(d: Disposable) {
-                        if (listener != null) {
-                            listener!!.onRenderFieldStarted(view)
-                        }
-                    }
-                }
-                this.observer = observer
-            }
+            val observer = this
             val t = FieldsTask(charges, bitmap!!)
             task = t
             with(t) {
@@ -257,5 +228,29 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     fun onTouchEvent(event: MotionEvent) {
         gestureDetector.onTouchEvent(event)
+    }
+
+    override fun onNext(value: Bitmap) {
+        invalidate()
+    }
+
+    override fun onError(e: Throwable) {
+        if (listener != null) {
+            listener!!.onRenderFieldCancelled(this)
+        }
+    }
+
+    override fun onComplete() {
+        invalidate()
+        if (listener != null) {
+            listener!!.onRenderFieldFinished(this)
+        }
+        clear()
+    }
+
+    override fun onSubscribe(d: Disposable) {
+        if (listener != null) {
+            listener!!.onRenderFieldStarted(this)
+        }
     }
 }
