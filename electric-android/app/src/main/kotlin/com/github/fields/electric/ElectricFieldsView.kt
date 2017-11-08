@@ -50,12 +50,38 @@ class ElectricFieldsView : View,
     }
 
     private val charges: MutableList<Charge> = CopyOnWriteArrayList<Charge>()
-    private var bitmap: Bitmap? = null
+    var bitmap: Bitmap? = null
+        get() {
+            val metrics = resources.displayMetrics
+            val width = metrics.widthPixels
+            val height = metrics.heightPixels
+
+            val bitmapOld = field
+            if (bitmapOld != null) {
+                val bw = bitmapOld.width
+                val bh = bitmapOld.height
+
+                if ((width != bw) || (height != bh)) {
+                    val m = Matrix()
+                    // Changed orientation?
+                    if (width < bw && height > bh) {// Portrait?
+                        m.postRotate(90f, bw / 2f, bh / 2f)
+                    } else {// Landscape?
+                        m.postRotate(270f, bw / 2f, bh / 2f)
+                    }
+                    val rotated = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh, m, true)
+                    bitmap = Bitmap.createScaledBitmap(rotated, width, height, true)
+                }
+            } else {
+                field = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            }
+            return field
+        }
     private var task: FieldsTask? = null
+    private var sameChargeDistance: Int = 0
     private var listener: ElectricFieldsListener? = null
     private lateinit var gestureDetector: GestureDetector
     private lateinit var scaleGestureDetector: ScaleGestureDetector
-    private var sameChargeDistance: Int = 0
     private var chargeToScale: Charge? = null
     private var scaleFactor = 1f
 
@@ -135,14 +161,13 @@ class ElectricFieldsView : View,
     }
 
     override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
-        canvas.drawBitmap(getBitmap(), 0f, 0f, null)
+        canvas.drawBitmap(bitmap, 0f, 0f, null)
     }
 
     override fun start(delay: Long) {
         if (!isRendering) {
             val observer = this
-            val t = FieldsTask(charges, getBitmap())
+            val t = FieldsTask(charges, bitmap!!)
             task = t
             t.startDelay = delay
             t.subscribeOn(Schedulers.computation())
@@ -155,38 +180,6 @@ class ElectricFieldsView : View,
         if (task != null) {
             task!!.cancel()
         }
-    }
-
-    /**
-     * Get the bitmap.
-     *
-     * @return the bitmap.
-     */
-    fun getBitmap(): Bitmap {
-        val metrics = resources.displayMetrics
-        val width = metrics.widthPixels
-        val height = metrics.heightPixels
-
-        val bitmapOld = bitmap
-        if (bitmapOld != null) {
-            val bw = bitmapOld.width
-            val bh = bitmapOld.height
-
-            if ((width != bw) || (height != bh)) {
-                val m = Matrix()
-                // Changed orientation?
-                if (width < bw && height > bh) {// Portrait?
-                    m.postRotate(90f, bw / 2f, bh / 2f)
-                } else {// Landscape?
-                    m.postRotate(270f, bw / 2f, bh / 2f)
-                }
-                val rotated = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh, m, true)
-                bitmap = Bitmap.createScaledBitmap(rotated, width, height, true)
-            }
-        } else {
-            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        }
-        return bitmap!!
     }
 
     /**

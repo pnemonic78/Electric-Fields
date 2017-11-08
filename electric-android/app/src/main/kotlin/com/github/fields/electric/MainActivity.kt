@@ -132,7 +132,7 @@ class MainActivity : Activity(),
         menuSave!!.isEnabled = false
 
         val context = this
-        val bitmap = mainView.getBitmap()
+        val bitmap = mainView.bitmap!!
         val task = SaveFileTask(context, bitmap)
         task.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
