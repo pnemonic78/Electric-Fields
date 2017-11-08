@@ -24,6 +24,8 @@ import android.text.format.DateUtils
 import android.view.GestureDetector
 import android.view.MotionEvent
 import com.github.fields.electric.*
+import io.reactivex.Observer
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -47,6 +49,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     private var sameChargeDistance: Int = 0
     private var listener: WallpaperListener? = null
     private val gestureDetector: GestureDetector
+    private var observer: Observer<Bitmap>? = null
 
     init {
         val res = context.resources
@@ -121,7 +124,36 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     override fun start(delay: Long) {
         if (!isRendering) {
-            val view = this
+            var observer = this.observer
+            if (observer == null) {
+                val view = this
+                observer = object : Observer<Bitmap> {
+                    override fun onNext(value: Bitmap) {
+                        invalidate()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        if (listener != null) {
+                            listener!!.onRenderFieldCancelled(view)
+                        }
+                    }
+
+                    override fun onComplete() {
+                        invalidate()
+                        if (listener != null) {
+                            listener!!.onRenderFieldFinished(view)
+                        }
+                        clear()
+                    }
+
+                    override fun onSubscribe(d: Disposable) {
+                        if (listener != null) {
+                            listener!!.onRenderFieldStarted(view)
+                        }
+                    }
+                }
+                this.observer = observer
+            }
             val t = FieldsTask(charges, bitmap!!)
             task = t
             with(t) {
@@ -129,23 +161,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
                 brightness = 0.5f
                 startDelay = delay
                 subscribeOn(Schedulers.computation())
-                        .subscribe({
-                            invalidate()
-                        }, {
-                            if (listener != null) {
-                                listener!!.onRenderFieldCancelled(view)
-                            }
-                        }, {
-                            invalidate()
-                            if (listener != null) {
-                                listener!!.onRenderFieldFinished(view)
-                            }
-                            clear()
-                        }, {
-                            if (listener != null) {
-                                listener!!.onRenderFieldStarted(view)
-                            }
-                        })
+                        .subscribe(observer)
             }
         }
     }

@@ -25,9 +25,10 @@ import android.os.SystemClock
 import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.view.*
+import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -56,6 +57,7 @@ class ElectricFieldsView : View,
     private var sameChargeDistance: Int = 0
     private var chargeToScale: Charge? = null
     private var scaleFactor = 1f
+    private var observer: Observer<Bitmap>? = null
 
     constructor(context: Context) : super(context) {
         init(context)
@@ -114,7 +116,7 @@ class ElectricFieldsView : View,
         var d: Int
         var dMin = Integer.MAX_VALUE
 
-        for (i in 0..count - 1) {
+        for (i in 0 until count) {
             charge = charges[i]
             dx = x - charge.x
             dy = y - charge.y
@@ -139,29 +141,42 @@ class ElectricFieldsView : View,
 
     override fun start(delay: Long) {
         if (!isRendering) {
-            val view = this
-            val t = FieldsTask(charges, getBitmap())
-            task = t
-            t.startDelay = delay
-            t.subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
+            var observer = this.observer
+            if (observer == null) {
+                val view = this
+                observer = object : Observer<Bitmap> {
+                    override fun onNext(value: Bitmap) {
                         postInvalidate()
-                    }, {
+                    }
+
+                    override fun onError(e: Throwable) {
                         if (listener != null) {
                             listener!!.onRenderFieldCancelled(view)
                         }
-                    }, {
+                    }
+
+                    override fun onComplete() {
                         invalidate()
                         if (listener != null) {
                             listener!!.onRenderFieldFinished(view)
                         }
                         clear()
-                    }, {
+                    }
+
+                    override fun onSubscribe(d: Disposable) {
                         if (listener != null) {
                             listener!!.onRenderFieldStarted(view)
                         }
-                    })
+                    }
+                }
+                this.observer = observer
+            }
+            val t = FieldsTask(charges, getBitmap())
+            task = t
+            t.startDelay = delay
+            t.subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(observer)
         }
     }
 
