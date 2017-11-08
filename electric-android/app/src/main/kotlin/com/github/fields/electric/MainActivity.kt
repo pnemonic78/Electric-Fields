@@ -56,7 +56,7 @@ class MainActivity : Activity(),
 
     override fun onDestroy() {
         super.onDestroy()
-        mainView.cancel()
+        mainView.stop()
         disposables.dispose()
     }
 
@@ -140,19 +140,19 @@ class MainActivity : Activity(),
         disposables.add(task)
     }
 
-    override fun onChargeAdded(view: ElectricFieldsView, charge: Charge) {}
+    override fun onChargeAdded(view: ElectricFields, charge: Charge) {}
 
-    override fun onChargeInverted(view: ElectricFieldsView, charge: Charge) {}
+    override fun onChargeInverted(view: ElectricFields, charge: Charge) {}
 
-    override fun onChargeScaleBegin(view: ElectricFieldsView, charge: Charge): Boolean {
+    override fun onChargeScaleBegin(view: ElectricFields, charge: Charge): Boolean {
         return (view == mainView)
     }
 
-    override fun onChargeScale(view: ElectricFieldsView, charge: Charge): Boolean {
+    override fun onChargeScale(view: ElectricFields, charge: Charge): Boolean {
         return (view == mainView)
     }
 
-    override fun onChargeScaleEnd(view: ElectricFieldsView, charge: Charge): Boolean {
+    override fun onChargeScaleEnd(view: ElectricFields, charge: Charge): Boolean {
         if (view == mainView) {
             view.restart()
             return true
@@ -160,7 +160,7 @@ class MainActivity : Activity(),
         return false
     }
 
-    override fun onRenderFieldClicked(view: ElectricFieldsView, x: Int, y: Int, size: Double): Boolean {
+    override fun onRenderFieldClicked(view: ElectricFields, x: Int, y: Int, size: Double): Boolean {
         if ((view == mainView) && (view.invertCharge(x, y) || view.addCharge(x, y, size))) {
             view.restart()
             return true
@@ -168,7 +168,7 @@ class MainActivity : Activity(),
         return false
     }
 
-    override fun onRenderFieldStarted(view: ElectricFieldsView) {
+    override fun onRenderFieldStarted(view: ElectricFields) {
         if (view == mainView) {
             runOnUiThread {
                 if (menuStop != null) {
@@ -181,7 +181,7 @@ class MainActivity : Activity(),
         }
     }
 
-    override fun onRenderFieldFinished(view: ElectricFieldsView) {
+    override fun onRenderFieldFinished(view: ElectricFields) {
         if (view == mainView) {
             runOnUiThread {
                 if (menuStop != null) {
@@ -195,7 +195,7 @@ class MainActivity : Activity(),
         }
     }
 
-    override fun onRenderFieldCancelled(view: ElectricFieldsView) {
+    override fun onRenderFieldCancelled(view: ElectricFields) {
         if (view == mainView) {
             runOnUiThread {
                 if (menuStop != null) {
@@ -272,7 +272,7 @@ class MainActivity : Activity(),
     }
 
     private fun stop() {
-        mainView.cancel()
+        mainView.stop()
         mainView.clear()
     }
 }

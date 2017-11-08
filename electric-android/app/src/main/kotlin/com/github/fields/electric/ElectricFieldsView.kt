@@ -36,6 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @author Moshe Waisberg
  */
 class ElectricFieldsView : View,
+        ElectricFields,
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener,
         ScaleGestureDetector.OnScaleGestureListener {
@@ -76,11 +77,11 @@ class ElectricFieldsView : View,
         scaleGestureDetector = ScaleGestureDetector(context, this)
     }
 
-    fun addCharge(x: Int, y: Int, size: Double): Boolean {
+    override fun addCharge(x: Int, y: Int, size: Double): Boolean {
         return addCharge(Charge(x, y, size))
     }
 
-    fun addCharge(charge: Charge): Boolean {
+    override fun addCharge(charge: Charge): Boolean {
         if (charges.size < MAX_CHARGES) {
             if (charges.add(charge)) {
                 if (listener != null) {
@@ -92,7 +93,7 @@ class ElectricFieldsView : View,
         return false
     }
 
-    fun invertCharge(x: Int, y: Int): Boolean {
+    override fun invertCharge(x: Int, y: Int): Boolean {
         val charge = findCharge(x, y)
         if (charge != null) {
             charge.size = -charge.size
@@ -104,7 +105,7 @@ class ElectricFieldsView : View,
         return false
     }
 
-    fun findCharge(x: Int, y: Int): Charge? {
+    override fun findCharge(x: Int, y: Int): Charge? {
         val count = charges.size
         var charge: Charge
         var chargeNearest: Charge? = null
@@ -127,7 +128,7 @@ class ElectricFieldsView : View,
         return chargeNearest
     }
 
-    fun clear() {
+    override fun clear() {
         charges.clear()
     }
 
@@ -136,14 +137,12 @@ class ElectricFieldsView : View,
         canvas.drawBitmap(getBitmap(), 0f, 0f, null)
     }
 
-    /**
-     * Start the task.
-     */
-    fun start() {
+    override fun start(delay: Long) {
         if (!isRendering) {
             val view = this
             val t = FieldsTask(charges, getBitmap())
             task = t
+            t.startDelay = delay
             t.subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
@@ -166,21 +165,10 @@ class ElectricFieldsView : View,
         }
     }
 
-    /**
-     * Cancel the task.
-     */
-    fun cancel() {
+    override fun stop() {
         if (task != null) {
             task!!.cancel()
         }
-    }
-
-    /**
-     * Restart the task with modified charges.
-     */
-    fun restart() {
-        cancel()
-        start()
     }
 
     /**

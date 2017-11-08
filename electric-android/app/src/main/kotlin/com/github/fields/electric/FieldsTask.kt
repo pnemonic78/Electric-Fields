@@ -29,22 +29,27 @@ import io.reactivex.disposables.Disposable
 class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observable<Bitmap>(), Disposable {
 
     private var runner: FieldRunner? = null
-    var brightness: Float = 1f
+    var brightness = 1f
         set(value) {
             field = value
             if (runner != null) {
                 runner!!.brightness = value
             }
         }
-    var saturation: Float = 1f
+    var saturation = 1f
         set(value) {
             field = value
             if (runner != null) {
                 runner!!.saturation = value
             }
         }
-
-    private var startDelay = 0L
+    var startDelay = 0L
+        set(value) {
+            field = value
+            if (runner != null) {
+                runner!!.startDelay = value
+            }
+        }
 
     override fun subscribeActual(observer: Observer<in Bitmap>) {
         val d = FieldRunner(charges, bitmap, observer)
@@ -214,18 +219,6 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
         }
 
         override fun onDispose() {
-        }
-    }
-
-    /**
-     * Set the start delay.
-     *
-     * @param delay the start delay, in milliseconds.
-     */
-    fun setStartDelay(delay: Long) {
-        startDelay = delay
-        if (runner != null) {
-            runner!!.startDelay = delay
         }
     }
 

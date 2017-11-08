@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * Default disposable.
  * @author Moshe Waisberg
  */
-abstract class DefaultDisposable() : Disposable {
+abstract class DefaultDisposable : Disposable {
 
     private val disposed = AtomicBoolean()
 

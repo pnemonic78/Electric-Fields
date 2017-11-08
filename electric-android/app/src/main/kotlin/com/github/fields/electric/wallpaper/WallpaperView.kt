@@ -23,10 +23,7 @@ import android.os.SystemClock
 import android.text.format.DateUtils
 import android.view.GestureDetector
 import android.view.MotionEvent
-import com.github.fields.electric.Charge
-import com.github.fields.electric.ElectricFieldsView
-import com.github.fields.electric.FieldsTask
-import com.github.fields.electric.R
+import com.github.fields.electric.*
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -36,6 +33,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @author Moshe Waisberg
  */
 class WallpaperView(context: Context, listener: WallpaperListener) :
+        ElectricFields,
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener {
 
@@ -58,11 +56,11 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         setWallpaperListener(listener)
     }
 
-    fun addCharge(x: Int, y: Int, size: Double): Boolean {
+    override fun addCharge(x: Int, y: Int, size: Double): Boolean {
         return addCharge(Charge(x, y, size))
     }
 
-    fun addCharge(charge: Charge): Boolean {
+    override fun addCharge(charge: Charge): Boolean {
         if (charges.size < ElectricFieldsView.MAX_CHARGES) {
             if (charges.add(charge)) {
                 if (listener != null) {
@@ -74,7 +72,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         return false
     }
 
-    fun invertCharge(x: Int, y: Int): Boolean {
+    override fun invertCharge(x: Int, y: Int): Boolean {
         val charge = findCharge(x, y)
         if (charge != null) {
             charge.size = -charge.size
@@ -86,7 +84,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         return false
     }
 
-    fun findCharge(x: Int, y: Int): Charge? {
+    override fun findCharge(x: Int, y: Int): Charge? {
         val count = charges.size
         var charge: Charge
         var chargeNearest: Charge? = null
@@ -109,7 +107,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         return chargeNearest
     }
 
-    fun clear() {
+    override fun clear() {
         charges.clear()
     }
 
@@ -121,11 +119,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         canvas.drawBitmap(bitmap!!, 0f, 0f, null)
     }
 
-    /**
-     * Start the task.
-     * @param delay the start delay, in milliseconds.
-     */
-    fun start(delay: Long = 0L) {
+    override fun start(delay: Long) {
         if (!isRendering) {
             val view = this
             val t = FieldsTask(charges, bitmap!!)
@@ -133,7 +127,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
             with(t) {
                 saturation = 0.5f
                 brightness = 0.5f
-                setStartDelay(delay)
+                startDelay = delay
                 subscribeOn(Schedulers.computation())
                         .subscribe({
                             invalidate()
@@ -156,23 +150,10 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         }
     }
 
-    /**
-     * Cancel the task.
-     */
-    fun cancel() {
+    override fun stop() {
         if (task != null) {
             task!!.cancel()
         }
-    }
-
-    /**
-     * Restart the task with modified charges.
-     *
-     * @param delay the start delay, in milliseconds.
-     */
-    fun restart(delay: Long = 0L) {
-        cancel()
-        start(delay)
     }
 
     /**

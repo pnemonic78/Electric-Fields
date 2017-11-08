@@ -22,21 +22,21 @@ package com.github.fields.electric
  */
 interface ElectricFieldsListener {
 
-    fun onChargeAdded(view: ElectricFieldsView, charge: Charge)
+    fun onChargeAdded(view: ElectricFields, charge: Charge)
 
-    fun onChargeInverted(view: ElectricFieldsView, charge: Charge)
+    fun onChargeInverted(view: ElectricFields, charge: Charge)
 
-    fun onChargeScaleBegin(view: ElectricFieldsView, charge: Charge): Boolean
+    fun onChargeScaleBegin(view: ElectricFields, charge: Charge): Boolean
 
-    fun onChargeScale(view: ElectricFieldsView, charge: Charge): Boolean
+    fun onChargeScale(view: ElectricFields, charge: Charge): Boolean
 
-    fun onChargeScaleEnd(view: ElectricFieldsView, charge: Charge): Boolean
+    fun onChargeScaleEnd(view: ElectricFields, charge: Charge): Boolean
 
-    fun onRenderFieldClicked(view: ElectricFieldsView, x: Int, y: Int, size: Double): Boolean
+    fun onRenderFieldClicked(view: ElectricFields, x: Int, y: Int, size: Double): Boolean
 
-    fun onRenderFieldStarted(view: ElectricFieldsView)
+    fun onRenderFieldStarted(view: ElectricFields)
 
-    fun onRenderFieldFinished(view: ElectricFieldsView)
+    fun onRenderFieldFinished(view: ElectricFields)
 
-    fun onRenderFieldCancelled(view: ElectricFieldsView)
+    fun onRenderFieldCancelled(view: ElectricFields)
 }
