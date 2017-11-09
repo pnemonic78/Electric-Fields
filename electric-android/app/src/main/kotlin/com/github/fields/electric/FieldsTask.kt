@@ -141,7 +141,7 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
             var x2: Int
             var y2: Int
 
-            do {
+            loop@ do {
                 y1 = 0
                 y2 = resolution
 
@@ -158,11 +158,14 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
                         x2 += resolution2
                     } while ((x1 < w) && !isDisposed)
 
+                    if (isDisposed) {
+                        break@loop
+                    }
                     observer.onNext(bitmap)
 
                     y1 += resolution2
                     y2 += resolution2
-                } while ((y1 < h) && !isDisposed)
+                } while (y1 < h)
 
                 resolution2 = resolution
                 resolution = resolution2 shr 1
