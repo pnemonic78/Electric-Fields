@@ -21,8 +21,8 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import android.os.Parcel
 import android.os.Parcelable
-import android.os.SystemClock
-import android.text.format.DateUtils
+import android.os.SystemClock.uptimeMillis
+import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.util.AttributeSet
 import android.view.*
 import io.reactivex.Observer
@@ -276,7 +276,7 @@ class ElectricFieldsView : View,
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val x = e.x.toInt()
         val y = e.y.toInt()
-        val duration = Math.min(SystemClock.uptimeMillis() - e.downTime, DateUtils.SECOND_IN_MILLIS)
+        val duration = Math.min(uptimeMillis() - e.downTime, SECOND_IN_MILLIS)
         val size = 1.0 + (duration / 20L).toDouble()
         if ((listener != null) && listener!!.onRenderFieldClicked(this, x, y, size)) {
             performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)

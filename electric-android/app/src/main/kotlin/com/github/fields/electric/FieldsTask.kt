@@ -16,17 +16,20 @@
 package com.github.fields.electric
 
 import android.graphics.*
+import android.graphics.Color.WHITE
+import android.graphics.Paint.ANTI_ALIAS_FLAG
 import com.github.reactivex.DefaultDisposable
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
+import java.lang.Thread.sleep
 
 /**
  * Electric Fields task.
  *
  * @author Moshe Waisberg
  */
-class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observable<Bitmap>(), Disposable {
+class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bitmap) : Observable<Bitmap>(), Disposable {
 
     private var runner: FieldRunner? = null
     var brightness = 1f
@@ -76,7 +79,7 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
 
     private class FieldRunner(val params: Collection<Charge>, val bitmap: Bitmap, val observer: Observer<in Bitmap>) : DefaultDisposable() {
 
-        private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private val paint = Paint(ANTI_ALIAS_FLAG)
         private val rect = RectF()
         private val hsv = floatArrayOf(0f, 1f, 1f)
         var startDelay = 0L
@@ -106,7 +109,7 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
             running = true
             if (startDelay > 0L) {
                 try {
-                    Thread.sleep(startDelay)
+                    sleep(startDelay)
                 } catch (ignore: InterruptedException) {
                 }
             }
@@ -207,7 +210,7 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
 
         private fun mapColor(z: Double, density: Double): Int {
             if (z.isInfinite()) {
-                return Color.WHITE
+                return WHITE
             }
             hsv[0] = (z * density % 360).toFloat()
             return Color.HSVToColor(hsv)

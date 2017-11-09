@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Environment
+import android.os.Environment.DIRECTORY_PICTURES
 import android.util.Log
 import com.github.reactivex.DefaultDisposable
 import io.reactivex.Observable
@@ -36,7 +37,7 @@ import java.util.*
  *
  * @author Moshe Waisberg
  */
-class SaveFileTask(val context: Context, val bitmap: Bitmap) : Observable<Uri>(), Disposable {
+class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : Observable<Uri>(), Disposable {
 
     companion object {
         val IMAGE_MIME = "image/png"
@@ -69,7 +70,7 @@ class SaveFileTask(val context: Context, val bitmap: Bitmap) : Observable<Uri>()
         private val timestampFormat = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US)
 
         fun run() {
-            val folderPictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+            val folderPictures = Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES)
             val folder = File(folderPictures, context.getString(R.string.app_folder_pictures))
             folder.mkdirs()
             val file = File(folder, generateFileName())
