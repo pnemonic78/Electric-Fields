@@ -244,7 +244,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     override fun onComplete() {
         idle = true
-        invalidate()
         if (listener != null) {
             listener!!.onRenderFieldFinished(this)
         }

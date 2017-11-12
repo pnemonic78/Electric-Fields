@@ -312,7 +312,6 @@ class ElectricFieldsView : View,
     }
 
     override fun onComplete() {
-        invalidate()
         if (listener != null) {
             listener!!.onRenderFieldFinished(this)
         }
