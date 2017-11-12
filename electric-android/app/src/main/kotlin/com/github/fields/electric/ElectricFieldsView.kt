@@ -16,12 +16,14 @@
 package com.github.fields.electric
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.os.Parcel
 import android.os.Parcelable
 import android.os.SystemClock.uptimeMillis
+import android.preference.PreferenceManager
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.util.AttributeSet
 import android.view.*
@@ -84,6 +86,7 @@ class ElectricFieldsView : View,
     private lateinit var scaleGestureDetector: ScaleGestureDetector
     private var chargeToScale: Charge? = null
     private var scaleFactor = 1f
+    private lateinit var prefs: SharedPreferences
 
     constructor(context: Context) : super(context) {
         init(context)
@@ -103,6 +106,7 @@ class ElectricFieldsView : View,
         sameChargeDistance *= sameChargeDistance
         gestureDetector = GestureDetector(context, this)
         scaleGestureDetector = ScaleGestureDetector(context, this)
+        prefs = PreferenceManager.getDefaultSharedPreferences(context)
     }
 
     override fun addCharge(x: Int, y: Int, size: Double): Boolean {
@@ -166,8 +170,10 @@ class ElectricFieldsView : View,
 
     override fun start(delay: Long) {
         if (isIdle()) {
+            val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
+            val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
             val observer = this
-            val t = FieldsTask(charges, bitmap!!)
+            val t = FieldsTask(charges, bitmap!!, density, hues)
             task = t
             t.startDelay = delay
             t.subscribeOn(Schedulers.computation())

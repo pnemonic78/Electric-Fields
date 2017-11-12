@@ -98,6 +98,10 @@ class MainActivity : Activity(),
                 saveToFile()
                 return true
             }
+            R.id.menu_palette -> {
+                choosePalette()
+                return true
+            }
         }
 
         return super.onOptionsItemSelected(item)
@@ -276,5 +280,9 @@ class MainActivity : Activity(),
     private fun stop() {
         mainView.stop()
         mainView.clear()
+    }
+
+    private fun choosePalette() {
+        PaletteDialog(this).show()
     }
 }

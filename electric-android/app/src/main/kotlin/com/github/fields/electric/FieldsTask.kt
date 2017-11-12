@@ -29,7 +29,7 @@ import java.lang.Thread.sleep
  *
  * @author Moshe Waisberg
  */
-class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bitmap) : Observable<Bitmap>(), Disposable {
+class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bitmap, private val density: Double = 1000.0, private val hues: Double = 360.0) : Observable<Bitmap>(), Disposable {
 
     private var runner: FieldRunner? = null
     var brightness = 1f
@@ -55,7 +55,7 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
         }
 
     override fun subscribeActual(observer: Observer<in Bitmap>) {
-        val d = FieldRunner(charges, bitmap, observer)
+        val d = FieldRunner(charges, bitmap, density, hues, observer)
         d.brightness = brightness
         d.saturation = saturation
         d.startDelay = startDelay
@@ -77,7 +77,7 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
         }
     }
 
-    private class FieldRunner(val params: Collection<Charge>, val bitmap: Bitmap, val observer: Observer<in Bitmap>) : DefaultDisposable() {
+    private class FieldRunner(val params: Collection<Charge>, val bitmap: Bitmap, val density: Double, val hues: Double, val observer: Observer<in Bitmap>) : DefaultDisposable() {
 
         private val paint = Paint(ANTI_ALIAS_FLAG)
         private val rect = RectF()
@@ -128,8 +128,6 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
                 size = size ushr 1
                 shifts++
             }
-
-            val density = 1e+3
 
             // Make "resolution2" a power of 2, so that "resolution" is always divisible by 2.
             var resolution2 = 1 shl shifts
@@ -212,7 +210,7 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
             if (z.isInfinite()) {
                 return WHITE
             }
-            hsv[0] = (z * density % 360).toFloat()
+            hsv[0] = ((z * density) % hues).toFloat()
             return Color.HSVToColor(hsv)
         }
 

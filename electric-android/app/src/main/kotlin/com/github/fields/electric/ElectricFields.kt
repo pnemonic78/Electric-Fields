@@ -1,7 +1,5 @@
 package com.github.fields.electric
 
-import io.reactivex.internal.subscriptions.SubscriptionHelper.cancel
-
 /**
  * Electric fields view for drawing.
  *
