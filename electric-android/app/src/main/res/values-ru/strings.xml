@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">Полноэкранный</string>
     <string name="menu_random">Перемешайте</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Палитра</string>
+    <string name="palette_density">Плотность</string>
+    <string name="palette_hues">Оттенки</string>
 </resources>

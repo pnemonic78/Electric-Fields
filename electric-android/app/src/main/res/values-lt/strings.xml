@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">Per visą ekraną</string>
     <string name="menu_random">Atsitiktinė</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Paletė</string>
+    <string name="palette_density">Tankis</string>
+    <string name="palette_hues">Atspalviai</string>
 </resources>
