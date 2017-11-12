@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">Celá obrazovka</string>
     <string name="menu_random">Náhodně</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Paleta</string>
+    <string name="palette_density">Hustota</string>
+    <string name="palette_hues">Hue</string>
 </resources>

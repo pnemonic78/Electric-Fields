@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">Pantalla completa</string>
     <string name="menu_random">Aleatorizar</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Paleta</string>
+    <string name="palette_density">Densidad</string>
+    <string name="palette_hues">Tonalidades</string>
 </resources>

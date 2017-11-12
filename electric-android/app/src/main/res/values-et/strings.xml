@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">Täisekraan</string>
     <string name="menu_random">Juhuslikumaks</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Palett</string>
+    <string name="palette_density">Tihedus</string>
+    <string name="palette_hues">Toonid</string>
 </resources>

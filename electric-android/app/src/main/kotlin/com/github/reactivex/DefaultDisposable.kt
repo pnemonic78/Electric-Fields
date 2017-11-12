@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, Moshe Waisberg
+ * Copyright 2017, Moshe Waisberg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.fields.electric.wallpaper
+package com.github.reactivex
 
-import com.github.fields.electric.ElectricFieldsListener
+import io.reactivex.disposables.Disposable
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Electric fields event listener for live wallpaper.
- *
+ * Default disposable.
  * @author Moshe Waisberg
  */
-interface WallpaperListener : ElectricFieldsListener {
+abstract class DefaultDisposable : Disposable {
 
-    fun onDraw(view: WallpaperView)
+    private val disposed = AtomicBoolean()
+
+    override fun isDisposed(): Boolean {
+        return disposed.get()
+    }
+
+    override fun dispose() {
+        if (disposed.compareAndSet(false, true)) {
+            onDispose()
+        }
+    }
+
+    protected abstract fun onDispose()
 }

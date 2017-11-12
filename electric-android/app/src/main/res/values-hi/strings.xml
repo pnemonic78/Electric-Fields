@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">पूर्ण स्क्रीन</string>
     <string name="menu_random">अनियमित करें</string>
+
+    <!-- Palette -->
+    <string name="palette_title">पैलेट</string>
+    <string name="palette_density">घनत्व</string>
+    <string name="palette_hues">ह्यूज़</string>
 </resources>
