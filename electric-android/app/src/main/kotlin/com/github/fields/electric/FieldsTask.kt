@@ -29,7 +29,14 @@ import java.lang.Thread.sleep
  *
  * @author Moshe Waisberg
  */
-class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bitmap, private val density: Double = 1000.0, private val hues: Double = 360.0) : Observable<Bitmap>(), Disposable {
+class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bitmap, private val density: Double = DEFAULT_DENSITY, private val hues: Double = DEFAULT_HUES) : Observable<Bitmap>(), Disposable {
+
+    companion object {
+
+        val DEFAULT_DENSITY = 1000.0
+        val DEFAULT_HUES = 360.0
+
+    }
 
     private var runner: FieldRunner? = null
     var brightness = 1f

@@ -34,8 +34,8 @@ class PaletteDialog(context: Context) : AlertDialog(context) {
         val PREF_DENSITY = "density"
         val PREF_HUES = "hues"
 
-        val DEFAULT_DENSITY = 1000
-        val DEFAULT_HUES = 360
+        val DEFAULT_DENSITY = FieldsTask.DEFAULT_DENSITY.toInt()
+        val DEFAULT_HUES = FieldsTask.DEFAULT_HUES.toInt()
 
     }
 
@@ -59,11 +59,11 @@ class PaletteDialog(context: Context) : AlertDialog(context) {
         huesPicker.value = prefs.getInt(PREF_HUES, DEFAULT_HUES)
 
         setButton(BUTTON_NEGATIVE, context.getText(android.R.string.cancel)) { dialog, which ->
-            //dismiss()
         }
         setButton(BUTTON_POSITIVE, context.getText(android.R.string.ok)) { dialog, which ->
+            densityPicker.clearFocus()
+            huesPicker.clearFocus()
             savePreferences()
-            //dismiss()
         }
         setCancelable(true)
     }
