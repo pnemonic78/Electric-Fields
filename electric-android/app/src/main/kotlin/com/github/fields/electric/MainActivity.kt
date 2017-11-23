@@ -18,14 +18,16 @@ package com.github.fields.electric
 import android.Manifest
 import android.annotation.TargetApi
 import android.app.Activity
-import android.content.pm.PackageManager
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
+import android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+import android.view.View.SYSTEM_UI_FLAG_VISIBLE
 import android.view.WindowManager
 import android.widget.Toast
+import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -96,6 +98,10 @@ class MainActivity : Activity(),
                 saveToFile()
                 return true
             }
+            R.id.menu_palette -> {
+                choosePalette()
+                return true
+            }
         }
 
         return super.onOptionsItemSelected(item)
@@ -107,7 +113,7 @@ class MainActivity : Activity(),
     private fun randomise() {
         val w = mainView.measuredWidth
         val h = mainView.measuredHeight
-        val count = 1 + random.nextInt(ElectricFieldsView.MAX_CHARGES)
+        val count = 1 + random.nextInt(MAX_CHARGES)
         mainView.clear()
         for (i in 0 until count) {
             mainView.addCharge(random.nextInt(w), random.nextInt(h), (if (random.nextBoolean()) +1 else -1) * (1 + random.nextDouble() * 20))
@@ -121,7 +127,7 @@ class MainActivity : Activity(),
     private fun saveToFile() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val activity = this@MainActivity
-            if (activity.checkCallingOrSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (activity.checkCallingOrSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
                 activity.requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_SAVE)
                 return
             }
@@ -213,7 +219,7 @@ class MainActivity : Activity(),
 
         if (requestCode == REQUEST_SAVE) {
             if (permissions.isNotEmpty() && (permissions[0] == Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
                     saveToFile()
                     return
                 }
@@ -233,8 +239,7 @@ class MainActivity : Activity(),
                 window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN)
             } else {
-                val decorView = window.decorView
-                decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+                window.decorView.systemUiVisibility = SYSTEM_UI_FLAG_FULLSCREEN
             }
 
             // Hide the action bar.
@@ -255,8 +260,7 @@ class MainActivity : Activity(),
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
             } else {
-                val decorView = window.decorView
-                decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+                window.decorView.systemUiVisibility = SYSTEM_UI_FLAG_VISIBLE
             }
 
             // Show the action bar.
@@ -276,5 +280,9 @@ class MainActivity : Activity(),
     private fun stop() {
         mainView.stop()
         mainView.clear()
+    }
+
+    private fun choosePalette() {
+        PaletteDialog(this).show()
     }
 }

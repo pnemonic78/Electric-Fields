@@ -19,15 +19,13 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
-import android.os.SystemClock
-import android.text.format.DateUtils
+import android.os.SystemClock.uptimeMillis
+import android.preference.PreferenceManager
+import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.view.GestureDetector
 import android.view.MotionEvent
-import com.github.fields.electric.Charge
-import com.github.fields.electric.ElectricFields
+import com.github.fields.electric.*
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
-import com.github.fields.electric.FieldsTask
-import com.github.fields.electric.R
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -56,6 +54,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     private val gestureDetector: GestureDetector
     var idle = false
         private set
+    private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     init {
         val res = context.resources
@@ -130,8 +129,10 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     override fun start(delay: Long) {
         if (idle) {
+            val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
+            val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
             val observer = this
-            val t = FieldsTask(charges, bitmap!!)
+            val t = FieldsTask(charges, bitmap!!, density, hues)
             task = t
             with(t) {
                 saturation = 0.5f
@@ -217,7 +218,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val x = e.x.toInt()
         val y = e.y.toInt()
-        val duration = Math.min(SystemClock.uptimeMillis() - e.downTime, DateUtils.SECOND_IN_MILLIS)
+        val duration = Math.min(uptimeMillis() - e.downTime, SECOND_IN_MILLIS)
         val size = 1.0 + (duration / 20L).toDouble()
         return (listener != null) && listener!!.onRenderFieldClicked(this, x, y, size)
     }
@@ -243,7 +244,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     override fun onComplete() {
         idle = true
-        invalidate()
         if (listener != null) {
             listener!!.onRenderFieldFinished(this)
         }

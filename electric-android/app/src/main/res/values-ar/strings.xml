@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">تكبير الشاشة</string>
     <string name="menu_random">عشوائية</string>
+
+    <!-- Palette -->
+    <string name="palette_title">لوحة</string>
+    <string name="palette_density">كثافة</string>
+    <string name="palette_hues">الأشكال</string>
 </resources>

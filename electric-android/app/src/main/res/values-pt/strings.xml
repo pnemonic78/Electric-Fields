@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">Tela cheia</string>
     <string name="menu_random">Aleatória</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Paleta</string>
+    <string name="palette_density">Densidade</string>
+    <string name="palette_hues">Matizes</string>
 </resources>

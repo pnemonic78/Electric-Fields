@@ -16,17 +16,27 @@
 package com.github.fields.electric
 
 import android.graphics.*
+import android.graphics.Color.WHITE
+import android.graphics.Paint.ANTI_ALIAS_FLAG
 import com.github.reactivex.DefaultDisposable
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
+import java.lang.Thread.sleep
 
 /**
  * Electric Fields task.
  *
  * @author Moshe Waisberg
  */
-class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observable<Bitmap>(), Disposable {
+class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bitmap, private val density: Double = DEFAULT_DENSITY, private val hues: Double = DEFAULT_HUES) : Observable<Bitmap>(), Disposable {
+
+    companion object {
+
+        val DEFAULT_DENSITY = 1000.0
+        val DEFAULT_HUES = 360.0
+
+    }
 
     private var runner: FieldRunner? = null
     var brightness = 1f
@@ -52,7 +62,7 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
         }
 
     override fun subscribeActual(observer: Observer<in Bitmap>) {
-        val d = FieldRunner(charges, bitmap, observer)
+        val d = FieldRunner(charges, bitmap, density, hues, observer)
         d.brightness = brightness
         d.saturation = saturation
         d.startDelay = startDelay
@@ -74,9 +84,9 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
         }
     }
 
-    private class FieldRunner(val params: Collection<Charge>, val bitmap: Bitmap, val observer: Observer<in Bitmap>) : DefaultDisposable() {
+    private class FieldRunner(val params: Collection<Charge>, val bitmap: Bitmap, val density: Double, val hues: Double, val observer: Observer<in Bitmap>) : DefaultDisposable() {
 
-        private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private val paint = Paint(ANTI_ALIAS_FLAG)
         private val rect = RectF()
         private val hsv = floatArrayOf(0f, 1f, 1f)
         var startDelay = 0L
@@ -106,7 +116,7 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
             running = true
             if (startDelay > 0L) {
                 try {
-                    Thread.sleep(startDelay)
+                    sleep(startDelay)
                 } catch (ignore: InterruptedException) {
                 }
             }
@@ -126,8 +136,6 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
                 shifts++
             }
 
-            val density = 1e+3
-
             // Make "resolution2" a power of 2, so that "resolution" is always divisible by 2.
             var resolution2 = 1 shl shifts
             var resolution = resolution2
@@ -141,7 +149,7 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
             var x2: Int
             var y2: Int
 
-            do {
+            loop@ do {
                 y1 = 0
                 y2 = resolution
 
@@ -158,11 +166,14 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
                         x2 += resolution2
                     } while ((x1 < w) && !isDisposed)
 
+                    if (isDisposed) {
+                        break@loop
+                    }
                     observer.onNext(bitmap)
 
                     y1 += resolution2
                     y2 += resolution2
-                } while ((y1 < h) && !isDisposed)
+                } while (y1 < h)
 
                 resolution2 = resolution
                 resolution = resolution2 shr 1
@@ -170,6 +181,7 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
 
             running = false
             if (!isDisposed) {
+                observer.onNext(bitmap)
                 observer.onComplete()
             }
         }
@@ -204,9 +216,9 @@ class FieldsTask(val charges: Collection<Charge>, val bitmap: Bitmap) : Observab
 
         private fun mapColor(z: Double, density: Double): Int {
             if (z.isInfinite()) {
-                return Color.WHITE
+                return WHITE
             }
-            hsv[0] = (z * density % 360).toFloat()
+            hsv[0] = ((z * density) % hues).toFloat()
             return Color.HSVToColor(hsv)
         }
 

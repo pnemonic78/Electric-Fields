@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">Teljes képernyő</string>
     <string name="menu_random">Véletlenszerű</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Paletta</string>
+    <string name="palette_density">Sűrűség</string>
+    <string name="palette_hues">Árnyalatokat</string>
 </resources>

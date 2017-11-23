@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">Vollbild</string>
     <string name="menu_random">Randomisieren</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Palette</string>
+    <string name="palette_density">Dichte</string>
+    <string name="palette_hues">Farbtöne</string>
 </resources>
