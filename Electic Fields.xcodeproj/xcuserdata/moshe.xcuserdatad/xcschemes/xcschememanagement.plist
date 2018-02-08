@@ -10,16 +10,5 @@
 			<integer>0</integer>
 		</dict>
 	</dict>
-<<<<<<< HEAD
-	<key>SuppressBuildableAutocreation</key>
-	<dict>
-		<key>46F580E11F320F6800A5A475</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-	</dict>
-=======
->>>>>>> develop
 </dict>
 </plist>

@@ -15,8 +15,11 @@
  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import Foundation
 
+=======
+>>>>>>> develop
 =======
 >>>>>>> develop
 /**
@@ -24,6 +27,7 @@ import Foundation
  *
  * @author Moshe Waisberg
  */
+<<<<<<< HEAD
 <<<<<<< HEAD
 protocol  ElectricFieldsListener {
 //    func onChargeAdded(view: ElectricFieldsView, charge: Charge)
@@ -44,6 +48,8 @@ protocol  ElectricFieldsListener {
 //    
 //    func onRenderFieldCancelled(view: ElectricFieldsView)
 =======
+=======
+>>>>>>> develop
 protocol ElectricFieldsListener {
     
     func onChargeAdded(view: ElectricFields, charge: Charge)
@@ -63,5 +69,8 @@ protocol ElectricFieldsListener {
     func onRenderFieldFinished(view: ElectricFields)
     
     func onRenderFieldCancelled(view: ElectricFields)
+<<<<<<< HEAD
+>>>>>>> develop
+=======
 >>>>>>> develop
 }
