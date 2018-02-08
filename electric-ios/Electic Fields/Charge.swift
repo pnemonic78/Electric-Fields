@@ -36,4 +36,8 @@ struct Charge {
         self.y = y
         self.size = size
     }
+    
+    public var description: String {
+        return "Charge(\(x), \(y), \(size))"
+    }
 }
