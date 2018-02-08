@@ -16,22 +16,11 @@
 
 import UIKit
 
-class ViewController: UIViewController {
-
-    @IBOutlet var mainView: ElectricFieldsView!
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        mainView.backgroundColor = UIColor.cyan
-    }
+/**
+ * Electric Fields view.
+ *
+ * @author Moshe Waisberg
+ */
+class ElectricFieldsView: UIView {
+    
 }
-

@@ -10,6 +10,7 @@
 		468790A0202C52320013458F /* Charge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4687909F202C52320013458F /* Charge.swift */; };
 		468790A2202C538D0013458F /* ElectricFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468790A1202C538D0013458F /* ElectricFields.swift */; };
 		468790A4202C55FA0013458F /* ElectricFieldsListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468790A3202C55FA0013458F /* ElectricFieldsListener.swift */; };
+		468790A6202C9F920013458F /* ElectricFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468790A5202C9F920013458F /* ElectricFieldsView.swift */; };
 		46F580E61F320F6800A5A475 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F580E51F320F6800A5A475 /* AppDelegate.swift */; };
 		46F580E81F320F6800A5A475 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F580E71F320F6800A5A475 /* ViewController.swift */; };
 		46F580EB1F320F6800A5A475 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 46F580E91F320F6800A5A475 /* Main.storyboard */; };
@@ -21,6 +22,7 @@
 		4687909F202C52320013458F /* Charge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Charge.swift; sourceTree = "<group>"; };
 		468790A1202C538D0013458F /* ElectricFields.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectricFields.swift; sourceTree = "<group>"; };
 		468790A3202C55FA0013458F /* ElectricFieldsListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectricFieldsListener.swift; sourceTree = "<group>"; };
+		468790A5202C9F920013458F /* ElectricFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectricFieldsView.swift; sourceTree = "<group>"; };
 		46F580E21F320F6800A5A475 /* Electic Fields.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Electic Fields.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		46F580E51F320F6800A5A475 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		46F580E71F320F6800A5A475 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -69,6 +71,7 @@
 				46F580F11F320F6800A5A475 /* Info.plist */,
 				468790A1202C538D0013458F /* ElectricFields.swift */,
 				468790A3202C55FA0013458F /* ElectricFieldsListener.swift */,
+				468790A5202C9F920013458F /* ElectricFieldsView.swift */,
 			);
 			path = "Electic Fields";
 			sourceTree = "<group>";
@@ -147,6 +150,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				468790A6202C9F920013458F /* ElectricFieldsView.swift in Sources */,
 				468790A4202C55FA0013458F /* ElectricFieldsListener.swift in Sources */,
 				46F580E81F320F6800A5A475 /* ViewController.swift in Sources */,
 				468790A2202C538D0013458F /* ElectricFields.swift in Sources */,
@@ -324,7 +328,7 @@
 				46F580F31F320F6800A5A475 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		46F580F41F320F6800A5A475 /* Build configuration list for PBXNativeTarget "Electic Fields" */ = {
 			isa = XCConfigurationList;
@@ -333,7 +337,7 @@
 				46F580F61F320F6800A5A475 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
