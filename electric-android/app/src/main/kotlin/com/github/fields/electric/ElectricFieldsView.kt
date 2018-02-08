@@ -16,17 +16,21 @@
 package com.github.fields.electric
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
-import android.os.AsyncTask
 import android.os.Parcel
 import android.os.Parcelable
-import android.os.SystemClock
-import android.text.format.DateUtils
+import android.os.SystemClock.uptimeMillis
+import android.preference.PreferenceManager
+import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.util.AttributeSet
 import android.view.*
-import java.util.*
+import io.reactivex.Observer
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -35,7 +39,8 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @author Moshe Waisberg
  */
 class ElectricFieldsView : View,
-        FieldAsyncTask.FieldAsyncTaskListener,
+        ElectricFields,
+        Observer<Bitmap>,
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener,
         ScaleGestureDetector.OnScaleGestureListener {
@@ -47,14 +52,41 @@ class ElectricFieldsView : View,
     }
 
     private val charges: MutableList<Charge> = CopyOnWriteArrayList<Charge>()
-    private var bitmap: Bitmap? = null
-    private var task: FieldAsyncTask? = null
+    var bitmap: Bitmap? = null
+        get() {
+            val metrics = resources.displayMetrics
+            val width = metrics.widthPixels
+            val height = metrics.heightPixels
+
+            val bitmapOld = field
+            if (bitmapOld != null) {
+                val bw = bitmapOld.width
+                val bh = bitmapOld.height
+
+                if ((width != bw) || (height != bh)) {
+                    val m = Matrix()
+                    // Changed orientation?
+                    if (width < bw && height > bh) {// Portrait?
+                        m.postRotate(90f, bw / 2f, bh / 2f)
+                    } else {// Landscape?
+                        m.postRotate(270f, bw / 2f, bh / 2f)
+                    }
+                    val rotated = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh, m, true)
+                    bitmap = Bitmap.createScaledBitmap(rotated, width, height, true)
+                }
+            } else {
+                field = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            }
+            return field
+        }
+    private var task: FieldsTask? = null
+    private var sameChargeDistance: Int = 0
     private var listener: ElectricFieldsListener? = null
     private lateinit var gestureDetector: GestureDetector
     private lateinit var scaleGestureDetector: ScaleGestureDetector
-    private var sameChargeDistance: Int = 0
     private var chargeToScale: Charge? = null
     private var scaleFactor = 1f
+    private lateinit var prefs: SharedPreferences
 
     constructor(context: Context) : super(context) {
         init(context)
@@ -74,13 +106,14 @@ class ElectricFieldsView : View,
         sameChargeDistance *= sameChargeDistance
         gestureDetector = GestureDetector(context, this)
         scaleGestureDetector = ScaleGestureDetector(context, this)
+        prefs = PreferenceManager.getDefaultSharedPreferences(context)
     }
 
-    fun addCharge(x: Int, y: Int, size: Double): Boolean {
+    override fun addCharge(x: Int, y: Int, size: Double): Boolean {
         return addCharge(Charge(x, y, size))
     }
 
-    fun addCharge(charge: Charge): Boolean {
+    override fun addCharge(charge: Charge): Boolean {
         if (charges.size < MAX_CHARGES) {
             if (charges.add(charge)) {
                 if (listener != null) {
@@ -92,7 +125,7 @@ class ElectricFieldsView : View,
         return false
     }
 
-    fun invertCharge(x: Int, y: Int): Boolean {
+    override fun invertCharge(x: Int, y: Int): Boolean {
         val charge = findCharge(x, y)
         if (charge != null) {
             charge.size = -charge.size
@@ -104,7 +137,7 @@ class ElectricFieldsView : View,
         return false
     }
 
-    fun findCharge(x: Int, y: Int): Charge? {
+    override fun findCharge(x: Int, y: Int): Charge? {
         val count = charges.size
         var charge: Charge
         var chargeNearest: Charge? = null
@@ -113,7 +146,7 @@ class ElectricFieldsView : View,
         var d: Int
         var dMin = Integer.MAX_VALUE
 
-        for (i in 0..count - 1) {
+        for (i in 0 until count) {
             charge = charges[i]
             dx = x - charge.x
             dy = y - charge.y
@@ -127,98 +160,32 @@ class ElectricFieldsView : View,
         return chargeNearest
     }
 
-    fun clear() {
+    override fun clear() {
         charges.clear()
     }
 
     override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
-        canvas.drawBitmap(getBitmap(), 0f, 0f, null)
+        canvas.drawBitmap(bitmap, 0f, 0f, null)
     }
 
-    /**
-     * Start the task.
-     */
-    fun start() {
-        if (!isRendering) {
-            task = FieldAsyncTask(this, Canvas(getBitmap()))
-            task!!.execute(*charges.toTypedArray())
+    override fun start(delay: Long) {
+        if (isIdle()) {
+            val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
+            val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
+            val observer = this
+            val t = FieldsTask(charges, bitmap!!, density, hues)
+            task = t
+            t.startDelay = delay
+            t.subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(observer)
         }
     }
 
-    /**
-     * Cancel the task.
-     */
-    fun cancel() {
+    override fun stop() {
         if (task != null) {
-            task!!.cancel(true)
+            task!!.cancel()
         }
-    }
-
-    /**
-     * Restart the task with modified charges.
-     */
-    fun restart() {
-        cancel()
-        start()
-    }
-
-    override fun onTaskStarted(task: FieldAsyncTask) {
-        if (listener != null) {
-            listener!!.onRenderFieldStarted(this)
-        }
-    }
-
-    override fun onTaskFinished(task: FieldAsyncTask) {
-        if (task === this.task) {
-            invalidate()
-            if (listener != null) {
-                listener!!.onRenderFieldFinished(this)
-            }
-            clear()
-        }
-    }
-
-    override fun onTaskCancelled(task: FieldAsyncTask) {
-        if (listener != null) {
-            listener!!.onRenderFieldCancelled(this)
-        }
-    }
-
-    override fun repaint(task: FieldAsyncTask) {
-        postInvalidate()
-    }
-
-    /**
-     * Get the bitmap.
-     *
-     * @return the bitmap.
-     */
-    fun getBitmap(): Bitmap {
-        val metrics = resources.displayMetrics
-        val width = metrics.widthPixels
-        val height = metrics.heightPixels
-
-        val bitmapOld = bitmap
-        if (bitmapOld != null) {
-            val bw = bitmapOld.width
-            val bh = bitmapOld.height
-
-            if ((width != bw) || (height != bh)) {
-                val m = Matrix()
-                // Changed orientation?
-                if (width < bw && height > bh) {// Portrait?
-                    m.postRotate(90f, bw / 2f, bh / 2f)
-                } else {// Landscape?
-                    m.postRotate(270f, bw / 2f, bh / 2f)
-                }
-                val rotated = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh, m, true)
-                bitmap = Bitmap.createScaledBitmap(rotated, width, height, true)
-            }
-        } else {
-            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        }
-        return bitmap!!
     }
 
     /**
@@ -261,11 +228,10 @@ class ElectricFieldsView : View,
     }
 
     /**
-     * Is the task busy rendering the fields?
-     * @return `true` if rendering.
+     * Is the task idle and not rendering the fields?
+     * @return `true` if idle.
      */
-    val isRendering: Boolean
-        get() = (task != null) && !task!!.isCancelled && (task!!.status != AsyncTask.Status.FINISHED)
+    fun isIdle(): Boolean = (task == null) || task!!.isIdle()
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         return false
@@ -316,7 +282,7 @@ class ElectricFieldsView : View,
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val x = e.x.toInt()
         val y = e.y.toInt()
-        val duration = Math.min(SystemClock.uptimeMillis() - e.downTime, DateUtils.SECOND_IN_MILLIS)
+        val duration = Math.min(uptimeMillis() - e.downTime, SECOND_IN_MILLIS)
         val size = 1.0 + (duration / 20L).toDouble()
         if ((listener != null) && listener!!.onRenderFieldClicked(this, x, y, size)) {
             performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
@@ -333,6 +299,29 @@ class ElectricFieldsView : View,
         var result = scaleGestureDetector.onTouchEvent(event)
         result = gestureDetector.onTouchEvent(event) || result
         return result || super.onTouchEvent(event)
+    }
+
+    override fun onNext(value: Bitmap) {
+        postInvalidate()
+    }
+
+    override fun onError(e: Throwable) {
+        if (listener != null) {
+            listener!!.onRenderFieldCancelled(this)
+        }
+    }
+
+    override fun onComplete() {
+        if (listener != null) {
+            listener!!.onRenderFieldFinished(this)
+        }
+        clear()
+    }
+
+    override fun onSubscribe(d: Disposable) {
+        if (listener != null) {
+            listener!!.onRenderFieldStarted(this)
+        }
     }
 
     class SavedState : View.BaseSavedState {

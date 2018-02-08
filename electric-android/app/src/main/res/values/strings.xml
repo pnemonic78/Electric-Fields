@@ -21,4 +21,10 @@
 
     <!-- Live wallpaper. -->
     <string name="wallpaper_description" translatable="false">@string/app_name</string>
+
+    <!-- Palette -->
+    <string name="menu_palette" translatable="false">@string/palette_title</string>
+    <string name="palette_title">Palette</string>
+    <string name="palette_density">Density</string>
+    <string name="palette_hues">Hues</string>
 </resources>

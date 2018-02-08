@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		468790A0202C52320013458F /* Charge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4687909F202C52320013458F /* Charge.swift */; };
+		468790A2202C538D0013458F /* ElectricFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468790A1202C538D0013458F /* ElectricFields.swift */; };
+		468790A4202C55FA0013458F /* ElectricFieldsListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468790A3202C55FA0013458F /* ElectricFieldsListener.swift */; };
 		46F580E61F320F6800A5A475 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F580E51F320F6800A5A475 /* AppDelegate.swift */; };
 		46F580E81F320F6800A5A475 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F580E71F320F6800A5A475 /* ViewController.swift */; };
 		46F580EB1F320F6800A5A475 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 46F580E91F320F6800A5A475 /* Main.storyboard */; };
@@ -17,6 +20,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4687909F202C52320013458F /* Charge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Charge.swift; sourceTree = "<group>"; };
+		468790A1202C538D0013458F /* ElectricFields.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectricFields.swift; sourceTree = "<group>"; };
+		468790A3202C55FA0013458F /* ElectricFieldsListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectricFieldsListener.swift; sourceTree = "<group>"; };
 		46F580E21F320F6800A5A475 /* Electic Fields.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Electic Fields.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		46F580E51F320F6800A5A475 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		46F580E71F320F6800A5A475 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -58,14 +64,20 @@
 		46F580E41F320F6800A5A475 /* Electic Fields */ = {
 			isa = PBXGroup;
 			children = (
+				4687909F202C52320013458F /* Charge.swift */,
 				46F580E51F320F6800A5A475 /* AppDelegate.swift */,
 				46F580E71F320F6800A5A475 /* ViewController.swift */,
 				46F580E91F320F6800A5A475 /* Main.storyboard */,
 				46F580EC1F320F6800A5A475 /* Assets.xcassets */,
 				46F580EE1F320F6800A5A475 /* LaunchScreen.storyboard */,
 				46F580F11F320F6800A5A475 /* Info.plist */,
+<<<<<<< HEAD
 				46F580F71F32189C00A5A475 /* Charge.swift */,
 				46F580F91F32FDCA00A5A475 /* ElectricFieldsListener.swift */,
+=======
+				468790A1202C538D0013458F /* ElectricFields.swift */,
+				468790A3202C55FA0013458F /* ElectricFieldsListener.swift */,
+>>>>>>> develop
 			);
 			path = "Electic Fields";
 			sourceTree = "<group>";
@@ -97,12 +109,13 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0830;
-				LastUpgradeCheck = 0830;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "Moshe Waisberg";
 				TargetAttributes = {
 					46F580E11F320F6800A5A475 = {
 						CreatedOnToolsVersion = 8.3.3;
 						DevelopmentTeam = HBUPPHLEWL;
+						LastSwiftMigration = 0900;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -143,8 +156,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				468790A4202C55FA0013458F /* ElectricFieldsListener.swift in Sources */,
 				46F580E81F320F6800A5A475 /* ViewController.swift in Sources */,
+<<<<<<< HEAD
 				46F580F81F32189C00A5A475 /* Charge.swift in Sources */,
+=======
+				468790A2202C538D0013458F /* ElectricFields.swift in Sources */,
+				468790A0202C52320013458F /* Charge.swift in Sources */,
+>>>>>>> develop
 				46F580E61F320F6800A5A475 /* AppDelegate.swift in Sources */,
 				46F580FA1F32FDCA00A5A475 /* ElectricFieldsListener.swift in Sources */,
 			);
@@ -182,7 +201,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -190,7 +211,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -233,7 +258,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -241,7 +268,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -277,7 +308,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.fields.electric;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -291,7 +323,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.fields.electric;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};

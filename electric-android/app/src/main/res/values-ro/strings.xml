@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">Ecran complet</string>
     <string name="menu_random">Randomizează</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Paletă</string>
+    <string name="palette_density">Densitate</string>
+    <string name="palette_hues">Nuanțele</string>
 </resources>

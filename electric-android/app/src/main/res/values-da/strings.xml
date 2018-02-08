@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">Fuld skærm</string>
     <string name="menu_random">Tilfældig</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Palette</string>
+    <string name="palette_density">Massefylde</string>
+    <string name="palette_hues">Nuancer</string>
 </resources>

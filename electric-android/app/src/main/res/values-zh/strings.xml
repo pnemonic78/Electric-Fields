@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">全屏</string>
     <string name="menu_random">随机化</string>
+
+    <!-- Palette -->
+    <string name="palette_title">调色板</string>
+    <string name="palette_density">密度</string>
+    <string name="palette_hues">色调</string>
 </resources>

@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">Πληρησ οθονη</string>
     <string name="menu_random">Τυχαιοποιήσουν</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Παλέτα</string>
+    <string name="palette_density">Πυκνότητα</string>
+    <string name="palette_hues">Χρώματα</string>
 </resources>

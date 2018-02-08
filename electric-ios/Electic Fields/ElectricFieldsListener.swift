@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
+<<<<<<< HEAD
 import Foundation
 
+=======
+>>>>>>> develop
 /**
  * Electric fields event listener.
  *
  * @author Moshe Waisberg
  */
+<<<<<<< HEAD
 protocol  ElectricFieldsListener {
 //    func onChargeAdded(view: ElectricFieldsView, charge: Charge)
 //    
@@ -39,4 +43,25 @@ protocol  ElectricFieldsListener {
 //    func onRenderFieldFinished(view: ElectricFieldsView)
 //    
 //    func onRenderFieldCancelled(view: ElectricFieldsView)
+=======
+protocol ElectricFieldsListener {
+    
+    func onChargeAdded(view: ElectricFields, charge: Charge)
+    
+    func onChargeInverted(view: ElectricFields, charge: Charge)
+    
+    func onChargeScaleBegin(view: ElectricFields, charge: Charge) -> Bool
+    
+    func onChargeScale(view: ElectricFields, charge: Charge) -> Bool
+    
+    func onChargeScaleEnd(view: ElectricFields, charge: Charge) -> Bool
+    
+    func onRenderFieldClicked(view: ElectricFields, x: Int, y: Int, size: Double) -> Bool
+    
+    func onRenderFieldStarted(view: ElectricFields)
+    
+    func onRenderFieldFinished(view: ElectricFields)
+    
+    func onRenderFieldCancelled(view: ElectricFields)
+>>>>>>> develop
 }

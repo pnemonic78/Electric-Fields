@@ -13,31 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.reactivex
 
-import Foundation
-import CoreGraphics
+import io.reactivex.disposables.Disposable
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Electric charge particle.
- *
+ * Default disposable.
  * @author Moshe Waisberg
  */
-struct Charge {
+abstract class DefaultDisposable : Disposable {
 
-    var x: Int = 0
-    var y: Int = 0
-    var size: Double = 0.0
-    
-    /**
-     * Set the point's x and y coordinates, and size.
-     */
-    mutating func set(x: Int, y: Int, size: Double) {
-        self.x = x
-        self.y = y
-        self.size = size
+    private val disposed = AtomicBoolean()
+
+    override fun isDisposed(): Boolean {
+        return disposed.get()
     }
-    
-    public var description: String {
-        return "Charge(\(x), \(y), \(size))"
+
+    override fun dispose() {
+        if (disposed.compareAndSet(false, true)) {
+            onDispose()
+        }
     }
+
+    protected abstract fun onDispose()
 }

@@ -19,15 +19,16 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
-import android.os.AsyncTask
-import android.os.SystemClock
-import android.text.format.DateUtils
+import android.os.SystemClock.uptimeMillis
+import android.preference.PreferenceManager
+import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.view.GestureDetector
 import android.view.MotionEvent
-import com.github.fields.electric.Charge
-import com.github.fields.electric.ElectricFieldsView
-import com.github.fields.electric.FieldAsyncTask
-import com.github.fields.electric.R
+import com.github.fields.electric.*
+import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
+import io.reactivex.Observer
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -36,7 +37,8 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @author Moshe Waisberg
  */
 class WallpaperView(context: Context, listener: WallpaperListener) :
-        FieldAsyncTask.FieldAsyncTaskListener,
+        ElectricFields,
+        Observer<Bitmap>,
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener {
 
@@ -46,10 +48,13 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         private set
     private val charges: MutableList<Charge> = CopyOnWriteArrayList<Charge>()
     private var bitmap: Bitmap? = null
-    private var task: FieldAsyncTask? = null
+    private var task: FieldsTask? = null
     private var sameChargeDistance: Int = 0
     private var listener: WallpaperListener? = null
     private val gestureDetector: GestureDetector
+    var idle = false
+        private set
+    private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     init {
         val res = context.resources
@@ -59,12 +64,12 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         setWallpaperListener(listener)
     }
 
-    fun addCharge(x: Int, y: Int, size: Double): Boolean {
+    override fun addCharge(x: Int, y: Int, size: Double): Boolean {
         return addCharge(Charge(x, y, size))
     }
 
-    fun addCharge(charge: Charge): Boolean {
-        if (charges.size < ElectricFieldsView.MAX_CHARGES) {
+    override fun addCharge(charge: Charge): Boolean {
+        if (charges.size < MAX_CHARGES) {
             if (charges.add(charge)) {
                 if (listener != null) {
                     listener!!.onChargeAdded(this, charge)
@@ -75,7 +80,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         return false
     }
 
-    fun invertCharge(x: Int, y: Int): Boolean {
+    override fun invertCharge(x: Int, y: Int): Boolean {
         val charge = findCharge(x, y)
         if (charge != null) {
             charge.size = -charge.size
@@ -87,7 +92,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         return false
     }
 
-    fun findCharge(x: Int, y: Int): Charge? {
+    override fun findCharge(x: Int, y: Int): Charge? {
         val count = charges.size
         var charge: Charge
         var chargeNearest: Charge? = null
@@ -96,7 +101,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         var d: Int
         var dMin = Integer.MAX_VALUE
 
-        for (i in 0..count - 1) {
+        for (i in 0 until count) {
             charge = charges[i]
             dx = x - charge.x
             dy = y - charge.y
@@ -110,7 +115,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         return chargeNearest
     }
 
-    fun clear() {
+    override fun clear() {
         charges.clear()
     }
 
@@ -122,37 +127,28 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         canvas.drawBitmap(bitmap!!, 0f, 0f, null)
     }
 
-    /**
-     * Start the task.
-     * @param delay the start delay, in milliseconds.
-     */
-    fun start(delay: Long = 0L) {
-        if (!isRendering) {
-            task = FieldAsyncTask(this, Canvas(bitmap!!))
-            task!!.setSaturation(0.5f)
-            task!!.setBrightness(0.5f)
-            task!!.setStartDelay(delay)
-            task!!.execute(*charges.toTypedArray())
+    override fun start(delay: Long) {
+        if (idle) {
+            val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
+            val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
+            val observer = this
+            val t = FieldsTask(charges, bitmap!!, density, hues)
+            task = t
+            with(t) {
+                saturation = 0.5f
+                brightness = 0.5f
+                startDelay = delay
+                subscribeOn(Schedulers.computation())
+                        .subscribe(observer)
+            }
         }
     }
 
-    /**
-     * Cancel the task.
-     */
-    fun cancel() {
+    override fun stop() {
         if (task != null) {
-            task!!.cancel(true)
+            task!!.cancel()
         }
-    }
-
-    /**
-     * Restart the task with modified charges.
-     *
-     * @param delay the start delay, in milliseconds.
-     */
-    fun restart(delay: Long = 0L) {
-        cancel()
-        start(delay)
+        idle = true
     }
 
     /**
@@ -162,32 +158,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
      */
     fun setWallpaperListener(listener: WallpaperListener) {
         this.listener = listener
-    }
-
-    override fun onTaskStarted(task: FieldAsyncTask) {
-        if (listener != null) {
-            listener!!.onRenderFieldStarted(this)
-        }
-    }
-
-    override fun onTaskFinished(task: FieldAsyncTask) {
-        if (task === this.task) {
-            invalidate()
-            if (listener != null) {
-                listener!!.onRenderFieldFinished(this)
-            }
-            clear()
-        }
-    }
-
-    override fun onTaskCancelled(task: FieldAsyncTask) {
-        if (listener != null) {
-            listener!!.onRenderFieldCancelled(this)
-        }
-    }
-
-    override fun repaint(task: FieldAsyncTask) {
-        invalidate()
     }
 
     private fun invalidate() {
@@ -221,13 +191,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         }
     }
 
-    /**
-     * Is the task busy rendering the fields?
-     * @return `true` if rendering.
-     */
-    val isRendering: Boolean
-        get() = (task != null) && !task!!.isCancelled && (task!!.status != AsyncTask.Status.FINISHED)
-
     override fun onDoubleTap(e: MotionEvent): Boolean {
         return false
     }
@@ -255,7 +218,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val x = e.x.toInt()
         val y = e.y.toInt()
-        val duration = Math.min(SystemClock.uptimeMillis() - e.downTime, DateUtils.SECOND_IN_MILLIS)
+        val duration = Math.min(uptimeMillis() - e.downTime, SECOND_IN_MILLIS)
         val size = 1.0 + (duration / 20L).toDouble()
         return (listener != null) && listener!!.onRenderFieldClicked(this, x, y, size)
     }
@@ -266,5 +229,31 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     fun onTouchEvent(event: MotionEvent) {
         gestureDetector.onTouchEvent(event)
+    }
+
+    override fun onNext(value: Bitmap) {
+        invalidate()
+    }
+
+    override fun onError(e: Throwable) {
+        idle = true
+        if (listener != null) {
+            listener!!.onRenderFieldCancelled(this)
+        }
+    }
+
+    override fun onComplete() {
+        idle = true
+        if (listener != null) {
+            listener!!.onRenderFieldFinished(this)
+        }
+        clear()
+    }
+
+    override fun onSubscribe(d: Disposable) {
+        idle = false
+        if (listener != null) {
+            listener!!.onRenderFieldStarted(this)
+        }
     }
 }

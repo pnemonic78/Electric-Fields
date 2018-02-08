@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">Tam ekran</string>
     <string name="menu_random">Rastgele seç</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Palet</string>
+    <string name="palette_density">Yoğunluk</string>
+    <string name="palette_hues">Tonlarının</string>
 </resources>

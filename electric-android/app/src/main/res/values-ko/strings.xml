@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">전체 화면</string>
     <string name="menu_random">무작위</string>
+
+    <!-- Palette -->
+    <string name="palette_title">팔레트</string>
+    <string name="palette_density">밀도</string>
+    <string name="palette_hues">색조</string>
 </resources>

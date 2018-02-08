@@ -18,15 +18,19 @@ package com.github.fields.electric
 import android.Manifest
 import android.annotation.TargetApi
 import android.app.Activity
-import android.content.pm.PackageManager
-import android.os.AsyncTask
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
+import android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+import android.view.View.SYSTEM_UI_FLAG_VISIBLE
 import android.view.WindowManager
 import android.widget.Toast
+import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 /**
@@ -39,28 +43,35 @@ class MainActivity : Activity(),
 
     private val REQUEST_SAVE = 1
 
-    private lateinit var fieldsView: ElectricFieldsView
-    private var saveTask: AsyncTask<*, *, *>? = null
+    private lateinit var mainView: ElectricFieldsView
+    private val disposables = CompositeDisposable()
     private val random = Random()
     private var menuStop: MenuItem? = null
+    private var menuSave: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        fieldsView = findViewById(R.id.electric_fields)
-        fieldsView.setElectricFieldsListener(this)
+        mainView = findViewById(R.id.electric_fields)
+        mainView.setElectricFieldsListener(this)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        fieldsView.cancel()
+        mainView.stop()
+        disposables.dispose()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
 
+        val rendering = !mainView.isIdle()
+
         menuStop = menu.findItem(R.id.menu_stop)
-        menuStop!!.isEnabled = fieldsView.isRendering
+        menuStop!!.isEnabled = rendering
+
+        menuSave = menu.findItem(R.id.menu_save_file)
+        menuSave!!.isEnabled = rendering
 
         return true
     }
@@ -87,6 +98,10 @@ class MainActivity : Activity(),
                 saveToFile()
                 return true
             }
+            R.id.menu_palette -> {
+                choosePalette()
+                return true
+            }
         }
 
         return super.onOptionsItemSelected(item)
@@ -96,14 +111,14 @@ class MainActivity : Activity(),
      * Add random charges.
      */
     private fun randomise() {
-        val w = fieldsView.measuredWidth
-        val h = fieldsView.measuredHeight
-        val count = 1 + random.nextInt(ElectricFieldsView.MAX_CHARGES)
-        fieldsView.clear()
-        for (i in 0..count - 1) {
-            fieldsView.addCharge(random.nextInt(w), random.nextInt(h), (if (random.nextBoolean()) +1 else -1) * (1 + random.nextDouble() * 20))
+        val w = mainView.measuredWidth
+        val h = mainView.measuredHeight
+        val count = 1 + random.nextInt(MAX_CHARGES)
+        mainView.clear()
+        for (i in 0 until count) {
+            mainView.addCharge(random.nextInt(w), random.nextInt(h), (if (random.nextBoolean()) +1 else -1) * (1 + random.nextDouble() * 20))
         }
-        fieldsView.restart()
+        mainView.restart()
     }
 
     /**
@@ -112,68 +127,88 @@ class MainActivity : Activity(),
     private fun saveToFile() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val activity = this@MainActivity
-            if (activity.checkCallingOrSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (activity.checkCallingOrSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
                 activity.requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_SAVE)
                 return
             }
         }
 
         // Busy saving?
-        if ((saveTask) != null && saveTask!!.status == AsyncTask.Status.RUNNING) {
+        if ((menuSave == null) || !menuSave!!.isEnabled) {
             return
         }
-        saveTask = SaveFileTask(this).execute(fieldsView.getBitmap())
+        menuSave!!.isEnabled = false
+
+        val context = this
+        val bitmap = mainView.bitmap!!
+        val task = SaveFileTask(context, bitmap)
+        task.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(SaveFileObserver(context, bitmap))
+        disposables.add(task)
     }
 
-    override fun onChargeAdded(view: ElectricFieldsView, charge: Charge) {}
+    override fun onChargeAdded(view: ElectricFields, charge: Charge) {}
 
-    override fun onChargeInverted(view: ElectricFieldsView, charge: Charge) {}
+    override fun onChargeInverted(view: ElectricFields, charge: Charge) {}
 
-    override fun onChargeScaleBegin(view: ElectricFieldsView, charge: Charge): Boolean {
-        return charge != null
+    override fun onChargeScaleBegin(view: ElectricFields, charge: Charge): Boolean {
+        return (view == mainView)
     }
 
-    override fun onChargeScale(view: ElectricFieldsView, charge: Charge): Boolean {
-        return charge != null
+    override fun onChargeScale(view: ElectricFields, charge: Charge): Boolean {
+        return (view == mainView)
     }
 
-    override fun onChargeScaleEnd(view: ElectricFieldsView, charge: Charge): Boolean {
-        if (charge != null) {
-            fieldsView.restart()
+    override fun onChargeScaleEnd(view: ElectricFields, charge: Charge): Boolean {
+        if (view == mainView) {
+            view.restart()
             return true
         }
         return false
     }
 
-    override fun onRenderFieldClicked(view: ElectricFieldsView, x: Int, y: Int, size: Double): Boolean {
-        if (fieldsView.invertCharge(x, y) || fieldsView.addCharge(x, y, size)) {
-            fieldsView.restart()
+    override fun onRenderFieldClicked(view: ElectricFields, x: Int, y: Int, size: Double): Boolean {
+        if ((view == mainView) && (view.invertCharge(x, y) || view.addCharge(x, y, size))) {
+            view.restart()
             return true
         }
         return false
     }
 
-    override fun onRenderFieldStarted(view: ElectricFieldsView) {
-        if (view == fieldsView) {
-            if (menuStop != null) {
-                menuStop!!.isEnabled = view.isRendering
+    override fun onRenderFieldStarted(view: ElectricFields) {
+        if (view == mainView) {
+            runOnUiThread {
+                if (menuStop != null) {
+                    menuStop!!.isEnabled = true
+                }
+                if (menuSave != null) {
+                    menuSave!!.isEnabled = true
+                }
             }
         }
     }
 
-    override fun onRenderFieldFinished(view: ElectricFieldsView) {
-        if (view == fieldsView) {
-            if (menuStop != null) {
-                menuStop!!.isEnabled = false
+    override fun onRenderFieldFinished(view: ElectricFields) {
+        if (view == mainView) {
+            runOnUiThread {
+                if (menuStop != null) {
+                    menuStop!!.isEnabled = false
+                }
+                if (menuSave != null) {
+                    menuSave!!.isEnabled = true
+                }
+                Toast.makeText(this, R.string.finished, Toast.LENGTH_SHORT).show()
             }
-            Toast.makeText(this, R.string.finished, Toast.LENGTH_SHORT).show()
         }
     }
 
-    override fun onRenderFieldCancelled(view: ElectricFieldsView) {
-        if (view == fieldsView) {
-            if (menuStop != null) {
-                menuStop!!.isEnabled = false
+    override fun onRenderFieldCancelled(view: ElectricFields) {
+        if (view == mainView) {
+            runOnUiThread {
+                if (menuStop != null) {
+                    menuStop!!.isEnabled = false
+                }
             }
         }
     }
@@ -184,7 +219,7 @@ class MainActivity : Activity(),
 
         if (requestCode == REQUEST_SAVE) {
             if (permissions.isNotEmpty() && (permissions[0] == Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
                     saveToFile()
                     return
                 }
@@ -204,8 +239,7 @@ class MainActivity : Activity(),
                 window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN)
             } else {
-                val decorView = window.decorView
-                decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+                window.decorView.systemUiVisibility = SYSTEM_UI_FLAG_FULLSCREEN
             }
 
             // Hide the action bar.
@@ -226,8 +260,7 @@ class MainActivity : Activity(),
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
             } else {
-                val decorView = window.decorView
-                decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+                window.decorView.systemUiVisibility = SYSTEM_UI_FLAG_VISIBLE
             }
 
             // Show the action bar.
@@ -245,11 +278,11 @@ class MainActivity : Activity(),
     }
 
     private fun stop() {
-        fieldsView.cancel()
-        fieldsView.clear()
+        mainView.stop()
+        mainView.clear()
+    }
 
-        if (saveTask != null) {
-            saveTask!!.cancel(true)
-        }
+    private fun choosePalette() {
+        PaletteDialog(this).show()
     }
 }

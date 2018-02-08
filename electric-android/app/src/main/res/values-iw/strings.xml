@@ -15,4 +15,9 @@
     <!-- Menu. -->
     <string name="menu_fullscreen">מסך מלא</string>
     <string name="menu_random">אקראי</string>
+
+    <!-- Palette -->
+    <string name="palette_title">לוח הצבעים</string>
+    <string name="palette_density">צפיפות</string>
+    <string name="palette_hues">גוונים</string>
 </resources>
