@@ -81,10 +81,10 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
             try {
                 out = FileOutputStream(file)
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                Log.i(TAG, "save success: " + file)
+                Log.i(TAG, "save success: $file")
                 url = Uri.fromFile(file)
             } catch (e: Exception) {
-                Log.e(TAG, "save failed: " + file, e)
+                Log.e(TAG, "save failed: $file", e)
                 observer.onError(e)
             } finally {
                 if (out != null) {
