@@ -98,7 +98,7 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
                 MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), arrayOf(IMAGE_MIME), { path: String, uri: Uri? ->
                     if ((uri != null) && (SCHEME_FILE != uri.scheme)) {
                         url = uri
-                        observer.onNext(url)
+                        observer.onNext(uri)
                     }
                     synchronized(mutex) {
                         mutex.notify()
