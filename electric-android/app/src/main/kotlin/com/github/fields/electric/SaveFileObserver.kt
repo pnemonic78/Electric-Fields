@@ -1,5 +1,6 @@
 package com.github.fields.electric
 
+import android.annotation.TargetApi
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -8,7 +9,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Build
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
+import android.support.v4.app.NotificationCompat
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import io.reactivex.internal.disposables.DisposableHelper
@@ -31,7 +34,7 @@ class SaveFileObserver(val context: Context, val bitmap: Bitmap) : Observer<Uri>
 
     private var disposable: Disposable? = null
     private val nm: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    private lateinit var builder: Notification.Builder
+    private lateinit var builder: NotificationCompat.Builder
 
     override fun onSubscribe(d: Disposable) {
         if (DisposableHelper.validate(this.disposable, d)) {
@@ -49,16 +52,12 @@ class SaveFileObserver(val context: Context, val bitmap: Bitmap) : Observer<Uri>
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
         val pendingIntent = PendingIntent.getActivity(context, REQUEST_APP, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = android.app.NotificationChannel(CHANNEL_ID, context.getText(R.string.saving_title), NotificationManager.IMPORTANCE_DEFAULT)
-            channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-            nm.createNotificationChannel(channel)
-
-            Notification.Builder(context, CHANNEL_ID)
-        } else {
-            Notification.Builder(context)
+        if (VERSION.SDK_INT >= VERSION_CODES.O) {
+            initChannels(nm)
         }
-        builder.setContentTitle(context.getText(R.string.saving_title))
+        builder = NotificationCompat.Builder(context, CHANNEL_ID)
+                .setCategory(NotificationCompat.CATEGORY_PROGRESS)
+                .setContentTitle(context.getText(R.string.saving_title))
                 .setContentText(context.getText(R.string.saving_text))
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.stat_notify)
@@ -66,13 +65,7 @@ class SaveFileObserver(val context: Context, val bitmap: Bitmap) : Observer<Uri>
                 .setAutoCancel(true)
                 .setOngoing(true)
 
-        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            builder.build()
-        } else {
-            builder.notification
-        }
-
-        nm.notify(ID_NOTIFY, notification)
+        nm.notify(ID_NOTIFY, builder.build())
     }
 
     override fun onNext(value: Uri) {
@@ -86,26 +79,14 @@ class SaveFileObserver(val context: Context, val bitmap: Bitmap) : Observer<Uri>
                 .setContentText(context.getText(R.string.saved_text))
                 .setContentIntent(pendingIntent)
 
-        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            builder.build()
-        } else {
-            builder.notification
-        }
-
-        nm.notify(ID_NOTIFY, notification)
+        nm.notify(ID_NOTIFY, builder.build())
     }
 
     override fun onError(e: Throwable) {
         builder.setOngoing(false)
         builder.setContentText(context.getText(R.string.save_failed))
 
-        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            builder.build()
-        } else {
-            builder.notification
-        }
-
-        nm.notify(ID_NOTIFY, notification)
+        nm.notify(ID_NOTIFY, builder.build())
     }
 
     override fun onComplete() {
@@ -124,5 +105,15 @@ class SaveFileObserver(val context: Context, val bitmap: Bitmap) : Observer<Uri>
     fun cancel() {
         finish()
         nm.cancel(ID_NOTIFY)
+    }
+
+    @TargetApi(VERSION_CODES.O)
+    private fun initChannels(nm: NotificationManager) {
+        var channel = nm.getNotificationChannel(CHANNEL_ID)
+        if (channel == null) {
+            channel = android.app.NotificationChannel(CHANNEL_ID, context.getString(R.string.saving_title), NotificationManager.IMPORTANCE_DEFAULT)
+            channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            nm.createNotificationChannel(channel)
+        }
     }
 }
