@@ -115,14 +115,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         charges.clear()
     }
 
-    fun draw(canvas: Canvas) {
-        onDraw(canvas)
-    }
-
-    protected fun onDraw(canvas: Canvas) {
-        canvas.drawBitmap(bitmap!!, 0f, 0f, null)
-    }
-
     override fun start(delay: Long) {
         if (idle) {
             val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
@@ -143,44 +135,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     override fun stop() {
         task?.cancel()
         idle = true
-    }
-
-    /**
-     * Set the listener for events.
-     *
-     * @param listener the listener.
-     */
-    fun setWallpaperListener(listener: WallpaperListener) {
-        this.listener = listener
-    }
-
-    private fun invalidate() {
-        listener?.onDraw(this)
-    }
-
-    fun setSize(width: Int, height: Int) {
-        this.width = width
-        this.height = height
-
-        val bitmapOld = bitmap
-        if (bitmapOld != null) {
-            val bw = bitmapOld.width
-            val bh = bitmapOld.height
-
-            if ((width != bw) || (height != bh)) {
-                val m = Matrix()
-                // Changed orientation?
-                if (width < bw && height > bh) {// Portrait?
-                    m.postRotate(90f, bw / 2f, bh / 2f)
-                } else {// Landscape?
-                    m.postRotate(270f, bw / 2f, bh / 2f)
-                }
-                val rotated = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh, m, true)
-                bitmap = Bitmap.createScaledBitmap(rotated, width, height, true)
-            }
-        } else {
-            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
-        }
     }
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
@@ -219,10 +173,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         return false
     }
 
-    fun onTouchEvent(event: MotionEvent) {
-        gestureDetector.onTouchEvent(event)
-    }
-
     override fun onNext(value: Bitmap) {
         invalidate()
     }
@@ -241,5 +191,55 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     override fun onSubscribe(d: Disposable) {
         idle = false
         listener?.onRenderFieldStarted(this)
+    }
+
+    /**
+     * Set the listener for events.
+     *
+     * @param listener the listener.
+     */
+    fun setWallpaperListener(listener: WallpaperListener) {
+        this.listener = listener
+    }
+
+    protected fun invalidate() {
+        listener?.onDraw(this)
+    }
+
+    fun setSize(width: Int, height: Int) {
+        this.width = width
+        this.height = height
+
+        val bitmapOld = bitmap
+        if (bitmapOld != null) {
+            val bw = bitmapOld.width
+            val bh = bitmapOld.height
+
+            if ((width != bw) || (height != bh)) {
+                val m = Matrix()
+                // Changed orientation?
+                if (width < bw && height > bh) {// Portrait?
+                    m.postRotate(90f, bw / 2f, bh / 2f)
+                } else {// Landscape?
+                    m.postRotate(270f, bw / 2f, bh / 2f)
+                }
+                val rotated = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh, m, true)
+                bitmap = Bitmap.createScaledBitmap(rotated, width, height, true)
+            }
+        } else {
+            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+        }
+    }
+
+    fun draw(canvas: Canvas) {
+        onDraw(canvas)
+    }
+
+    protected fun onDraw(canvas: Canvas) {
+        canvas.drawBitmap(bitmap!!, 0f, 0f, null)
+    }
+
+    fun onTouchEvent(event: MotionEvent) {
+        gestureDetector.onTouchEvent(event)
     }
 }
