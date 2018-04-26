@@ -83,7 +83,7 @@ class MainActivity : Activity(),
                 return true
             }
             R.id.menu_fullscreen -> {
-                if (actionBar!!.isShowing) {
+                if (actionBar?.isShowing == true) {
                     showFullscreen()
                 } else {
                     hideFullscreen()
@@ -179,12 +179,8 @@ class MainActivity : Activity(),
     override fun onRenderFieldStarted(view: ElectricFields) {
         if (view == mainView) {
             runOnUiThread {
-                if (menuStop != null) {
-                    menuStop!!.isEnabled = true
-                }
-                if (menuSave != null) {
-                    menuSave!!.isEnabled = true
-                }
+                menuStop?.let { it.isEnabled = true }
+                menuSave?.let { it.isEnabled = true }
             }
         }
     }
@@ -192,12 +188,8 @@ class MainActivity : Activity(),
     override fun onRenderFieldFinished(view: ElectricFields) {
         if (view == mainView) {
             runOnUiThread {
-                if (menuStop != null) {
-                    menuStop!!.isEnabled = false
-                }
-                if (menuSave != null) {
-                    menuSave!!.isEnabled = true
-                }
+                menuStop?.let { it.isEnabled = false }
+                menuSave?.let { it.isEnabled = true }
                 Toast.makeText(this, R.string.finished, Toast.LENGTH_SHORT).show()
             }
         }
@@ -206,9 +198,7 @@ class MainActivity : Activity(),
     override fun onRenderFieldCancelled(view: ElectricFields) {
         if (view == mainView) {
             runOnUiThread {
-                if (menuStop != null) {
-                    menuStop!!.isEnabled = false
-                }
+                menuStop?.let { it.isEnabled = false }
             }
         }
     }

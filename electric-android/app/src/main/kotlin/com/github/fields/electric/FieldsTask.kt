@@ -42,23 +42,17 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
     var brightness = 1f
         set(value) {
             field = value
-            if (runner != null) {
-                runner!!.brightness = value
-            }
+            runner?.let { it.brightness = value }
         }
     var saturation = 1f
         set(value) {
             field = value
-            if (runner != null) {
-                runner!!.saturation = value
-            }
+            runner?.let { it.saturation = value }
         }
     var startDelay = 0L
         set(value) {
             field = value
-            if (runner != null) {
-                runner!!.startDelay = value
-            }
+            runner?.let { it.startDelay = value }
         }
 
     override fun subscribeActual(observer: Observer<in Bitmap>) {
@@ -72,16 +66,11 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
     }
 
     override fun isDisposed(): Boolean {
-        if (runner != null) {
-            return runner!!.isDisposed
-        }
-        return false
+        return runner?.isDisposed ?: false
     }
 
     override fun dispose() {
-        if (runner != null) {
-            runner!!.dispose()
-        }
+        runner?.dispose()
     }
 
     private class FieldRunner(val params: Collection<Charge>, val bitmap: Bitmap, val density: Double, val hues: Double, val observer: Observer<in Bitmap>) : DefaultDisposable() {

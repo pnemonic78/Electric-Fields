@@ -38,7 +38,6 @@ class ElectricFieldsWallpaperService : WallpaperService() {
 
     /**
      * Electric Fields wallpaper engine.
-
      * @author Moshe Waisberg
      */
     private inner class ElectricFieldsWallpaperEngine : WallpaperService.Engine(), WallpaperListener {
@@ -50,7 +49,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
 
         private lateinit var fieldsView: WallpaperView
         private val random = Random()
-        private var drawing = AtomicBoolean()
+        private val drawing = AtomicBoolean()
 
         override fun onCreate(surfaceHolder: SurfaceHolder) {
             super.onCreate(surfaceHolder)
@@ -92,7 +91,6 @@ class ElectricFieldsWallpaperService : WallpaperService() {
 
         /**
          * Add random charges.
-
          * @param delay the start delay, in milliseconds.
          */
         private fun randomise(delay: Long = 0L) {

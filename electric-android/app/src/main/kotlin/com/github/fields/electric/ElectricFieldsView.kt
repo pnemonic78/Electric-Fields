@@ -116,9 +116,7 @@ class ElectricFieldsView : View,
     override fun addCharge(charge: Charge): Boolean {
         if (charges.size < MAX_CHARGES) {
             if (charges.add(charge)) {
-                if (listener != null) {
-                    listener!!.onChargeAdded(this, charge)
-                }
+                listener?.onChargeAdded(this, charge)
                 return true
             }
         }
@@ -129,9 +127,7 @@ class ElectricFieldsView : View,
         val charge = findCharge(x, y)
         if (charge != null) {
             charge.size = -charge.size
-            if (listener != null) {
-                listener!!.onChargeInverted(this, charge)
-            }
+            listener?.onChargeInverted(this, charge)
             return true
         }
         return false
@@ -183,9 +179,7 @@ class ElectricFieldsView : View,
     }
 
     override fun stop() {
-        if (task != null) {
-            task!!.cancel()
-        }
+        task?.cancel()
     }
 
     /**
@@ -271,9 +265,7 @@ class ElectricFieldsView : View,
     override fun onScaleEnd(detector: ScaleGestureDetector) {
         if (chargeToScale != null) {
             chargeToScale!!.size *= scaleFactor
-            if (listener != null) {
-                listener!!.onChargeScaleEnd(this, chargeToScale!!)
-            }
+            listener?.onChargeScaleEnd(this, chargeToScale!!)
         }
     }
 
@@ -284,7 +276,7 @@ class ElectricFieldsView : View,
         val y = e.y.toInt()
         val duration = Math.min(uptimeMillis() - e.downTime, SECOND_IN_MILLIS)
         val size = 1.0 + (duration / 20L).toDouble()
-        if ((listener != null) && listener!!.onRenderFieldClicked(this, x, y, size)) {
+        if (listener?.onRenderFieldClicked(this, x, y, size) == true) {
             performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             return true
         }
@@ -306,22 +298,16 @@ class ElectricFieldsView : View,
     }
 
     override fun onError(e: Throwable) {
-        if (listener != null) {
-            listener!!.onRenderFieldCancelled(this)
-        }
+        listener?.onRenderFieldCancelled(this)
     }
 
     override fun onComplete() {
-        if (listener != null) {
-            listener!!.onRenderFieldFinished(this)
-        }
+        listener?.onRenderFieldFinished(this)
         clear()
     }
 
     override fun onSubscribe(d: Disposable) {
-        if (listener != null) {
-            listener!!.onRenderFieldStarted(this)
-        }
+        listener?.onRenderFieldStarted(this)
     }
 
     class SavedState : View.BaseSavedState {
@@ -333,7 +319,7 @@ class ElectricFieldsView : View,
             source.readTypedList(charges, Charge.CREATOR)
         }
 
-        constructor(superState: Parcelable) : super(superState) {}
+        constructor(superState: Parcelable) : super(superState)
 
         override fun writeToParcel(out: Parcel, flags: Int) {
             super.writeToParcel(out, flags)

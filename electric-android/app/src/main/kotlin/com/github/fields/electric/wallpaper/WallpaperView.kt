@@ -71,9 +71,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     override fun addCharge(charge: Charge): Boolean {
         if (charges.size < MAX_CHARGES) {
             if (charges.add(charge)) {
-                if (listener != null) {
-                    listener!!.onChargeAdded(this, charge)
-                }
+                listener?.onChargeAdded(this, charge)
                 return true
             }
         }
@@ -84,9 +82,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         val charge = findCharge(x, y)
         if (charge != null) {
             charge.size = -charge.size
-            if (listener != null) {
-                listener!!.onChargeInverted(this, charge)
-            }
+            listener?.onChargeInverted(this, charge)
             return true
         }
         return false
@@ -145,9 +141,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     }
 
     override fun stop() {
-        if (task != null) {
-            task!!.cancel()
-        }
+        task?.cancel()
         idle = true
     }
 
@@ -161,9 +155,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     }
 
     private fun invalidate() {
-        if (listener != null) {
-            listener!!.onDraw(this)
-        }
+        listener?.onDraw(this)
     }
 
     fun setSize(width: Int, height: Int) {
@@ -237,23 +229,17 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     override fun onError(e: Throwable) {
         idle = true
-        if (listener != null) {
-            listener!!.onRenderFieldCancelled(this)
-        }
+        listener?.onRenderFieldCancelled(this)
     }
 
     override fun onComplete() {
         idle = true
-        if (listener != null) {
-            listener!!.onRenderFieldFinished(this)
-        }
+        listener?.onRenderFieldFinished(this)
         clear()
     }
 
     override fun onSubscribe(d: Disposable) {
         idle = false
-        if (listener != null) {
-            listener!!.onRenderFieldStarted(this)
-        }
+        listener?.onRenderFieldStarted(this)
     }
 }
