@@ -31,11 +31,11 @@ class PaletteDialog(context: Context) : AlertDialog(context) {
 
     companion object {
 
-        val PREF_DENSITY = "density"
-        val PREF_HUES = "hues"
+        const val PREF_DENSITY = "density"
+        const val PREF_HUES = "hues"
 
-        val DEFAULT_DENSITY = FieldsTask.DEFAULT_DENSITY.toInt()
-        val DEFAULT_HUES = FieldsTask.DEFAULT_HUES.toInt()
+        const val DEFAULT_DENSITY = FieldsTask.DEFAULT_DENSITY.toInt()
+        const val DEFAULT_HUES = FieldsTask.DEFAULT_HUES.toInt()
 
     }
 

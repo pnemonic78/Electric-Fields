@@ -40,7 +40,7 @@ import java.util.*
 class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : Observable<Uri>(), Disposable {
 
     companion object {
-        val IMAGE_MIME = "image/png"
+        const val IMAGE_MIME = "image/png"
     }
 
     private lateinit var runner: SaveFileRunner

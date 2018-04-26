@@ -47,7 +47,7 @@ class ElectricFieldsView : View,
 
     companion object {
 
-        val MAX_CHARGES = 10
+        const val MAX_CHARGES = 10
 
     }
 

@@ -33,8 +33,8 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
 
     companion object {
 
-        val DEFAULT_DENSITY = 1000.0
-        val DEFAULT_HUES = 360.0
+        const val DEFAULT_DENSITY = 1000.0
+        const val DEFAULT_HUES = 360.0
 
     }
 
