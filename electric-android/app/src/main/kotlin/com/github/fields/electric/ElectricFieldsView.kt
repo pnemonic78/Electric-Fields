@@ -161,7 +161,10 @@ class ElectricFieldsView : View,
     }
 
     override fun onDraw(canvas: Canvas) {
-        canvas.drawBitmap(bitmap, 0f, 0f, null)
+        val b = bitmap!!
+        val dx = (measuredWidth - b.width) / 2f
+        val dy = (measuredHeight - b.height) / 2f
+        canvas.drawBitmap(b, dx, dy, null)
     }
 
     override fun start(delay: Long) {
