@@ -23,8 +23,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
-import android.view.View.SYSTEM_UI_FLAG_VISIBLE
+import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
@@ -229,7 +228,7 @@ class MainActivity : Activity(),
                 window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN)
             } else {
-                window.decorView.systemUiVisibility = SYSTEM_UI_FLAG_FULLSCREEN
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
             }
 
             // Hide the action bar.
@@ -250,7 +249,7 @@ class MainActivity : Activity(),
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
             } else {
-                window.decorView.systemUiVisibility = SYSTEM_UI_FLAG_VISIBLE
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
             }
 
             // Show the action bar.
