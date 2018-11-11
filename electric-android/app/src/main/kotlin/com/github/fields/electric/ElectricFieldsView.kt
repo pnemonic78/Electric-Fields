@@ -20,6 +20,8 @@ import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
+import android.graphics.Point
+import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
 import android.os.SystemClock.uptimeMillis
@@ -31,6 +33,7 @@ import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -39,11 +42,11 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @author Moshe Waisberg
  */
 class ElectricFieldsView : View,
-        ElectricFields,
-        Observer<Bitmap>,
-        GestureDetector.OnGestureListener,
-        GestureDetector.OnDoubleTapListener,
-        ScaleGestureDetector.OnScaleGestureListener {
+    ElectricFields,
+    Observer<Bitmap>,
+    GestureDetector.OnGestureListener,
+    GestureDetector.OnDoubleTapListener,
+    ScaleGestureDetector.OnScaleGestureListener {
 
     companion object {
 
@@ -52,11 +55,26 @@ class ElectricFieldsView : View,
     }
 
     private val charges: MutableList<Charge> = CopyOnWriteArrayList<Charge>()
+
+    private val size: Point by lazy {
+        val sizeValue = Point()
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val display = windowManager.defaultDisplay
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // include navigation bar
+            display.getRealSize(sizeValue)
+        } else {
+            // exclude navigation bar
+            display.getSize(sizeValue)
+        }
+        sizeValue
+    }
+
     var bitmap: Bitmap? = null
         get() {
-            val metrics = resources.displayMetrics
-            val width = metrics.widthPixels
-            val height = metrics.heightPixels
+            val size = this.size
+            val width = size.x
+            val height = size.y
 
             val bitmapOld = field
             if (bitmapOld != null) {
@@ -87,6 +105,8 @@ class ElectricFieldsView : View,
     private var chargeToScale: Charge? = null
     private var scaleFactor = 1f
     private lateinit var prefs: SharedPreferences
+    private var measuredWidthDiff = 0f
+    private var measuredHeightDiff = 0f
 
     constructor(context: Context) : super(context) {
         init(context)
@@ -107,6 +127,13 @@ class ElectricFieldsView : View,
         gestureDetector = GestureDetector(context, this)
         scaleGestureDetector = ScaleGestureDetector(context, this)
         prefs = PreferenceManager.getDefaultSharedPreferences(context)
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        val b = bitmap ?: return
+        measuredWidthDiff = (w - b.width) / 2f
+        measuredHeightDiff = (h - b.height) / 2f
     }
 
     override fun addCharge(x: Int, y: Int, size: Double): Boolean {
@@ -134,16 +161,13 @@ class ElectricFieldsView : View,
     }
 
     override fun findCharge(x: Int, y: Int): Charge? {
-        val count = charges.size
-        var charge: Charge
         var chargeNearest: Charge? = null
         var dx: Int
         var dy: Int
         var d: Int
         var dMin = Integer.MAX_VALUE
 
-        for (i in 0 until count) {
-            charge = charges[i]
+        for (charge in charges) {
             dx = x - charge.x
             dy = y - charge.y
             d = (dx * dx) + (dy * dy)
@@ -161,10 +185,8 @@ class ElectricFieldsView : View,
     }
 
     override fun onDraw(canvas: Canvas) {
-        val b = bitmap!!
-        val dx = (measuredWidth - b.width) / 2f
-        val dy = (measuredHeight - b.height) / 2f
-        canvas.drawBitmap(b, dx, dy, null)
+        val b = bitmap ?: return
+        canvas.drawBitmap(b, measuredWidthDiff, measuredHeightDiff, null)
     }
 
     override fun start(delay: Long) {
@@ -176,8 +198,8 @@ class ElectricFieldsView : View,
             task = t
             t.startDelay = delay
             t.subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(observer)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer)
         }
     }
 
@@ -212,12 +234,11 @@ class ElectricFieldsView : View,
             return
         }
 
-        val ss = state
-        super.onRestoreInstanceState(ss.superState)
+        super.onRestoreInstanceState(state.superState)
 
-        if (ss.charges != null) {
+        if (state.charges != null) {
             clear()
-            for (charge in ss.charges!!) {
+            for (charge in state.charges!!) {
                 addCharge(charge)
             }
             restart()
@@ -254,8 +275,8 @@ class ElectricFieldsView : View,
 
     override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
         scaleFactor = 1f
-        val x = detector.focusX.toInt()
-        val y = detector.focusY.toInt()
+        val x = (detector.focusX - measuredWidthDiff).toInt()
+        val y = (detector.focusY - measuredHeightDiff).toInt()
         chargeToScale = findCharge(x, y)
         return (listener != null) && (chargeToScale != null) && listener!!.onChargeScaleBegin(this, chargeToScale!!)
     }
@@ -275,8 +296,8 @@ class ElectricFieldsView : View,
     override fun onShowPress(e: MotionEvent) {}
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        val x = e.x.toInt()
-        val y = e.y.toInt()
+        val x = (e.x - measuredWidthDiff).toInt()
+        val y = (e.y - measuredHeightDiff).toInt()
         val duration = Math.min(uptimeMillis() - e.downTime, SECOND_IN_MILLIS)
         val size = 1.0 + (duration / 20L).toDouble()
         if (listener?.onRenderFieldClicked(this, x, y, size) == true) {

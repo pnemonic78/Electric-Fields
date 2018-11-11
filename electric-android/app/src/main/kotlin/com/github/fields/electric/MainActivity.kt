@@ -24,7 +24,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.WindowManager
 import android.widget.Toast
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -38,7 +37,7 @@ import java.util.*
  * @author Moshe Waisberg
  */
 class MainActivity : Activity(),
-        ElectricFieldsListener {
+    ElectricFieldsListener {
 
     private val REQUEST_SAVE = 1
 
@@ -85,7 +84,7 @@ class MainActivity : Activity(),
                 if (actionBar?.isShowing == true) {
                     showFullscreen()
                 } else {
-                    hideFullscreen()
+                    showNormalScreen()
                 }
                 return true
             }
@@ -125,7 +124,7 @@ class MainActivity : Activity(),
      */
     private fun saveToFile() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val activity = this@MainActivity
+            val activity: Activity = this@MainActivity
             if (activity.checkCallingOrSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
                 activity.requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_SAVE)
                 return
@@ -142,8 +141,8 @@ class MainActivity : Activity(),
         val bitmap = mainView.bitmap!!
         val task = SaveFileTask(context, bitmap)
         task.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(SaveFileObserver(context, bitmap))
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(SaveFileObserver(context, bitmap))
         disposables.add(task)
     }
 
@@ -223,13 +222,9 @@ class MainActivity : Activity(),
     private fun showFullscreen(): Boolean {
         val actionBar = actionBar
         if ((actionBar != null) && actionBar.isShowing) {
-            // Hide the status bar.
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            } else {
-                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
-            }
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
 
             // Hide the action bar.
             actionBar.hide()
@@ -242,15 +237,10 @@ class MainActivity : Activity(),
      * Restore the image to non-fullscreen mode.
      * @return `true` if screen was fullscreen.
      */
-    private fun hideFullscreen(): Boolean {
+    private fun showNormalScreen(): Boolean {
         val actionBar = actionBar
         if (actionBar != null && !actionBar.isShowing) {
-            // Show the status bar.
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            } else {
-                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-            }
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE
 
             // Show the action bar.
             actionBar.show()
@@ -260,7 +250,7 @@ class MainActivity : Activity(),
     }
 
     override fun onBackPressed() {
-        if (hideFullscreen()) {
+        if (showNormalScreen()) {
             return
         }
         super.onBackPressed()
