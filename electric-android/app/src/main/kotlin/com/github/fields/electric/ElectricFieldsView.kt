@@ -317,7 +317,7 @@ class ElectricFieldsView : View,
 
         internal var charges: List<Charge>? = null
 
-        protected constructor(source: Parcel) : super(source) {
+        private constructor(source: Parcel) : super(source) {
             charges = ArrayList<Charge>()
             source.readTypedList(charges, Charge.CREATOR)
         }
@@ -329,16 +329,17 @@ class ElectricFieldsView : View,
             out.writeTypedList(charges)
         }
 
-        companion object {
+        override fun describeContents(): Int {
+            return 0
+        }
 
-            val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
-                override fun createFromParcel(p: Parcel): SavedState {
-                    return SavedState(p)
-                }
+        companion object CREATOR : Parcelable.Creator<SavedState> {
+            override fun createFromParcel(parcel: Parcel): SavedState {
+                return SavedState(parcel)
+            }
 
-                override fun newArray(size: Int): Array<SavedState?> {
-                    return arrayOfNulls(size)
-                }
+            override fun newArray(size: Int): Array<SavedState?> {
+                return arrayOfNulls(size)
             }
         }
     }
