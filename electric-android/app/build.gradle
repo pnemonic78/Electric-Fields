@@ -56,7 +56,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation 'junit:junit:4.12'
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -65,5 +64,6 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
 
     // Testing
+    testImplementation 'junit:junit:4.12'
     implementation "com.android.support:support-compat:$supportVersion"
 }
