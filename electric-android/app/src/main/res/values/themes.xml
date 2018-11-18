@@ -3,6 +3,13 @@
 
     <!-- Base application theme. -->
     <style name="Theme.Electric" parent="android:Theme.DeviceDefault.Light">
+        <!-- Translucent action bar -->
+        <item name="android:actionBarStyle">@style/ActionBar.Electric</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <!-- Translucent status bar -->
+        <item name="android:windowTranslucentStatus">true</item>
+        <!-- Translucent navigation bar -->
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
 </resources>

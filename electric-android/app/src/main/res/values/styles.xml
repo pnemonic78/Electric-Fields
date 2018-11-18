@@ -5,4 +5,8 @@
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
+    <style name="ActionBar.Electric" parent="android:Widget.DeviceDefault.ActionBar">
+        <item name="android:background">@color/action_bar</item>
+    </style>
+
 </resources>
