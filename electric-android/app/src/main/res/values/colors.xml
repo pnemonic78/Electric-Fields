@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="action_bar">#40ffffff</color>
+    <color name="bg_window">#ffcc00cc</color>
+    <color name="action_bar">#20000000</color>
 </resources>

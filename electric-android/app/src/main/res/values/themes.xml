@@ -3,6 +3,7 @@
 
     <!-- Base application theme. -->
     <style name="Theme.Electric" parent="android:Theme.DeviceDefault.Light">
+        <item name="android:windowBackground">@color/bg_window</item>
         <!-- Translucent action bar -->
         <item name="android:actionBarStyle">@style/ActionBar.Electric</item>
         <item name="android:windowActionBarOverlay">true</item>
