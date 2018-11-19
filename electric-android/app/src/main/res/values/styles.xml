@@ -5,9 +5,13 @@
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
-    <style name="ActionBar.Electric" parent="android:Widget.DeviceDefault.Light.ActionBar.Solid.Inverse">
+    <style name="Widget.Electric.ActionBar" parent="android:Widget.DeviceDefault.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@color/action_bar</item>
         <item name="android:displayOptions">showTitle</item>
+    </style>
+
+    <style name="Widget.Electric.ActionButton.Overflow" parent="android:Widget.DeviceDefault.ActionButton.Overflow">
+        <item name="android:src">@drawable/ic_more_overflow</item>
     </style>
 
 </resources>
