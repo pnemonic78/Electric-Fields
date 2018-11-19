@@ -18,6 +18,7 @@ package com.github.fields.electric
 import android.Manifest
 import android.annotation.TargetApi
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
@@ -137,8 +138,8 @@ class MainActivity : Activity(),
         }
         menuSave!!.isEnabled = false
 
-        val context = this
-        val bitmap = mainView.bitmap!!
+        val context: Context = this
+        val bitmap = mainView.bitmap
         val task = SaveFileTask(context, bitmap)
         task.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

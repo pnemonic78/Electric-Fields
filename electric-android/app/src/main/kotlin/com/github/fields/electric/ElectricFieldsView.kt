@@ -19,7 +19,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Matrix
 import android.graphics.Point
 import android.os.Parcel
 import android.os.Parcelable
@@ -64,32 +63,16 @@ class ElectricFieldsView : View,
         sizeValue
     }
 
-    var bitmap: Bitmap? = null
+    private var bitmapValue: Bitmap? = null
+    val bitmap: Bitmap
         get() {
-            val size = this.size
-            val width = size.x
-            val height = size.y
-
-            val bitmapOld = field
-            if (bitmapOld != null) {
-                val bw = bitmapOld.width
-                val bh = bitmapOld.height
-
-                if ((width != bw) || (height != bh)) {
-                    val m = Matrix()
-                    // Changed orientation?
-                    if (width < bw && height > bh) {// Portrait?
-                        m.postRotate(90f, bw / 2f, bh / 2f)
-                    } else {// Landscape?
-                        m.postRotate(270f, bw / 2f, bh / 2f)
-                    }
-                    val rotated = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh, m, true)
-                    bitmap = Bitmap.createScaledBitmap(rotated, width, height, true)
-                }
-            } else {
-                field = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            if (bitmapValue == null) {
+                val size = this.size
+                val width = size.x
+                val height = size.y
+                bitmapValue = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             }
-            return field
+            return bitmapValue!!
         }
     private var task: FieldsTask? = null
     private var sameChargeDistance: Int = 0
@@ -125,9 +108,8 @@ class ElectricFieldsView : View,
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        val b = bitmap ?: return
-        measuredWidthDiff = (w - b.width) / 2f
-        measuredHeightDiff = (h - b.height) / 2f
+        measuredWidthDiff = (w - bitmap.width) / 2f
+        measuredHeightDiff = (h - bitmap.height) / 2f
     }
 
     override fun addCharge(x: Int, y: Int, size: Double): Boolean {
@@ -179,8 +161,7 @@ class ElectricFieldsView : View,
     }
 
     override fun onDraw(canvas: Canvas) {
-        val b = bitmap ?: return
-        canvas.drawBitmap(b, measuredWidthDiff, measuredHeightDiff, null)
+        canvas.drawBitmap(bitmap, measuredWidthDiff, measuredHeightDiff, null)
     }
 
     override fun start(delay: Long) {
@@ -188,7 +169,7 @@ class ElectricFieldsView : View,
             val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
             val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
             val observer = this
-            val t = FieldsTask(charges, bitmap!!, density, hues)
+            val t = FieldsTask(charges, bitmap, density, hues)
             task = t
             t.startDelay = delay
             t.subscribeOn(Schedulers.computation())

@@ -15,6 +15,7 @@
  */
 package com.github.fields.electric.wallpaper
 
+import android.content.Context
 import android.service.wallpaper.WallpaperService
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.view.MotionEvent
@@ -55,7 +56,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
             super.onCreate(surfaceHolder)
             setTouchEventsEnabled(true)
 
-            val context = this@ElectricFieldsWallpaperService
+            val context: Context = this@ElectricFieldsWallpaperService
             fieldsView = WallpaperView(context, this)
         }
 
