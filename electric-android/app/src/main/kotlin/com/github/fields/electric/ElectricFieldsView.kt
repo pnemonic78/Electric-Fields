@@ -21,7 +21,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Point
-import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
 import android.os.SystemClock.uptimeMillis
@@ -60,13 +59,8 @@ class ElectricFieldsView : View,
         val sizeValue = Point()
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val display = windowManager.defaultDisplay
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            // include navigation bar
-            display.getRealSize(sizeValue)
-        } else {
-            // exclude navigation bar
-            display.getSize(sizeValue)
-        }
+        // include navigation bar
+        display.getRealSize(sizeValue)
         sizeValue
     }
 
@@ -270,6 +264,14 @@ class ElectricFieldsView : View,
     override fun onLongPress(e: MotionEvent) {}
 
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        /*val dx = distanceX.absoluteValue
+        val dy = distanceY.absoluteValue
+        if (dx >= dy) {
+            //TODO change palette hues
+        } else {
+            //TODO change palette density
+        }
+        return true*/
         return false
     }
 
