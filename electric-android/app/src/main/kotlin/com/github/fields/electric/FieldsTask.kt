@@ -31,13 +31,6 @@ import java.lang.Thread.sleep
  */
 class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bitmap, private val density: Double = DEFAULT_DENSITY, private val hues: Double = DEFAULT_HUES) : Observable<Bitmap>(), Disposable {
 
-    companion object {
-
-        const val DEFAULT_DENSITY = 1000.0
-        const val DEFAULT_HUES = 360.0
-
-    }
-
     private var runner: FieldRunner? = null
     var brightness = 1f
         set(value) {
@@ -215,6 +208,12 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
         }
     }
 
+    fun cancel() {
+        dispose()
+    }
+
+    fun isIdle(): Boolean = (runner == null) || !runner!!.running || isDisposed
+
     private class ChargeHolder(val x: Int, val y: Int, val size: Double) {
 
         constructor(charge: Charge) : this(charge.x, charge.y, charge.size)
@@ -234,9 +233,10 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
         }
     }
 
-    fun cancel() {
-        dispose()
-    }
+    companion object {
 
-    fun isIdle(): Boolean = (runner == null) || !runner!!.running || isDisposed
+        const val DEFAULT_DENSITY = 1000.0
+        const val DEFAULT_HUES = 360.0
+
+    }
 }

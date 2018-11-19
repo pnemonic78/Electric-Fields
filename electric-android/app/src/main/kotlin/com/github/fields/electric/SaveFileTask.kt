@@ -39,10 +39,6 @@ import java.util.*
  */
 class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : Observable<Uri>(), Disposable {
 
-    companion object {
-        const val IMAGE_MIME = "image/png"
-    }
-
     private lateinit var runner: SaveFileRunner
 
     override fun subscribeActual(observer: Observer<in Uri>) {
@@ -95,7 +91,7 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
                 }
             }
             if (url != null) {
-                MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), arrayOf(IMAGE_MIME), { path: String, uri: Uri? ->
+                MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), arrayOf(IMAGE_MIME)) { path: String, uri: Uri? ->
                     if ((uri != null) && (SCHEME_FILE != uri.scheme)) {
                         url = uri
                         observer.onNext(uri)
@@ -103,7 +99,7 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
                     synchronized(mutex) {
                         mutex.notify()
                     }
-                })
+                }
                 synchronized(mutex) {
                     mutex.wait()
                 }
@@ -120,5 +116,9 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
         fun generateFileName(): String {
             return "ef-" + timestampFormat.format(Date()) + IMAGE_EXT
         }
+    }
+
+    companion object {
+        const val IMAGE_MIME = "image/png"
     }
 }

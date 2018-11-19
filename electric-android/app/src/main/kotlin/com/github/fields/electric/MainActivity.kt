@@ -40,8 +40,6 @@ import java.util.*
 class MainActivity : Activity(),
     ElectricFieldsListener {
 
-    private val REQUEST_SAVE = 1
-
     private lateinit var mainView: ElectricFieldsView
     private val disposables = CompositeDisposable()
     private val random = Random()
@@ -264,5 +262,9 @@ class MainActivity : Activity(),
 
     private fun choosePalette() {
         PaletteDialog(this).show()
+    }
+
+    companion object {
+        private const val REQUEST_SAVE = 0x5473 // "SAVE"
     }
 }

@@ -17,7 +17,7 @@ package com.github.fields.electric.wallpaper
 
 import android.content.Context
 import android.service.wallpaper.WallpaperService
-import android.text.format.DateUtils.SECOND_IN_MILLIS
+import android.text.format.DateUtils
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import com.github.fields.electric.Charge
@@ -42,11 +42,6 @@ class ElectricFieldsWallpaperService : WallpaperService() {
      * @author Moshe Waisberg
      */
     private inner class ElectricFieldsWallpaperEngine : WallpaperService.Engine(), WallpaperListener {
-
-        /**
-         * Enough time for user to admire the wallpaper before starting the next rendition.
-         */
-        private val DELAY = 10 * SECOND_IN_MILLIS
 
         private lateinit var fieldsView: WallpaperView
         private val random = Random()
@@ -166,5 +161,12 @@ class ElectricFieldsWallpaperService : WallpaperService() {
             }
             drawing.set(false)
         }
+    }
+
+    companion object {
+        /**
+         * Enough time for user to admire the wallpaper before starting the next rendition.
+         */
+        private const val DELAY = 10L * DateUtils.SECOND_IN_MILLIS
     }
 }

@@ -29,16 +29,6 @@ import android.widget.NumberPicker
  */
 class PaletteDialog(context: Context) : AlertDialog(context) {
 
-    companion object {
-
-        const val PREF_DENSITY = "density"
-        const val PREF_HUES = "hues"
-
-        const val DEFAULT_DENSITY = FieldsTask.DEFAULT_DENSITY.toInt()
-        const val DEFAULT_HUES = FieldsTask.DEFAULT_HUES.toInt()
-
-    }
-
     private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     private val densityPicker: NumberPicker
     private val huesPicker: NumberPicker
@@ -73,5 +63,15 @@ class PaletteDialog(context: Context) : AlertDialog(context) {
                 .putInt(PREF_DENSITY, densityPicker.value)
                 .putInt(PREF_HUES, huesPicker.value)
                 .apply()
+    }
+
+    companion object {
+
+        const val PREF_DENSITY = "density"
+        const val PREF_HUES = "hues"
+
+        const val DEFAULT_DENSITY = FieldsTask.DEFAULT_DENSITY.toInt()
+        const val DEFAULT_HUES = FieldsTask.DEFAULT_HUES.toInt()
+
     }
 }

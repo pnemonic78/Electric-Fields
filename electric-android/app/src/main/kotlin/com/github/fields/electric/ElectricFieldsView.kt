@@ -46,12 +46,6 @@ class ElectricFieldsView : View,
     GestureDetector.OnDoubleTapListener,
     ScaleGestureDetector.OnScaleGestureListener {
 
-    companion object {
-
-        const val MAX_CHARGES = 10
-
-    }
-
     private val charges: MutableList<Charge> = CopyOnWriteArrayList<Charge>()
 
     private val size: Point by lazy {
@@ -346,5 +340,9 @@ class ElectricFieldsView : View,
                 return arrayOfNulls(size)
             }
         }
+    }
+
+    companion object {
+        const val MAX_CHARGES = 10
     }
 }

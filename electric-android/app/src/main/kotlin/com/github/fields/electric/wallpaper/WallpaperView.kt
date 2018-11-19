@@ -51,16 +51,14 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     private var task: FieldsTask? = null
     private var sameChargeDistance: Int = 0
     private var listener: WallpaperListener? = null
-    private val gestureDetector: GestureDetector
-    var idle = false
-        private set
+    private val gestureDetector: GestureDetector = GestureDetector(context, this)
+    private var idle = false
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     init {
         val res = context.resources
         sameChargeDistance = res.getDimensionPixelSize(R.dimen.same_charge)
         sameChargeDistance *= sameChargeDistance
-        gestureDetector = GestureDetector(context, this)
         setWallpaperListener(listener)
     }
 
