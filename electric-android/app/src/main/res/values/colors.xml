@@ -2,4 +2,5 @@
 <resources>
     <color name="bg_window">#ffcc00cc</color>
     <color name="action_bar">#20000000</color>
+    <color name="action_popup_menu_item">#ffaa00aa</color>
 </resources>

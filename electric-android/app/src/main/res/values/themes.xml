@@ -8,7 +8,7 @@
         <!-- Translucent action bar -->
         <item name="android:actionBarStyle">@style/Widget.Electric.ActionBar</item>
         <item name="android:actionOverflowButtonStyle">@style/Widget.Electric.ActionButton.Overflow</item>
-        <item name="android:itemBackground">@color/action_bar</item>
+        <item name="android:itemBackground">@color/action_popup_menu_item</item>
         <item name="android:itemTextAppearance">?android:textAppearanceMediumInverse</item>
         <item name="android:windowActionBarOverlay">true</item>
         <!-- Translucent status bar -->
