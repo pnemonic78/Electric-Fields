@@ -65,10 +65,10 @@ class MainActivity : Activity(),
         val rendering = !mainView.isIdle()
 
         menuStop = menu.findItem(R.id.menu_stop)
-        menuStop!!.isEnabled = rendering
+        menuStop!!.isVisible = rendering
 
         menuSave = menu.findItem(R.id.menu_save_file)
-        menuSave!!.isEnabled = rendering
+        menuSave!!.isVisible = rendering
 
         return true
     }
@@ -131,10 +131,11 @@ class MainActivity : Activity(),
         }
 
         // Busy saving?
-        if ((menuSave == null) || !menuSave!!.isEnabled) {
+        val menuItem = menuSave ?: return
+        if (!menuItem.isVisible) {
             return
         }
-        menuSave!!.isEnabled = false
+        menuItem.isVisible = false
 
         val context: Context = this
         val bitmap = mainView.bitmap
@@ -176,8 +177,8 @@ class MainActivity : Activity(),
     override fun onRenderFieldStarted(view: ElectricFields) {
         if (view == mainView) {
             runOnUiThread {
-                menuStop?.isEnabled = true
-                menuSave?.isEnabled = true
+                menuStop?.isVisible = true
+                menuSave?.isVisible = true
             }
         }
     }
@@ -185,8 +186,8 @@ class MainActivity : Activity(),
     override fun onRenderFieldFinished(view: ElectricFields) {
         if (view == mainView) {
             runOnUiThread {
-                menuStop?.isEnabled = false
-                menuSave?.isEnabled = true
+                menuStop?.isVisible = false
+                menuSave?.isVisible = true
                 Toast.makeText(this, R.string.finished, Toast.LENGTH_SHORT).show()
             }
         }
@@ -195,7 +196,7 @@ class MainActivity : Activity(),
     override fun onRenderFieldCancelled(view: ElectricFields) {
         if (view == mainView) {
             runOnUiThread {
-                menuStop?.isEnabled = false
+                menuStop?.isVisible = false
             }
         }
     }
@@ -256,6 +257,7 @@ class MainActivity : Activity(),
     }
 
     private fun stop() {
+        menuStop?.isVisible = false
         mainView.stop()
         mainView.clear()
     }
