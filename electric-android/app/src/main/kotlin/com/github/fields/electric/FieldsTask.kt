@@ -103,6 +103,7 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
                 }
             }
             if (isDisposed) {
+                running = false
                 return
             }
             observer.onNext(bitmap)
