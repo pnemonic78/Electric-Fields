@@ -15,7 +15,7 @@
         android:title="@string/menu_random"/>
     <item
         android:id="@+id/menu_stop"
-        android:enabled="false"
+        android:visible="false"
         android:icon="@drawable/ic_menu_stop"
         android:orderInCategory="3"
         android:showAsAction="ifRoom"
