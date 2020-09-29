@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Electric-Fields-electric-android.iml" filepath="$PROJECT_DIR$/.idea/modules/Electric-Fields-electric-android.iml" group="electric-android" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/electric-android-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/electric-android-app.iml" group="electric-android/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/electric-android_buildSrc.iml" filepath="$PROJECT_DIR$/.idea/modules/electric-android_buildSrc.iml" group="electric-android/electric-android_buildSrc" />
     </modules>
   </component>
 </project>
