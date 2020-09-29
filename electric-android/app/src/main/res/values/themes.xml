@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="Theme.Electric" parent="android:Theme.DeviceDefault.Light">
+    <style name="Base.Theme.Electric" parent="android:Theme.DeviceDefault.Light">
         <item name="android:colorBackground">@color/bg_window</item>
         <item name="android:windowBackground">@color/bg_window</item>
         <!-- Translucent action bar -->
@@ -16,5 +16,7 @@
         <!-- Translucent navigation bar -->
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
+
+    <style name="Theme.Electric" parent="Base.Theme.Electric"/>
 
 </resources>
