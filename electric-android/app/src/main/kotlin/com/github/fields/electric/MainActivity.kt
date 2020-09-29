@@ -223,6 +223,7 @@ class MainActivity : Activity(),
         val actionBar = actionBar
         if ((actionBar != null) && actionBar.isShowing) {
             window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_FULLSCREEN)
 
@@ -240,7 +241,8 @@ class MainActivity : Activity(),
     private fun showNormalScreen(): Boolean {
         val actionBar = actionBar
         if (actionBar != null && !actionBar.isShowing) {
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
 
             // Show the action bar.
             actionBar.show()
