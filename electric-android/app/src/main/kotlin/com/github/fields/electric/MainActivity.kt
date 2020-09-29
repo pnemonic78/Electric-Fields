@@ -27,9 +27,9 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.*
 
 /**

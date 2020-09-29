@@ -27,9 +27,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import androidx.core.app.NotificationCompat
-import io.reactivex.Observer
-import io.reactivex.disposables.Disposable
-import io.reactivex.internal.disposables.DisposableHelper
+import io.reactivex.rxjava3.core.Observer
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.internal.disposables.DisposableHelper
 
 /**
  * Task to save a bitmap to a file.

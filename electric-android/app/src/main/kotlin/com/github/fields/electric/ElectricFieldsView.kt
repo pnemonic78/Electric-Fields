@@ -27,10 +27,10 @@ import android.preference.PreferenceManager
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.util.AttributeSet
 import android.view.*
-import io.reactivex.Observer
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observer
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
