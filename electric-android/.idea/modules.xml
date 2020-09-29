@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/electric-android.iml" filepath="$PROJECT_DIR$/electric-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Electric-Fields-electric-android.iml" filepath="$PROJECT_DIR$/.idea/modules/Electric-Fields-electric-android.iml" group="electric-android" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/electric-android-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/electric-android-app.iml" group="electric-android/app" />
     </modules>
   </component>
 </project>

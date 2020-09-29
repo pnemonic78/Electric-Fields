@@ -185,10 +185,10 @@ class ElectricFieldsView : View,
         this.listener = listener
     }
 
-    override fun onSaveInstanceState(): Parcelable {
+    override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
 
-        if (charges.size > 0) {
+        if ((superState != null) && (charges.size > 0)) {
             val ss = SavedState(superState)
             ss.charges = charges
             return ss
@@ -197,7 +197,7 @@ class ElectricFieldsView : View,
         return superState
     }
 
-    public override fun onRestoreInstanceState(state: Parcelable) {
+    public override fun onRestoreInstanceState(state: Parcelable?) {
         if (state !is SavedState) {
             super.onRestoreInstanceState(state)
             return
@@ -311,7 +311,7 @@ class ElectricFieldsView : View,
         listener?.onRenderFieldStarted(this)
     }
 
-    class SavedState : View.BaseSavedState {
+    class SavedState : BaseSavedState {
 
         internal var charges: List<Charge>? = null
 
