@@ -23,13 +23,15 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
 import java.lang.Thread.sleep
+import kotlin.math.max
+import kotlin.math.sqrt
 
 /**
  * Electric Fields task.
  *
  * @author Moshe Waisberg
  */
-class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bitmap, private val density: Double = DEFAULT_DENSITY, private val hues: Double = DEFAULT_HUES) : Observable<Bitmap>(), Disposable {
+class FieldsTask(private val charges: List<Charge>, private val bitmap: Bitmap, private val density: Double = DEFAULT_DENSITY, private val hues: Double = DEFAULT_HUES) : Observable<Bitmap>(), Disposable {
 
     private var runner: FieldRunner? = null
     var brightness = 1f
@@ -66,9 +68,13 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
         runner?.dispose()
     }
 
-    private class FieldRunner(val params: Collection<Charge>, val bitmap: Bitmap, val density: Double, val hues: Double, val observer: Observer<in Bitmap>) : DefaultDisposable() {
+    private class FieldRunner(val charges: List<Charge>, val bitmap: Bitmap, val density: Double, val hues: Double, val observer: Observer<in Bitmap>) : DefaultDisposable() {
 
-        private val paint = Paint(ANTI_ALIAS_FLAG)
+        private val paint = Paint(ANTI_ALIAS_FLAG).apply {
+            strokeCap = Paint.Cap.SQUARE
+            style = Paint.Style.FILL
+            strokeWidth = 1f
+        }
         private val rect = RectF()
         private val hsv = floatArrayOf(0f, 1f, 1f)
         var startDelay = 0L
@@ -86,14 +92,6 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
                 hsv[2] = value
             }
 
-        init {
-            with(paint) {
-                strokeCap = Paint.Cap.SQUARE
-                style = Paint.Style.FILL
-                strokeWidth = 1f
-            }
-        }
-
         fun run() {
             running = true
             if (startDelay > 0L) {
@@ -108,10 +106,9 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
             }
             observer.onNext(bitmap)
 
-            val charges: Array<ChargeHolder> = ChargeHolder.toChargedParticles(params)
             val w = bitmap.width
             val h = bitmap.height
-            var size = Math.max(w, h)
+            var size = max(w, h)
 
             var shifts = 0
             while (size > 1) {
@@ -124,7 +121,7 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
             var resolution = resolution2
 
             val canvas = Canvas(bitmap)
-            canvas.drawColor(Color.WHITE)
+            canvas.drawColor(WHITE)
             plot(charges, canvas, 0, 0, resolution, resolution, density)
 
             var x1: Int
@@ -169,21 +166,21 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
             }
         }
 
-        private fun plot(charges: Array<ChargeHolder>, canvas: Canvas, x: Int, y: Int, w: Int, h: Int, zoom: Double) {
+        private fun plot(charges: List<Charge>, canvas: Canvas, x: Int, y: Int, w: Int, h: Int, zoom: Double) {
             var dx: Int
             var dy: Int
             var d: Int
             var r: Double
             var v = 1.0
             val count = charges.size
-            var charge: ChargeHolder
+            var charge: Charge
 
             for (i in 0 until count) {
                 charge = charges[i]
                 dx = x - charge.x
                 dy = y - charge.y
                 d = (dx * dx) + (dy * dy)
-                r = Math.sqrt(d.toDouble())
+                r = sqrt(d.toDouble())
                 if (r == 0.0) {
                     //Force "overflow".
                     v = Double.POSITIVE_INFINITY
@@ -214,25 +211,6 @@ class FieldsTask(private val charges: Collection<Charge>, private val bitmap: Bi
     }
 
     fun isIdle(): Boolean = (runner == null) || !runner!!.running || isDisposed
-
-    private class ChargeHolder(val x: Int, val y: Int, val size: Double) {
-
-        constructor(charge: Charge) : this(charge.x, charge.y, charge.size)
-
-        companion object {
-
-            fun toChargedParticles(charges: Collection<Charge>): Array<ChargeHolder> {
-                val length = charges.size
-                val result = arrayOfNulls<ChargeHolder?>(length)
-
-                for (i in 0 until length) {
-                    result[i] = ChargeHolder(charges.elementAt(i))
-                }
-
-                return result.requireNoNulls()
-            }
-        }
-    }
 
     companion object {
 

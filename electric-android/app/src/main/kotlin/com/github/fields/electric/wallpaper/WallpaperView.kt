@@ -30,6 +30,7 @@ import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.math.min
 
 /**
  * Live wallpaper view.
@@ -37,22 +38,22 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @author Moshe Waisberg
  */
 class WallpaperView(context: Context, listener: WallpaperListener) :
-        ElectricFields,
-        Observer<Bitmap>,
-        GestureDetector.OnGestureListener,
-        GestureDetector.OnDoubleTapListener {
+    ElectricFields,
+    Observer<Bitmap>,
+    GestureDetector.OnGestureListener,
+    GestureDetector.OnDoubleTapListener {
 
     var width: Int = 0
         private set
     var height: Int = 0
         private set
-    private val charges: MutableList<Charge> = CopyOnWriteArrayList<Charge>()
+    private val charges: MutableList<Charge> = CopyOnWriteArrayList()
     private var bitmap: Bitmap? = null
     private var task: FieldsTask? = null
     private var sameChargeDistance: Int = 0
     private var listener: WallpaperListener? = null
     private val gestureDetector: GestureDetector = GestureDetector(context, this)
-    private var idle = false
+    private var isIdle = false
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     init {
@@ -68,7 +69,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     override fun addCharge(charge: Charge): Boolean {
         if (charges.size < MAX_CHARGES) {
-            if (charges.add(charge)) {
+            if ((charge.size != 0.0) && charges.add(charge)) {
                 listener?.onChargeAdded(this, charge)
                 return true
             }
@@ -114,25 +115,24 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     }
 
     override fun start(delay: Long) {
-        if (idle) {
+        if (isIdle) {
             val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
             val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
             val observer = this
-            val t = FieldsTask(charges, bitmap!!, density, hues)
-            task = t
-            with(t) {
+            FieldsTask(charges, bitmap!!, density, hues).apply {
+                task = this
                 saturation = 0.5f
                 brightness = 0.5f
                 startDelay = delay
                 subscribeOn(Schedulers.computation())
-                        .subscribe(observer)
+                    .subscribe(observer)
             }
         }
     }
 
     override fun stop() {
         task?.cancel()
-        idle = true
+        isIdle = true
     }
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
@@ -162,7 +162,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val x = e.x.toInt()
         val y = e.y.toInt()
-        val duration = Math.min(uptimeMillis() - e.downTime, SECOND_IN_MILLIS)
+        val duration = min(uptimeMillis() - e.downTime, SECOND_IN_MILLIS)
         val size = 1.0 + (duration / 20L).toDouble()
         return (listener != null) && listener!!.onRenderFieldClicked(this, x, y, size)
     }
@@ -176,18 +176,17 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     }
 
     override fun onError(e: Throwable) {
-        idle = true
+        isIdle = true
         listener?.onRenderFieldCancelled(this)
     }
 
     override fun onComplete() {
-        idle = true
+        isIdle = true
         listener?.onRenderFieldFinished(this)
-        clear()
     }
 
     override fun onSubscribe(d: Disposable) {
-        idle = false
+        isIdle = false
         listener?.onRenderFieldStarted(this)
     }
 
@@ -200,7 +199,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         this.listener = listener
     }
 
-    protected fun invalidate() {
+    private fun invalidate() {
         listener?.onDraw(this)
     }
 
@@ -222,7 +221,9 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
                     m.postRotate(270f, bw / 2f, bh / 2f)
                 }
                 val rotated = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh, m, true)
+                if (rotated !== bitmapOld) bitmapOld.recycle()
                 bitmap = Bitmap.createScaledBitmap(rotated, width, height, true)
+                if (rotated !== bitmap) rotated.recycle()
             }
         } else {
             bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
@@ -233,11 +234,16 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         onDraw(canvas)
     }
 
-    protected fun onDraw(canvas: Canvas) {
+    private fun onDraw(canvas: Canvas) {
         canvas.drawBitmap(bitmap!!, 0f, 0f, null)
     }
 
     fun onTouchEvent(event: MotionEvent) {
         gestureDetector.onTouchEvent(event)
+    }
+
+    fun onDestroy() {
+        bitmap?.recycle()
+        bitmap = null
     }
 }

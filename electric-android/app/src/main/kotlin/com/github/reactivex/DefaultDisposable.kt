@@ -24,14 +24,14 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 abstract class DefaultDisposable : Disposable {
 
-    private val disposed = AtomicBoolean()
+    private val isDisposed = AtomicBoolean()
 
     override fun isDisposed(): Boolean {
-        return disposed.get()
+        return isDisposed.get()
     }
 
     override fun dispose() {
-        if (disposed.compareAndSet(false, true)) {
+        if (isDisposed.compareAndSet(false, true)) {
             onDispose()
         }
     }

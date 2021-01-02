@@ -27,12 +27,12 @@ import android.preference.PreferenceManager
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.util.AttributeSet
 import android.view.*
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.math.min
 
 /**
  * Electric Fields view.
@@ -46,7 +46,7 @@ class ElectricFieldsView : View,
     GestureDetector.OnDoubleTapListener,
     ScaleGestureDetector.OnScaleGestureListener {
 
-    private val charges: MutableList<Charge> = CopyOnWriteArrayList<Charge>()
+    private val charges: MutableList<Charge> = CopyOnWriteArrayList()
 
     private val size: Point by lazy {
         val sizeValue = Point()
@@ -57,16 +57,16 @@ class ElectricFieldsView : View,
         sizeValue
     }
 
-    private var bitmapValue: Bitmap? = null
+    private var _bitmap: Bitmap? = null
     val bitmap: Bitmap
         get() {
-            if (bitmapValue == null) {
+            if (_bitmap == null) {
                 val size = this.size
                 val width = size.x
                 val height = size.y
-                bitmapValue = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                _bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             }
-            return bitmapValue!!
+            return _bitmap!!
         }
     private var task: FieldsTask? = null
     private var sameChargeDistance: Int = 0
@@ -163,12 +163,12 @@ class ElectricFieldsView : View,
             val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
             val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
             val observer = this
-            val t = FieldsTask(charges, bitmap, density, hues)
-            task = t
-            t.startDelay = delay
-            t.subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(observer)
+            FieldsTask(charges, bitmap, density, hues).apply {
+                task = this
+                startDelay = delay
+                subscribeOn(Schedulers.computation())
+                    .subscribe(observer)
+            }
         }
     }
 
@@ -197,7 +197,7 @@ class ElectricFieldsView : View,
         return superState
     }
 
-    public override fun onRestoreInstanceState(state: Parcelable?) {
+    override fun onRestoreInstanceState(state: Parcelable?) {
         if (state !is SavedState) {
             super.onRestoreInstanceState(state)
             return
@@ -275,7 +275,7 @@ class ElectricFieldsView : View,
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val x = (e.x - measuredWidthDiff).toInt()
         val y = (e.y - measuredHeightDiff).toInt()
-        val duration = Math.min(uptimeMillis() - e.downTime, SECOND_IN_MILLIS)
+        val duration = min(uptimeMillis() - e.downTime, SECOND_IN_MILLIS)
         val size = 1.0 + (duration / 20L).toDouble()
         if (listener?.onRenderFieldClicked(this, x, y, size) == true) {
             performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
@@ -311,6 +311,12 @@ class ElectricFieldsView : View,
         listener?.onRenderFieldStarted(this)
     }
 
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        _bitmap?.recycle()
+        _bitmap = null
+    }
+
     class SavedState : BaseSavedState {
 
         internal var charges: List<Charge>? = null
@@ -343,6 +349,7 @@ class ElectricFieldsView : View,
     }
 
     companion object {
+        const val MIN_CHARGES = 2
         const val MAX_CHARGES = 10
     }
 }

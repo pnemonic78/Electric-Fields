@@ -27,10 +27,11 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
+import com.github.fields.electric.ElectricFieldsView.Companion.MIN_CHARGES
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.*
+import kotlin.random.Random
 
 /**
  * Main activity.
@@ -42,7 +43,7 @@ class MainActivity : Activity(),
 
     private lateinit var mainView: ElectricFieldsView
     private val disposables = CompositeDisposable()
-    private val random = Random()
+    private val random = Random.Default
     private var menuStop: MenuItem? = null
     private var menuSave: MenuItem? = null
 
@@ -110,10 +111,10 @@ class MainActivity : Activity(),
     private fun randomise() {
         val w = mainView.measuredWidth
         val h = mainView.measuredHeight
-        val count = 1 + random.nextInt(MAX_CHARGES)
+        val count = random.nextInt(MIN_CHARGES, MAX_CHARGES)
         mainView.clear()
         for (i in 0 until count) {
-            mainView.addCharge(random.nextInt(w), random.nextInt(h), (if (random.nextBoolean()) +1 else -1) * (1 + random.nextDouble() * 20))
+            mainView.addCharge(random.nextInt(w), random.nextInt(h), random.nextDouble(-20.0, 20.0))
         }
         mainView.restart()
     }

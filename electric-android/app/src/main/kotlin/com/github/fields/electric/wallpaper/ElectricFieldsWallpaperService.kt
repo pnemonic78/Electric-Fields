@@ -23,8 +23,9 @@ import android.view.SurfaceHolder
 import com.github.fields.electric.Charge
 import com.github.fields.electric.ElectricFields
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
-import java.util.*
+import com.github.fields.electric.ElectricFieldsView.Companion.MIN_CHARGES
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.random.Random
 
 /**
  * Electric Fields wallpaper service.
@@ -44,8 +45,8 @@ class ElectricFieldsWallpaperService : WallpaperService() {
     private inner class ElectricFieldsWallpaperEngine : WallpaperService.Engine(), WallpaperListener {
 
         private lateinit var fieldsView: WallpaperView
-        private val random = Random()
-        private val drawing = AtomicBoolean()
+        private val random = Random.Default
+        private val isDrawing = AtomicBoolean()
 
         override fun onCreate(surfaceHolder: SurfaceHolder) {
             super.onCreate(surfaceHolder)
@@ -58,6 +59,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
         override fun onDestroy() {
             super.onDestroy()
             fieldsView.stop()
+            fieldsView.onDestroy()
         }
 
         override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
@@ -67,10 +69,11 @@ class ElectricFieldsWallpaperService : WallpaperService() {
 
         override fun onSurfaceDestroyed(holder: SurfaceHolder) {
             fieldsView.stop()
+            fieldsView.onDestroy()
         }
 
         override fun onSurfaceRedrawNeeded(holder: SurfaceHolder) {
-            draw()
+            draw(fieldsView)
         }
 
         override fun onTouchEvent(event: MotionEvent) {
@@ -92,10 +95,10 @@ class ElectricFieldsWallpaperService : WallpaperService() {
         private fun randomise(delay: Long = 0L) {
             val w = fieldsView.width
             val h = fieldsView.height
-            val count = 1 + random.nextInt(MAX_CHARGES)
+            val count = random.nextInt(MIN_CHARGES, MAX_CHARGES)
             fieldsView.clear()
             for (i in 0 until count) {
-                fieldsView.addCharge(random.nextInt(w), random.nextInt(h), (if (random.nextBoolean()) +1 else -1) * (1 + random.nextDouble() * 20))
+                fieldsView.addCharge(random.nextInt(w), random.nextInt(h), random.nextDouble(-20.0, 20.0))
             }
             fieldsView.restart(delay)
         }
@@ -136,12 +139,12 @@ class ElectricFieldsWallpaperService : WallpaperService() {
 
         override fun onDraw(view: WallpaperView) {
             if (view === fieldsView) {
-                draw()
+                draw(view)
             }
         }
 
-        fun draw() {
-            if (!drawing.compareAndSet(false, true)) {
+        fun draw(view: WallpaperView) {
+            if (!isDrawing.compareAndSet(false, true)) {
                 return
             }
             val surfaceHolder = this.surfaceHolder
@@ -150,7 +153,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
                     val canvas = surfaceHolder.lockCanvas()
                     if (canvas != null) {
                         try {
-                            fieldsView.draw(canvas)
+                            view.draw(canvas)
                         } finally {
                             surfaceHolder.unlockCanvasAndPost(canvas)
                         }
@@ -159,7 +162,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
                     e.printStackTrace()
                 }
             }
-            drawing.set(false)
+            isDrawing.set(false)
         }
     }
 
