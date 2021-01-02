@@ -8,13 +8,13 @@ val versionMajor = (project.property("APP_VERSION_MAJOR") as String).toInt()
 val versionMinor = (project.property("APP_VERSION_MINOR") as String).toInt()
 
 android {
-    compileSdkVersion(Extra.androidBuildSdkVersion)
+    compileSdkVersion(Versions.androidBuildSdkVersion)
 
     defaultConfig {
         applicationId = "com.github.fields.electric"
-        minSdkVersion(Extra.androidBuildMinSdkVersion)
-        targetSdkVersion(Extra.androidBuildTargetSdkVersion)
-        versionCode = versionMajor * 100 + versionMinor
+        minSdkVersion(Versions.androidBuildMinSdkVersion)
+        targetSdkVersion(Versions.androidBuildTargetSdkVersion)
+        versionCode = generateVersionCode(versionMajor, versionMinor)
         versionName = "${versionMajor}.${versionMinor.toString().padLeft(2, "0")}"
 
         testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
@@ -66,7 +66,7 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
     // Kotlin
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Extra.kotlinVersion}")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlinVersion}")
 
     // Rx
     implementation("io.reactivex.rxjava3:rxandroid:3.0.0")

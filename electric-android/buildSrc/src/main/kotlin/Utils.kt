@@ -19,3 +19,7 @@ fun String.padRight(expectedLength: Int, pad: String): String {
     } while (s.length < expectedLength)
     return s.toString()
 }
+
+fun generateVersionCode(major: Int, minor: Int): Int {
+    return major * 100 + minor
+}

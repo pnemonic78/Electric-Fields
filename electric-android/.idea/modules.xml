@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Electric-Fields-electric-android.iml" filepath="$PROJECT_DIR$/.idea/modules/Electric-Fields-electric-android.iml" group="electric-android" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/electric-android-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/electric-android-app.iml" group="electric-android/app" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/electric-android_buildSrc.iml" filepath="$PROJECT_DIR$/.idea/modules/electric-android_buildSrc.iml" group="electric-android/electric-android_buildSrc" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Electric_Fields.iml" filepath="$PROJECT_DIR$/.idea/modules/Electric_Fields.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Electric_Fields.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Electric_Fields.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Electric_Fields.buildSrc.iml" filepath="$PROJECT_DIR$/.idea/modules/Electric_Fields.buildSrc.iml" />
     </modules>
   </component>
 </project>

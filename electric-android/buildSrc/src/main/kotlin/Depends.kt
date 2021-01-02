@@ -1,4 +1,4 @@
-object Extra {
+object Versions {
     const val kotlinVersion = "1.4.10"
     const val androidBuildSdkVersion = 29
     const val androidBuildMinSdkVersion = 21
