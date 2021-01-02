@@ -51,7 +51,7 @@ class FieldsTask(private val charges: List<Charge>, private val bitmap: Bitmap, 
         }
 
     override fun subscribeActual(observer: Observer<in Bitmap>) {
-        val d = FieldRunner(charges.toMutableList(), bitmap, density, hues, observer)
+        val d = FieldRunner(charges, bitmap, density, hues, observer)
         d.brightness = brightness
         d.saturation = saturation
         d.startDelay = startDelay

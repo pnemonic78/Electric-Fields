@@ -163,7 +163,7 @@ class ElectricFieldsView : View,
             val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
             val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
             val observer = this
-            FieldsTask(charges, bitmap, density, hues).apply {
+            FieldsTask(charges.toMutableList(), bitmap, density, hues).apply {
                 task = this
                 startDelay = delay
                 subscribeOn(Schedulers.computation())

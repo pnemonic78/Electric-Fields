@@ -119,7 +119,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
             val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
             val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
             val observer = this
-            FieldsTask(charges, bitmap!!, density, hues).apply {
+            FieldsTask(charges.toMutableList(), bitmap!!, density, hues).apply {
                 task = this
                 saturation = 0.5f
                 brightness = 0.5f
