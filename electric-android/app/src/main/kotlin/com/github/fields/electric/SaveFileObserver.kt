@@ -36,7 +36,7 @@ import io.reactivex.rxjava3.internal.disposables.DisposableHelper
  *
  * @author Moshe Waisberg
  */
-class SaveFileObserver(val context: Context, val bitmap: Bitmap) : Observer<Uri> {
+class SaveFileObserver(private val context: Context, private val bitmap: Bitmap) : Observer<Uri> {
 
     private var disposable: Disposable? = null
     private val nm: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

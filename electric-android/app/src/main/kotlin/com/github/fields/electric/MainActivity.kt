@@ -57,7 +57,7 @@ class MainActivity : Activity(),
     override fun onDestroy() {
         super.onDestroy()
         mainView.stop()
-        disposables.dispose()
+        disposables.clear()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -140,11 +140,12 @@ class MainActivity : Activity(),
 
         val context: Context = this
         val bitmap = mainView.bitmap
-        val task = SaveFileTask(context, bitmap)
-        task.subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(SaveFileObserver(context, bitmap))
-        disposables.add(task)
+        SaveFileTask(context, bitmap).apply {
+            subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(SaveFileObserver(context, bitmap))
+            disposables.add(this)
+        }
     }
 
     override fun onChargeAdded(view: ElectricFields, charge: Charge) {}
