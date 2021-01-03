@@ -91,7 +91,7 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
                 }
             }
             if (url != null) {
-                MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), arrayOf(IMAGE_MIME)) { path: String, uri: Uri? ->
+                MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), arrayOf(IMAGE_MIME)) { _: String, uri: Uri? ->
                     if ((uri != null) && (SCHEME_FILE != uri.scheme)) {
                         url = uri
                         observer.onNext(uri)

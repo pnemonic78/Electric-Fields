@@ -48,9 +48,9 @@ class PaletteDialog(context: Context) : AlertDialog(context) {
         huesPicker.maxValue = 1000
         huesPicker.value = prefs.getInt(PREF_HUES, DEFAULT_HUES)
 
-        setButton(BUTTON_NEGATIVE, context.getText(android.R.string.cancel)) { dialog, which ->
+        setButton(BUTTON_NEGATIVE, context.getText(android.R.string.cancel)) { _, _ ->
         }
-        setButton(BUTTON_POSITIVE, context.getText(android.R.string.ok)) { dialog, which ->
+        setButton(BUTTON_POSITIVE, context.getText(android.R.string.ok)) { _, _ ->
             densityPicker.clearFocus()
             huesPicker.clearFocus()
             savePreferences()
