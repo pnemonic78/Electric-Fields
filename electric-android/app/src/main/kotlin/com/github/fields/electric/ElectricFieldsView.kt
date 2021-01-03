@@ -23,10 +23,10 @@ import android.graphics.Point
 import android.os.Parcel
 import android.os.Parcelable
 import android.os.SystemClock.uptimeMillis
-import android.preference.PreferenceManager
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.util.AttributeSet
 import android.view.*
+import androidx.preference.PreferenceManager
 import com.github.utils.copy
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable

@@ -18,9 +18,9 @@ package com.github.fields.electric
 import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.widget.NumberPicker
+import androidx.preference.PreferenceManager
 
 /**
  * Palette preferences dialog.

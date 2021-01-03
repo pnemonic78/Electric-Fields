@@ -20,10 +20,10 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.os.SystemClock.uptimeMillis
-import android.preference.PreferenceManager
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.view.GestureDetector
 import android.view.MotionEvent
+import androidx.preference.PreferenceManager
 import com.github.fields.electric.*
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import com.github.utils.copy
