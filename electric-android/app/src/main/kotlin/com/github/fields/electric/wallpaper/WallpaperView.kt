@@ -26,10 +26,10 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import com.github.fields.electric.*
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
+import com.github.utils.copy
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.min
 
 /**
@@ -47,7 +47,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         private set
     var height: Int = 0
         private set
-    private val charges: MutableList<Charge> = CopyOnWriteArrayList()
+    private val charges: MutableList<Charge> = ArrayList()
     private var bitmap: Bitmap? = null
     private var task: FieldsTask? = null
     private var sameChargeDistance: Int = 0
@@ -119,7 +119,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
             val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
             val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
             val observer = this
-            FieldsTask(charges.toMutableList(), bitmap!!, density, hues).apply {
+            FieldsTask(charges.copy(), bitmap!!, density, hues).apply {
                 task = this
                 saturation = 0.5f
                 brightness = 0.5f

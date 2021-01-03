@@ -27,11 +27,11 @@ import android.preference.PreferenceManager
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.util.AttributeSet
 import android.view.*
+import com.github.utils.copy
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.*
-import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.min
 
 /**
@@ -46,7 +46,7 @@ class ElectricFieldsView : View,
     GestureDetector.OnDoubleTapListener,
     ScaleGestureDetector.OnScaleGestureListener {
 
-    private val charges: MutableList<Charge> = CopyOnWriteArrayList()
+    private val charges: MutableList<Charge> = ArrayList()
 
     private val size: Point by lazy {
         val sizeValue = Point()
@@ -163,7 +163,7 @@ class ElectricFieldsView : View,
             val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
             val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
             val observer = this
-            FieldsTask(charges.toMutableList(), bitmap, density, hues).apply {
+            FieldsTask(charges.copy(), bitmap, density, hues).apply {
                 task = this
                 startDelay = delay
                 subscribeOn(Schedulers.computation())
@@ -319,11 +319,11 @@ class ElectricFieldsView : View,
 
     class SavedState : BaseSavedState {
 
-        internal var charges: List<Charge>? = null
+        internal var charges: MutableList<Charge>? = null
 
         private constructor(source: Parcel) : super(source) {
             charges = ArrayList<Charge>()
-            source.readTypedList(charges, Charge.CREATOR)
+            source.readTypedList(charges!!, Charge.CREATOR)
         }
 
         constructor(superState: Parcelable) : super(superState)
