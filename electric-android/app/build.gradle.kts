@@ -76,6 +76,7 @@ dependencies {
 
     // AndroidX
     implementation("androidx.core:core-ktx:1.3.2")
+    implementation("androidx.preference:preference-ktx:1.1.1")
 
     // Testing
     testImplementation("junit:junit:4.13")
