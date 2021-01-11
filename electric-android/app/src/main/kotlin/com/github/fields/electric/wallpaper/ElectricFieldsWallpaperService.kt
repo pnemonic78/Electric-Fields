@@ -44,7 +44,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
      */
     private inner class ElectricFieldsWallpaperEngine : WallpaperService.Engine(), WallpaperListener {
 
-        private lateinit var fieldsView: WallpaperView
+        private lateinit var mainView: WallpaperView
         private val random = Random.Default
         private val isDrawing = AtomicBoolean()
 
@@ -53,38 +53,38 @@ class ElectricFieldsWallpaperService : WallpaperService() {
             setTouchEventsEnabled(true)
 
             val context: Context = this@ElectricFieldsWallpaperService
-            fieldsView = WallpaperView(context, this)
+            mainView = WallpaperView(context, this)
         }
 
         override fun onDestroy() {
             super.onDestroy()
-            fieldsView.stop()
-            fieldsView.onDestroy()
+            mainView.stop()
+            mainView.onDestroy()
         }
 
         override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-            fieldsView.setSize(width, height)
+            mainView.setSize(width, height)
             randomise()
         }
 
         override fun onSurfaceDestroyed(holder: SurfaceHolder) {
-            fieldsView.stop()
-            fieldsView.onDestroy()
+            mainView.stop()
+            mainView.onDestroy()
         }
 
         override fun onSurfaceRedrawNeeded(holder: SurfaceHolder) {
-            draw(fieldsView)
+            draw(mainView)
         }
 
         override fun onTouchEvent(event: MotionEvent) {
-            fieldsView.onTouchEvent(event)
+            mainView.onTouchEvent(event)
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
             if (visible) {
-                fieldsView.start()
+                mainView.start()
             } else {
-                fieldsView.stop()
+                mainView.stop()
             }
         }
 
@@ -93,14 +93,14 @@ class ElectricFieldsWallpaperService : WallpaperService() {
          * @param delay the start delay, in milliseconds.
          */
         private fun randomise(delay: Long = 0L) {
-            val w = fieldsView.width
-            val h = fieldsView.height
+            val w = mainView.width
+            val h = mainView.height
             val count = random.nextInt(MIN_CHARGES, MAX_CHARGES)
-            fieldsView.clear()
+            mainView.clear()
             for (i in 0 until count) {
-                fieldsView.addCharge(random.nextInt(w), random.nextInt(h), random.nextDouble(-20.0, 20.0))
+                mainView.addCharge(random.nextInt(w), random.nextInt(h), random.nextDouble(-20.0, 20.0))
             }
-            fieldsView.restart(delay)
+            mainView.restart(delay)
         }
 
         override fun onChargeAdded(view: ElectricFields, charge: Charge) {}
@@ -120,8 +120,8 @@ class ElectricFieldsWallpaperService : WallpaperService() {
         }
 
         override fun onRenderFieldClicked(view: ElectricFields, x: Int, y: Int, size: Double): Boolean {
-            if (fieldsView.invertCharge(x, y) || fieldsView.addCharge(x, y, size)) {
-                fieldsView.restart()
+            if (mainView.invertCharge(x, y) || mainView.addCharge(x, y, size)) {
+                mainView.restart()
                 return true
             }
             return false
@@ -130,7 +130,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
         override fun onRenderFieldStarted(view: ElectricFields) {}
 
         override fun onRenderFieldFinished(view: ElectricFields) {
-            if (view === fieldsView) {
+            if (view === mainView) {
                 randomise(DELAY)
             }
         }
@@ -138,7 +138,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
         override fun onRenderFieldCancelled(view: ElectricFields) {}
 
         override fun onDraw(view: WallpaperView) {
-            if (view === fieldsView) {
+            if (view === mainView) {
                 draw(view)
             }
         }

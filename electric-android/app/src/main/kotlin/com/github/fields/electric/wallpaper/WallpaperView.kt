@@ -135,6 +135,10 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         isIdle = true
     }
 
+    fun onTouchEvent(event: MotionEvent) {
+        gestureDetector.onTouchEvent(event)
+    }
+
     override fun onDoubleTap(e: MotionEvent): Boolean {
         return false
     }
@@ -236,10 +240,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     private fun onDraw(canvas: Canvas) {
         canvas.drawBitmap(bitmap!!, 0f, 0f, null)
-    }
-
-    fun onTouchEvent(event: MotionEvent) {
-        gestureDetector.onTouchEvent(event)
     }
 
     fun onDestroy() {

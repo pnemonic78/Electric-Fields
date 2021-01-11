@@ -34,7 +34,6 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 /**
  * Task to save a bitmap to a file.
  *
@@ -162,7 +161,6 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
             private const val TAG = "SaveFileTask"
 
             private val timestampFormat = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US)
-
         }
     }
 

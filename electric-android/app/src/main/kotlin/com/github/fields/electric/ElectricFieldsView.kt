@@ -220,6 +220,12 @@ class ElectricFieldsView : View,
      */
     fun isIdle(): Boolean = (task == null) || task!!.isIdle()
 
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        var result = scaleGestureDetector.onTouchEvent(event)
+        result = gestureDetector.onTouchEvent(event) || result
+        return result || super.onTouchEvent(event)
+    }
+
     override fun onDoubleTap(e: MotionEvent): Boolean {
         return false
     }
@@ -286,12 +292,6 @@ class ElectricFieldsView : View,
 
     override fun onSingleTapUp(e: MotionEvent): Boolean {
         return false
-    }
-
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        var result = scaleGestureDetector.onTouchEvent(event)
-        result = gestureDetector.onTouchEvent(event) || result
-        return result || super.onTouchEvent(event)
     }
 
     override fun onNext(value: Bitmap) {
