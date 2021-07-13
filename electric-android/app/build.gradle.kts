@@ -54,7 +54,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
     lintOptions {
@@ -66,8 +66,6 @@ android {
 }
 
 dependencies {
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlinVersion}")
 
@@ -75,9 +73,9 @@ dependencies {
     implementation("io.reactivex.rxjava3:rxandroid:3.0.0")
 
     // AndroidX
-    implementation("androidx.core:core-ktx:1.3.2")
+    implementation("androidx.core:core-ktx:1.6.0")
     implementation("androidx.preference:preference-ktx:1.1.1")
 
     // Testing
-    testImplementation("junit:junit:4.13")
+    testImplementation("junit:junit:4.13.2")
 }
