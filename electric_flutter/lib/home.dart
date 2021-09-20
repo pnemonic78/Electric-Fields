@@ -1,7 +1,11 @@
+import 'dart:math';
+import 'dart:ui';
+
+import 'package:electric_flutter/ui/PictureWidget.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -73,6 +77,12 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+            PictureWidget(
+              _getPicture(200, 200),
+              200,
+              200,
+              key: UniqueKey(),
+            ),
           ],
         ),
       ),
@@ -82,5 +92,26 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  Picture? _picture;
+
+  Picture _getPicture(double width, double height) {
+    Picture? pictureOld = _picture;
+    PictureRecorder pictureRecorder = PictureRecorder();
+    Canvas canvas = Canvas(pictureRecorder);
+    if (pictureOld != null) {
+      canvas.drawPicture(pictureOld);
+    }
+    final rnd = Random();
+    Rect rect = Rect.fromLTWH(rnd.nextDouble() * width,
+        rnd.nextDouble() * height, width / 2, height / 2);
+    Paint paint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.fill;
+    canvas.drawRect(rect, paint);
+    Picture picture = pictureRecorder.endRecording();
+    _picture = picture;
+    return picture;
   }
 }
