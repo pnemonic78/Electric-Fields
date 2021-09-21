@@ -4,7 +4,7 @@ import 'package:electric_flutter/ui/RawPicture.dart';
 import 'package:flutter/widgets.dart';
 
 class PictureWidget extends StatelessWidget {
-  const PictureWidget(this.picture, this.width, this.height, {Key? key})
+  const PictureWidget(this.picture, {Key? key, this.width, this.height})
       : super(key: key);
 
   final Picture picture;

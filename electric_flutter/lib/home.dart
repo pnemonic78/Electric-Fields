@@ -1,7 +1,5 @@
-import 'dart:math';
-import 'dart:ui';
 
-import 'package:electric_flutter/ui/PictureWidget.dart';
+import 'package:electric_flutter/ElectricFieldsWidget.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -27,11 +25,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
       _counter++;
     });
   }
@@ -77,11 +70,9 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
-            PictureWidget(
-              _getPicture(200, 200),
-              200,
-              200,
-              key: UniqueKey(),
+            ElectricFieldsWidget(
+              width: 200,
+              height: 200,
             ),
           ],
         ),
@@ -92,26 +83,5 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
-  }
-
-  Picture? _picture;
-
-  Picture _getPicture(double width, double height) {
-    Picture? pictureOld = _picture;
-    PictureRecorder pictureRecorder = PictureRecorder();
-    Canvas canvas = Canvas(pictureRecorder);
-    if (pictureOld != null) {
-      canvas.drawPicture(pictureOld);
-    }
-    final rnd = Random();
-    Rect rect = Rect.fromLTWH(rnd.nextDouble() * width,
-        rnd.nextDouble() * height, width / 2, height / 2);
-    Paint paint = Paint()
-      ..color = Colors.red
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(rect, paint);
-    Picture picture = pictureRecorder.endRecording();
-    _picture = picture;
-    return picture;
   }
 }
