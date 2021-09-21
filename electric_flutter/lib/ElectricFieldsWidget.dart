@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:electric_flutter/Charge.dart';
@@ -11,13 +10,22 @@ import 'ElectricFieldsListener.dart';
 
 class ElectricFieldsWidget extends StatefulWidget {
   ElectricFieldsWidget(
-      {Key? key, required this.width, required this.height, this.listener})
+      {Key? key,
+      required this.width,
+      required this.height,
+      required this.charges,
+      this.listener})
       : assert(width > 0),
         assert(height > 0),
         super(key: key);
 
+  static const int MIN_CHARGES = 2;
+  static const int MAX_CHARGES = 10;
+
   final double width;
   final double height;
+  final List<Charge> charges;
+
   final ElectricFieldsListener? listener;
 
   @override
@@ -26,22 +34,23 @@ class ElectricFieldsWidget extends StatefulWidget {
 
 class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
     implements ElectricFields {
-  static const int MIN_CHARGES = 2;
-  static const int MAX_CHARGES = 10;
-
-  static const int int64MaxValue = 0x7FFFFFFFFFFFFFFF;
   static const int sameChargeDistance = 20; // ~32dp
 
-  final List<Charge> _charges = <Charge>[];
   Picture? _picture;
 
   @override
+  void didUpdateWidget(covariant ElectricFieldsWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _picture = null;
+  }
+
+  @override
   bool addCharge(Charge charge) {
-    if (_charges.length < MAX_CHARGES) {
-      setState(() {
-        _charges.add(charge);
-      });
+    final charges = widget.charges;
+    if (charges.length < ElectricFieldsWidget.MAX_CHARGES) {
+      charges.add(charge);
       widget.listener?.onChargeAdded(this, charge);
+      restart();
       return true;
     }
     return false;
@@ -49,31 +58,31 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
 
   @override
   void clear() {
-    setState(() {
-      _charges.clear();
-    });
+    widget.charges.clear();
+    restart();
   }
 
   @override
   Charge? findCharge(int x, int y) {
     int indexNearest = _findChargeIndex(x, y);
     if (indexNearest >= 0) {
-      return _charges[indexNearest];
+      return widget.charges[indexNearest];
     }
     return null;
   }
 
   int _findChargeIndex(int x, int y) {
-    final length = _charges.length - 1;
+    final charges = widget.charges;
+    final length = charges.length - 1;
     int chargeNearest = -1;
-    int dx;
-    int dy;
-    int d;
-    int dMin = int64MaxValue;
+    double dx;
+    double dy;
+    double d;
+    double dMin = double.maxFinite;
     Charge charge;
 
     for (var i = 0; i < length; i++) {
-      charge = _charges[i];
+      charge = charges[i];
       dx = x - charge.x;
       dy = y - charge.y;
       d = (dx * dx) + (dy * dy);
@@ -88,14 +97,14 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
 
   @override
   bool invertCharge(int x, int y) {
+    final charges = widget.charges;
     final position = _findChargeIndex(x, y);
     if (position >= 0) {
-      Charge charge = _charges[position];
+      Charge charge = charges[position];
       Charge chargeInverted = Charge(charge.x, charge.y, -charge.size);
-      setState(() {
-        _charges[position] = chargeInverted;
-      });
+      charges[position] = chargeInverted;
       widget.listener?.onChargeInverted(this, chargeInverted);
+      restart();
       return true;
     }
     return false;
@@ -109,7 +118,9 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
 
   @override
   void start({int delay = 0}) {
-    // TODO: implement start
+    setState(() {
+      _picture = null;
+    });
   }
 
   @override
@@ -123,9 +134,10 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
     final height = widget.height;
 
     return PictureWidget(
-      _getPicture(width, height),
+      picture: _getPicture(width, height),
       width: width,
       height: height,
+      key: UniqueKey(),
     );
   }
 
@@ -133,16 +145,21 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
     Picture? pictureOld = _picture;
     PictureRecorder pictureRecorder = PictureRecorder();
     Canvas canvas = Canvas(pictureRecorder);
+    canvas.drawColor(Colors.pinkAccent, BlendMode.srcOver); //~!@
     if (pictureOld != null) {
-      canvas.drawPicture(pictureOld);
+      // canvas.drawPicture(pictureOld);
     }
-    final rnd = Random();
-    Rect rect = Rect.fromLTWH(rnd.nextDouble() * width,
-        rnd.nextDouble() * height, width / 2, height / 2);
     Paint paint = Paint()
-      ..color = Colors.red
+      ..color = Colors.greenAccent
       ..style = PaintingStyle.fill;
-    canvas.drawRect(rect, paint);
+
+    final charges = widget.charges;
+    for (var charge in charges) {
+      Offset offset = Offset(charge.x, charge.y);
+      Rect rect = Rect.fromCircle(center: offset, radius: charge.size.abs());
+      canvas.drawRect(rect, paint);
+    }
+
     Picture picture = pictureRecorder.endRecording();
     _picture = picture;
     return picture;

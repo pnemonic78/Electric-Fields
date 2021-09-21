@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -118,7 +117,6 @@ class RenderPicture extends RenderBox {
     final clip = offset & size;
     canvas.save();
     canvas.clipRect(clip);
-    canvas.drawColor(Colors.green, BlendMode.srcOver);
     canvas.translate(offset.dx, offset.dy);
     canvas.drawPicture(picture);
     canvas.restore();
