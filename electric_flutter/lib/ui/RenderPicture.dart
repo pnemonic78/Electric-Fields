@@ -108,9 +108,10 @@ class RenderPicture extends RenderBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (_picture == null) return;
+    final picture = _picture;
+    if (picture == null) return;
     final Canvas canvas = context.canvas;
-    _paintPicture(canvas, offset, _picture!);
+    _paintPicture(canvas, offset, picture);
   }
 
   void _paintPicture(Canvas canvas, Offset offset, Picture picture) {
@@ -124,7 +125,7 @@ class RenderPicture extends RenderBox {
 
   @override
   void dispose() {
-    _picture?.dispose();
+    //FIXME _picture?.dispose();
     _picture = null;
     super.dispose();
   }

@@ -7,7 +7,7 @@ class RawPicture extends LeafRenderObjectWidget {
   const RawPicture(this.picture, this.width, this.height, {Key? key})
       : super(key: key);
 
-  final Picture picture;
+  final Picture? picture;
 
   /// If non-null, require the image to have this width.
   ///

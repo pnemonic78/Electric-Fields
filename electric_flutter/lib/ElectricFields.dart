@@ -19,7 +19,7 @@ class ElectricFields {
 
   /// Start the task.
   /// @param delay the start delay, in milliseconds.
-  void start({int delay = 0}) {}
+  void start({int delay = 0}) async {}
 
   /// Stop the task.
   void stop() {}
@@ -27,7 +27,7 @@ class ElectricFields {
   /// Restart the task with modified charges.
   ///
   /// @param delay the start delay, in milliseconds.
-  void restart({int delay = 0}) {
+  void restart({int delay = 0}) async {
     stop();
     start(delay: delay);
   }

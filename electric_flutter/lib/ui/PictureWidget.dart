@@ -6,12 +6,12 @@ import 'package:flutter/widgets.dart';
 class PictureWidget extends StatelessWidget {
   const PictureWidget({
     Key? key,
-    required this.picture,
+    this.picture,
     this.width,
     this.height,
   }) : super(key: key);
 
-  final Picture picture;
+  final Picture? picture;
 
   /// If non-null, require the image to have this width.
   ///

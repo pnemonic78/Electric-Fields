@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'ElectricFieldsListener.dart';
+import 'ElectricFieldsPainter.dart';
 
 class ElectricFieldsWidget extends StatefulWidget {
   ElectricFieldsWidget(
@@ -37,11 +38,13 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
   static const int sameChargeDistance = 20; // ~32dp
 
   Picture? _picture;
+  ElectricFieldsPainter? _painter;
 
   @override
   void didUpdateWidget(covariant ElectricFieldsWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     _picture = null;
+    restart();
   }
 
   @override
@@ -111,21 +114,26 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
   }
 
   @override
-  void restart({int delay = 0}) {
+  void restart({int delay = 0}) async {
     stop();
     start(delay: delay);
   }
 
   @override
-  void start({int delay = 0}) {
-    setState(() {
-      _picture = null;
-    });
+  void start({int delay = 0}) async {
+    ElectricFieldsPainter painter = ElectricFieldsPainter(
+      width: widget.width,
+      height: widget.height,
+      charges: widget.charges,
+      callback: _picturePainted,
+    );
+    _painter = painter;
+    painter.start();
   }
 
   @override
   void stop() {
-    // TODO: implement stop
+    _painter?.cancel();
   }
 
   @override
@@ -134,34 +142,16 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
     final height = widget.height;
 
     return PictureWidget(
-      picture: _getPicture(width, height),
+      picture: _picture,
       width: width,
       height: height,
       key: UniqueKey(),
     );
   }
 
-  Picture _getPicture(double width, double height) {
-    Picture? pictureOld = _picture;
-    PictureRecorder pictureRecorder = PictureRecorder();
-    Canvas canvas = Canvas(pictureRecorder);
-    canvas.drawColor(Colors.pinkAccent, BlendMode.srcOver); //~!@
-    if (pictureOld != null) {
-      // canvas.drawPicture(pictureOld);
-    }
-    Paint paint = Paint()
-      ..color = Colors.greenAccent
-      ..style = PaintingStyle.fill;
-
-    final charges = widget.charges;
-    for (var charge in charges) {
-      Offset offset = Offset(charge.x, charge.y);
-      Rect rect = Rect.fromCircle(center: offset, radius: charge.size.abs());
-      canvas.drawRect(rect, paint);
-    }
-
-    Picture picture = pictureRecorder.endRecording();
-    _picture = picture;
-    return picture;
+  void _picturePainted(Picture picture) {
+    setState(() {
+      _picture = picture;
+    });
   }
 }
