@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'Charge.dart';
 import 'ElectricFields.dart';
 
@@ -27,7 +29,7 @@ class ElectricFieldsListener {
 
   void onRenderFieldStarted(ElectricFields view) {}
 
-  void onRenderFieldFinished(ElectricFields view) {}
+  void onRenderFieldFinished(ElectricFields view, Picture picture) {}
 
   void onRenderFieldCancelled(ElectricFields view) {}
 }

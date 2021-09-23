@@ -3,8 +3,7 @@ import 'dart:ui';
 import 'package:electric_flutter/Charge.dart';
 import 'package:electric_flutter/ElectricFields.dart';
 import 'package:electric_flutter/ui/PictureWidget.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide Image;
 
 import 'ElectricFieldsListener.dart';
 import 'ElectricFieldsPainter.dart';
@@ -35,6 +34,8 @@ class ElectricFieldsWidget extends StatefulWidget {
 
 class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
     implements ElectricFields {
+  _ElectricFieldsWidgetState() : super();
+
   static const int sameChargeDistance = 20; // ~32dp
 
   Picture? _picture;
@@ -128,6 +129,7 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
     );
     _painter = painter;
     painter.start();
+    widget.listener?.onRenderFieldStarted(this);
   }
 
   @override
@@ -136,6 +138,7 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
     _painter = null;
     _picture?.dispose();
     _picture = null;
+    widget.listener?.onRenderFieldCancelled(this);
   }
 
   @override
@@ -156,5 +159,6 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
     setState(() {
       _picture = picture;
     });
+    widget.listener?.onRenderFieldFinished(this, picture);
   }
 }

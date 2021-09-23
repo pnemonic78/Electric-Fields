@@ -1,4 +1,4 @@
-package com.github.fields.electric.electric_flutter
+package com.github.fields.electric_flutter
 
 import io.flutter.embedding.android.FlutterActivity
 
