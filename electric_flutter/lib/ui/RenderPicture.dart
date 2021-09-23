@@ -4,13 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class RenderPicture extends RenderBox {
-  RenderPicture(Picture? picture, double? width, double? height)
+  RenderPicture(Picture? picture, double? width, double? height,
+      {bool dispose = true})
       : _picture = picture,
         _width = width,
-        _height = height;
+        _height = height,
+        _dispose = dispose;
 
   Picture? get picture => _picture;
   Picture? _picture;
+  bool _dispose = true;
 
   /// If non-null, requires the image to have this width.
   ///
@@ -125,7 +128,7 @@ class RenderPicture extends RenderBox {
 
   @override
   void dispose() {
-    //FIXME _picture?.dispose();
+    if (_dispose) _picture?.dispose();
     _picture = null;
     super.dispose();
   }

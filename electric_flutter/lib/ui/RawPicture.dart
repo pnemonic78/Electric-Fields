@@ -4,8 +4,10 @@ import 'package:electric_flutter/ui/RenderPicture.dart';
 import 'package:flutter/widgets.dart';
 
 class RawPicture extends LeafRenderObjectWidget {
-  const RawPicture(this.picture, this.width, this.height, {Key? key})
-      : super(key: key);
+  const RawPicture(this.picture, this.width, this.height,
+      {Key? key, bool dispose = true})
+      : _dispose = dispose,
+        super(key: key);
 
   final Picture? picture;
 
@@ -21,8 +23,10 @@ class RawPicture extends LeafRenderObjectWidget {
   /// aspect ratio.
   final double? height;
 
+  final bool _dispose;
+
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return RenderPicture(picture, width, height);
+    return RenderPicture(picture, width, height, dispose: _dispose);
   }
 }

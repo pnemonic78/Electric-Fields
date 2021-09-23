@@ -11,34 +11,38 @@ class ElectricFieldsPainter {
       {required this.width,
       required this.height,
       required this.charges,
-      required this.callback})
+      required this.onPicturePainted})
       : assert(width > 0),
         assert(height > 0);
 
   final double width;
   final double height;
   final List<Charge> charges;
-  final PictureCallback callback;
+  final PictureCallback onPicturePainted;
   Picture? _picture;
   bool _running = false;
 
   void start() async {
     _running = true;
-    Picture picture = await _paintDummyFrame();
-    callback(picture);
+    do {
+      Picture picture = await _paintDummyFrame();
+      onPicturePainted(picture);
+      _running = false; // ~!@
+    } while (_running);
   }
 
   void cancel() {
     _running = false;
+    _picture = null;
   }
 
   Future<Picture> _paintDummyFrame() async {
     Picture? pictureOld = _picture;
     PictureRecorder pictureRecorder = PictureRecorder();
     Canvas canvas = Canvas(pictureRecorder);
-    canvas.drawColor(Colors.pinkAccent, BlendMode.srcOver); //~!@
     if (pictureOld != null) {
       canvas.drawPicture(pictureOld);
+      pictureOld.dispose();
     }
     Paint paint = Paint()
       ..color = Colors.greenAccent

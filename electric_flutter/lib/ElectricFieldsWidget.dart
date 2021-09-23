@@ -43,7 +43,6 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
   @override
   void didUpdateWidget(covariant ElectricFieldsWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _picture = null;
     restart();
   }
 
@@ -125,7 +124,7 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
       width: widget.width,
       height: widget.height,
       charges: widget.charges,
-      callback: _picturePainted,
+      onPicturePainted: _picturePainted,
     );
     _painter = painter;
     painter.start();
@@ -134,6 +133,9 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
   @override
   void stop() {
     _painter?.cancel();
+    _painter = null;
+    _picture?.dispose();
+    _picture = null;
   }
 
   @override
@@ -146,6 +148,7 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
       width: width,
       height: height,
       key: UniqueKey(),
+      dispose: false,
     );
   }
 

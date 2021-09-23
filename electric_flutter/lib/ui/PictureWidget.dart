@@ -4,12 +4,10 @@ import 'package:electric_flutter/ui/RawPicture.dart';
 import 'package:flutter/widgets.dart';
 
 class PictureWidget extends StatelessWidget {
-  const PictureWidget({
-    Key? key,
-    this.picture,
-    this.width,
-    this.height,
-  }) : super(key: key);
+  const PictureWidget(
+      {Key? key, this.picture, this.width, this.height, bool dispose = true})
+      : _dispose = dispose,
+        super(key: key);
 
   final Picture? picture;
 
@@ -25,8 +23,10 @@ class PictureWidget extends StatelessWidget {
   /// aspect ratio.
   final double? height;
 
+  final bool _dispose;
+
   @override
   Widget build(BuildContext context) {
-    return RawPicture(picture, width, height, key: key);
+    return RawPicture(picture, width, height, key: key, dispose: _dispose);
   }
 }
