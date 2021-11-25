@@ -195,7 +195,7 @@ class FieldsTask(private val charges: List<Charge>, private val bitmap: Bitmap, 
         }
 
         private fun mapColor(z: Double, density: Double): Int {
-            if (z.isInfinite()) {
+            if (z.isInfinite() || z.isNaN()) {
                 return WHITE
             }
             hsv[0] = ((z * density) % hues).toFloat()

@@ -23,7 +23,9 @@ class ElectricFieldsListener {
     return false;
   }
 
-  bool onRenderFieldClicked(ElectricFields view, int x, int y, double size) {
+  void onChargesCleared(ElectricFields view) {}
+
+  bool onRenderFieldClicked(ElectricFields view, double x, double y, double size) {
     return false;
   }
 

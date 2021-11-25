@@ -4,14 +4,18 @@ import 'Charge.dart';
 ///
 /// @author Moshe Waisberg
 class ElectricFields {
-  Charge? findCharge(int x, int y) {}
+  Charge? findCharge(double x, double y) {}
 
-  bool invertCharge(int x, int y) {
+  bool invertCharge(double x, double y) {
     return false;
   }
 
   bool addCharge(Charge charge) {
     return false;
+  }
+
+  bool addChargeDetails(double x, double y, double size) {
+    return addCharge(Charge(x, y, size));
   }
 
   /// Clear the charges.

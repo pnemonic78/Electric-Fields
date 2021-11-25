@@ -3,11 +3,11 @@ import 'dart:ui';
 
 import 'package:electric_flutter/ElectricFields.dart';
 import 'package:electric_flutter/ElectricFieldsListener.dart';
-import 'package:electric_flutter/ElectricFieldsWidget.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/widgets.dart' hide Image;
 
 import 'Charge.dart';
+import 'ElectricFieldsMainWidget.dart';
 import 'SaveFileTask.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -23,8 +23,8 @@ class _MyHomePageState extends State<MyHomePage>
     implements ElectricFieldsListener {
   static const color_action_bar = Color(0x20000000);
 
-  ElectricFieldsWidget? _electricFieldsWidget;
-  List<Charge> _charges = <Charge>[];
+  ElectricFieldsMainWidget? _electricFieldsWidget;
+  List<Charge>? _charges;
   final _random = Random();
   Picture? _picture;
 
@@ -49,12 +49,13 @@ class _MyHomePageState extends State<MyHomePage>
       onPressed: () => _saveToFile(fieldWidth, fieldHeight),
     );
 
-    _electricFieldsWidget = ElectricFieldsWidget(
+    _electricFieldsWidget = ElectricFieldsMainWidget(
       width: fieldWidth,
       height: fieldHeight,
-      charges: _charges,
       listener: this,
+      initialCharges: _charges,
     );
+    _charges = null;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -75,8 +76,8 @@ class _MyHomePageState extends State<MyHomePage>
   void _randomise(double width, double height) async {
     int w = width.toInt();
     int h = height.toInt();
-    final count = _nextIntInRange(
-        ElectricFieldsWidget.MIN_CHARGES, ElectricFieldsWidget.MAX_CHARGES);
+    final count = _nextIntInRange(ElectricFieldsMainWidget.MIN_CHARGES,
+        ElectricFieldsMainWidget.MAX_CHARGES);
     final List<Charge> charges = <Charge>[];
     for (var i = 0; i < count; i++) {
       Charge charge = Charge(_random.nextDouble() * w, _random.nextDouble() * h,
@@ -125,18 +126,29 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   @override
+  void onChargesCleared(ElectricFields view) {}
+
+  @override
   void onRenderFieldCancelled(ElectricFields view) {}
 
   @override
-  bool onRenderFieldClicked(ElectricFields view, int x, int y, double size) {
+  bool onRenderFieldClicked(
+      ElectricFields view, double x, double y, double size) {
     return false;
   }
 
   @override
   void onRenderFieldFinished(ElectricFields view, Picture picture) {
-    _picture = picture;
+      _picture = picture;
   }
 
   @override
   void onRenderFieldStarted(ElectricFields view) {}
+
+  @override
+  void dispose() {
+    _picture?.dispose();
+    _picture = null;
+    super.dispose();
+  }
 }
