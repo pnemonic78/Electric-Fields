@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 import 'dart:ui';
 
@@ -16,14 +17,17 @@ class ElectricFieldsPainter {
       {required this.width,
       required this.height,
       required this.charges,
-      required this.onPicturePainted})
+      required PictureCallback onPicturePainted})
       : assert(width > 0),
-        assert(height > 0);
+        assert(height > 0) {
+    addOnPicturePainted(onPicturePainted);
+  }
 
   final double width;
   final double height;
   final List<Charge> charges;
-  final Set<PictureCallback> onPicturePainted;
+  final Set<PictureCallback> _onPicturePaintedCallbacks =
+      HashSet<PictureCallback>();
 
   final density = DEFAULT_DENSITY;
   final hues = DEFAULT_HUES;
@@ -50,7 +54,7 @@ class ElectricFieldsPainter {
     _running = true;
     do {
       Picture picture = await _paintDummyFrame();
-      onPicturePainted.forEach((callback) => callback(picture));
+      _onPicturePaintedCallbacks.forEach((callback) => callback(picture));
       _run();
     } while (_running);
   }
@@ -178,5 +182,14 @@ class ElectricFieldsPainter {
     }
     _hsv[0] = (z * density) % hues;
     return HSVColor.fromAHSV(1.0, _hsv[0], _hsv[1], _hsv[2]).toColor();
+  }
+
+  void addOnPicturePainted(PictureCallback onPicturePainted) {
+    _onPicturePaintedCallbacks.add(onPicturePainted);
+
+    final picture = _picture;
+    if (picture != null) {
+      onPicturePainted(picture);
+    }
   }
 }

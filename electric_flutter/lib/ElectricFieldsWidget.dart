@@ -34,13 +34,13 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget> {
   @override
   void initState() {
     super.initState();
-    widget.painter.onPicturePainted.add(_onPicturePainted);
+    widget.painter.addOnPicturePainted(_onPicturePainted);
   }
 
   @override
   void didUpdateWidget(covariant ElectricFieldsWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    widget.painter.onPicturePainted.add(_onPicturePainted);
+    widget.painter.addOnPicturePainted(_onPicturePainted);
   }
 
   @override

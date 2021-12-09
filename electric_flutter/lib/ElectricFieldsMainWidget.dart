@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:ui';
 
 import 'package:electric_flutter/Charge.dart';
@@ -150,7 +149,7 @@ class _ElectricFieldsMainWidgetState extends State<ElectricFieldsMainWidget>
       width: widget.width,
       height: widget.height,
       charges: _charges,
-      onPicturePainted: HashSet.of([_onPicturePainted]),
+      onPicturePainted: _onPicturePainted,
     );
     setState(() {
       _painter = painter;
@@ -184,12 +183,13 @@ class _ElectricFieldsMainWidgetState extends State<ElectricFieldsMainWidget>
       listener: this,
     );
 
-    // return GestureDetector(
-    //   onTapDown: _onTapDown,
-    //   onTapUp: _onTapUp,
-    //   child: fieldsWidget,
-    // );
-    return fieldsWidget;
+    final gestureWidget = GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      child: fieldsWidget,
+    );
+
+    return gestureWidget;
   }
 
   void _onPicturePainted(Picture picture) {
