@@ -26,8 +26,7 @@ class ElectricFieldsPainter {
   final double width;
   final double height;
   final List<Charge> charges;
-  final Set<PictureCallback> _onPicturePaintedCallbacks =
-      HashSet<PictureCallback>();
+  final Set<PictureCallback> _onPicturePaintedCallbacks = HashSet<PictureCallback>();
 
   final density = DEFAULT_DENSITY;
   final hues = DEFAULT_HUES;
@@ -50,11 +49,11 @@ class ElectricFieldsPainter {
 
   set brightness(double b) => _hsv[2] = b;
 
+  bool isDisposed = false;
+
   void start() async {
     _running = true;
     do {
-      Picture picture = await _paintDummyFrame();
-      _onPicturePaintedCallbacks.forEach((callback) => callback(picture));
       _run();
     } while (_running);
   }
@@ -62,89 +61,79 @@ class ElectricFieldsPainter {
   void cancel() {
     _running = false;
     _picture = null;
+    isDisposed = true;
   }
 
-  Future<Picture> _paintDummyFrame() async {
+  void _run() async {
+    final w = this.width;
+    final h = this.height;
+    var size = max(w, h);
+
+    var shifts = 0;
+    while (size > 1) {
+      size = size / 2;
+      shifts++;
+    }
+
+    // Make "resolution2" a power of 2, so that "resolution" is always divisible by 2.
+    var resolution2 = (1 << shifts).toDouble();
+    var resolution = resolution2;
+
+    Picture picture;
     Picture? pictureOld = _picture;
     PictureRecorder pictureRecorder = PictureRecorder();
     Canvas canvas = Canvas(pictureRecorder);
-    if (pictureOld != null) {
-      canvas.drawPicture(pictureOld);
-      pictureOld.dispose();
-    }
-    canvas.drawColor(Colors.pink, BlendMode.src);
-    Paint paint = _paint..color = Colors.blue;
+    canvas.drawColor(Colors.white, BlendMode.src);
+    _plot(charges, canvas, 0, 0, resolution, resolution, density);
 
-    for (var charge in charges) {
-      Offset offset = Offset(charge.x, charge.y);
-      Rect rect = Rect.fromCircle(center: offset, radius: charge.size.abs());
-      canvas.drawRect(rect, paint);
-    }
+    double x1;
+    double y1;
+    double x2;
+    double y2;
 
-    Picture picture = pictureRecorder.endRecording();
-    _picture = picture;
-    return picture;
-  }
+    do {
+      y1 = 0;
+      y2 = resolution;
 
-  void _run() {
-    // val w = bitmap.width
-    // val h = bitmap.height
-    // var size = max(w, h)
-    //
-    // var shifts = 0
-    // while (size > 1) {
-    //   size = size ushr 1
-    //   shifts++
-    // }
-    //
-    // // Make "resolution2" a power of 2, so that "resolution" is always divisible by 2.
-    // var resolution2 = 1 shl shifts
-    // var resolution = resolution2
-    //
-    // val canvas = Canvas(bitmap)
-    // canvas.drawColor(WHITE)
-    // plot(charges, canvas, 0, 0, resolution, resolution, density)
-    //
-    // var x1: Int
-    // var y1: Int
-    // var x2: Int
-    // var y2: Int
-    //
-    // loop@ do {
-    // y1 = 0
-    // y2 = resolution
-    //
-    // do {
-    // x1 = 0
-    // x2 = resolution
-    //
-    // do {
-    // plot(charges, canvas, x1, y2, resolution, resolution, density)
-    // plot(charges, canvas, x2, y1, resolution, resolution, density)
-    // plot(charges, canvas, x2, y2, resolution, resolution, density)
-    //
-    // x1 += resolution2
-    // x2 += resolution2
-    // } while ((x1 < w) && !isDisposed)
-    //
-    // if (isDisposed) {
-    // break@loop
-    // }
-    // onPicturePainted(picture);
-    //
-    // y1 += resolution2
-    // y2 += resolution2
-    // } while (y1 < h)
-    //
-    // resolution2 = resolution
-    // resolution = resolution2 shr 1
-    // } while ((resolution >= 1) && !isDisposed)
+      do {
+        x1 = 0;
+        x2 = resolution;
+
+        do {
+          _plot(charges, canvas, x1, y2, resolution, resolution, density);
+          _plot(charges, canvas, x2, y1, resolution, resolution, density);
+          _plot(charges, canvas, x2, y2, resolution, resolution, density);
+
+          x1 += resolution2;
+          x2 += resolution2;
+        } while ((x1 < w) && !isDisposed);
+
+        if (isDisposed) {
+          break;
+        }
+        pictureOld?.dispose();
+        picture = pictureRecorder.endRecording();
+        notifyPicturePainted(picture);
+        pictureOld = picture;
+        pictureRecorder = PictureRecorder();
+        canvas = Canvas(pictureRecorder);
+        canvas.drawPicture(picture);
+
+        y1 += resolution2;
+        y2 += resolution2;
+      } while (y1 < h);
+
+      resolution2 = resolution;
+      resolution = resolution2 / 2;
+    } while ((resolution >= 1) && !isDisposed);
 
     _running = false;
-    // if (!isDisposed) {
-    // onPicturePainted(picture);
-    // observer.onComplete()
-    // }
+    if (!isDisposed) {
+      picture = pictureRecorder.endRecording();
+      _picture = picture;
+      notifyPicturePainted(picture);
+    }
+    pictureOld?.dispose();
   }
 
   void _plot(List<Charge> charges, Canvas canvas, double x, double y, double w,
@@ -191,5 +180,10 @@ class ElectricFieldsPainter {
     if (picture != null) {
       onPicturePainted(picture);
     }
+  }
+
+  void notifyPicturePainted(Picture picture) {
+    _picture = picture;
+    _onPicturePaintedCallbacks.forEach((callback) => callback(picture));
   }
 }
