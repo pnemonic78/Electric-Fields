@@ -1,6 +1,6 @@
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    kotlin("android")
 }
 
 val versionMajor = (project.property("APP_VERSION_MAJOR") as String).toInt()
@@ -73,7 +73,7 @@ dependencies {
     implementation("io.reactivex.rxjava3:rxandroid:3.0.0")
 
     // AndroidX
-    implementation("androidx.core:core-ktx:1.6.0")
+    implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.preference:preference-ktx:1.1.1")
 
     // Testing
