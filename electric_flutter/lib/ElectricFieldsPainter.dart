@@ -49,8 +49,6 @@ class ElectricFieldsPainter {
 
   set brightness(double b) => _hsv[2] = b;
 
-  bool isDisposed = false;
-
   void start() async {
     _running = true;
     do {
@@ -61,7 +59,6 @@ class ElectricFieldsPainter {
   void cancel() {
     _running = false;
     _picture = null;
-    isDisposed = true;
   }
 
   void _run() async {
@@ -106,9 +103,9 @@ class ElectricFieldsPainter {
 
           x1 += resolution2;
           x2 += resolution2;
-        } while ((x1 < w) && !isDisposed);
+        } while ((x1 < w) && _running);
 
-        if (isDisposed) {
+        if (!_running) {
           break;
         }
         pictureOld?.dispose();
@@ -125,10 +122,10 @@ class ElectricFieldsPainter {
 
       resolution2 = resolution;
       resolution = resolution2 / 2;
-    } while ((resolution >= 1) && !isDisposed);
+    } while ((resolution >= 1) && _running);
 
-    _running = false;
-    if (!isDisposed) {
+    if (_running) {
+      _running = false;
       picture = pictureRecorder.endRecording();
       _picture = picture;
       notifyPicturePainted(picture);
