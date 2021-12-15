@@ -50,18 +50,18 @@ class ElectricFieldsPainter {
   set brightness(double b) => _hsv[2] = b;
 
   void start() async {
-    _running = true;
-    do {
-      _run();
-    } while (_running);
+    _run();
   }
 
   void cancel() {
     _running = false;
+    _picture?.dispose();
     _picture = null;
   }
 
   void _run() async {
+    _running = true;
+
     final w = this.width;
     final h = this.height;
     var size = max(w, h);
@@ -108,17 +108,18 @@ class ElectricFieldsPainter {
         if (!_running) {
           break;
         }
-        pictureOld?.dispose();
-        picture = pictureRecorder.endRecording();
-        notifyPicturePainted(picture);
-        pictureOld = picture;
-        pictureRecorder = PictureRecorder();
-        canvas = Canvas(pictureRecorder);
-        canvas.drawPicture(picture);
 
         y1 += resolution2;
         y2 += resolution2;
       } while (y1 < h);
+
+      pictureOld?.dispose();
+      picture = pictureRecorder.endRecording();
+      notifyPicturePainted(picture);
+      pictureOld = picture;
+      pictureRecorder = PictureRecorder();
+      canvas = Canvas(pictureRecorder);
+      canvas.drawPicture(picture);
 
       resolution2 = resolution;
       resolution = resolution2 / 2;
@@ -126,11 +127,10 @@ class ElectricFieldsPainter {
 
     if (_running) {
       _running = false;
+      pictureOld.dispose();
       picture = pictureRecorder.endRecording();
-      _picture = picture;
       notifyPicturePainted(picture);
     }
-    pictureOld?.dispose();
   }
 
   void _plot(List<Charge> charges, Canvas canvas, double x, double y, double w,

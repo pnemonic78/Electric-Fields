@@ -37,7 +37,8 @@ class _ElectricFieldsMainWidgetState extends State<ElectricFieldsMainWidget>
     implements ElectricFields, ElectricFieldsListener {
   _ElectricFieldsMainWidgetState() : super();
 
-  static const int sameChargeDistance = 20; // ~32dp
+  static const double sameChargeDistance = 40;
+  static const double sameChargeDistanceSquared = sameChargeDistance * sameChargeDistance;
 
   List<Charge> _charges = <Charge>[];
   ElectricFieldsPainter? _painter;
@@ -101,7 +102,7 @@ class _ElectricFieldsMainWidgetState extends State<ElectricFieldsMainWidget>
 
   int _findChargeIndex(double x, double y) {
     final charges = _charges;
-    final length = charges.length - 1;
+    final lastIndex = charges.length - 1;
     int chargeNearest = -1;
     double dx;
     double dy;
@@ -109,12 +110,12 @@ class _ElectricFieldsMainWidgetState extends State<ElectricFieldsMainWidget>
     double dMin = double.maxFinite;
     Charge charge;
 
-    for (var i = 0; i < length; i++) {
+    for (var i = 0; i < lastIndex; i++) {
       charge = charges[i];
       dx = x - charge.x;
       dy = y - charge.y;
       d = (dx * dx) + (dy * dy);
-      if ((d <= sameChargeDistance) && (d < dMin)) {
+      if ((d <= sameChargeDistanceSquared) && (d < dMin)) {
         chargeNearest = i;
         dMin = d;
       }
@@ -126,7 +127,11 @@ class _ElectricFieldsMainWidgetState extends State<ElectricFieldsMainWidget>
   @override
   bool invertCharge(double x, double y) {
     final charges = _charges;
-    final position = _findChargeIndex(x, y);
+    var position = _findChargeIndex(x, y);
+    print('~!@ invertCharge position=$position');
+    if (position < 0) {
+      position = _findChargeIndex(x, y);
+    }
     if (position >= 0) {
       Charge charge = charges[position];
       Charge chargeInverted = Charge(charge.x, charge.y, -charge.size);
