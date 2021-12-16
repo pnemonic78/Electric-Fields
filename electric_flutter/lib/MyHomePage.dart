@@ -7,7 +7,7 @@ import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/widgets.dart' hide Image;
 
 import 'Charge.dart';
-import 'ElectricFieldsMainWidget.dart';
+import 'ElectricFieldsWidget.dart';
 import 'SaveFileTask.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -21,9 +21,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage>
     implements ElectricFieldsListener {
+
   static const color_action_bar = Color(0x20000000);
 
-  ElectricFieldsMainWidget? _electricFieldsWidget;
+  ElectricFieldsWidget? _electricFieldsWidget;
   List<Charge>? _charges;
   final _random = Random();
   Picture? _picture;
@@ -49,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage>
       onPressed: () => _saveToFile(fieldWidth, fieldHeight),
     );
 
-    _electricFieldsWidget = ElectricFieldsMainWidget(
+    _electricFieldsWidget = ElectricFieldsWidget(
       width: fieldWidth,
       height: fieldHeight,
       listener: this,
@@ -76,8 +77,8 @@ class _MyHomePageState extends State<MyHomePage>
   void _randomise(double width, double height) async {
     int w = width.toInt();
     int h = height.toInt();
-    final count = _nextIntInRange(ElectricFieldsMainWidget.MIN_CHARGES,
-        ElectricFieldsMainWidget.MAX_CHARGES);
+    final count = _nextIntInRange(
+        ElectricFieldsWidget.MIN_CHARGES, ElectricFieldsWidget.MAX_CHARGES);
     final List<Charge> charges = <Charge>[];
     for (var i = 0; i < count; i++) {
       Charge charge = Charge(_random.nextDouble() * w, _random.nextDouble() * h,
@@ -139,7 +140,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void onRenderFieldFinished(ElectricFields view, Picture picture) {
-      _picture = picture;
+    _picture = picture;
   }
 
   @override

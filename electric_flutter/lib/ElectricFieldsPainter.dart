@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:math';
 import 'dart:ui';
 
@@ -7,31 +6,32 @@ import 'package:flutter/painting.dart';
 
 import 'Charge.dart';
 
-typedef PictureCallback = void Function(Picture picture);
+typedef PictureCallback = void Function(Picture? picture);
 
 const DEFAULT_DENSITY = 1000.0;
 const DEFAULT_HUES = 360.0;
 
 class ElectricFieldsPainter {
-  ElectricFieldsPainter(
-      {required this.width,
-      required this.height,
-      required this.charges,
-      required PictureCallback onPicturePainted})
-      : assert(width > 0),
-        assert(height > 0) {
-    addOnPicturePainted(onPicturePainted);
-  }
+  ElectricFieldsPainter({
+    required this.width,
+    required this.height,
+    required this.charges,
+    required this.onPicturePainted,
+  })  : assert(width > 0),
+        assert(height > 0);
 
   final double width;
   final double height;
   final List<Charge> charges;
-  final Set<PictureCallback> _onPicturePaintedCallbacks = HashSet<PictureCallback>();
+  final PictureCallback onPicturePainted;
 
   final density = DEFAULT_DENSITY;
   final hues = DEFAULT_HUES;
 
   Picture? _picture;
+
+  Picture? get picture => _picture;
+
   bool _running = false;
 
   Paint _paint = Paint()
@@ -131,6 +131,7 @@ class ElectricFieldsPainter {
       picture = pictureRecorder.endRecording();
       notifyPicturePainted(picture);
     }
+    notifyPicturePainted(null);
   }
 
   void _plot(List<Charge> charges, Canvas canvas, double x, double y, double w,
@@ -170,17 +171,8 @@ class ElectricFieldsPainter {
     return HSVColor.fromAHSV(1.0, _hsv[0], _hsv[1], _hsv[2]).toColor();
   }
 
-  void addOnPicturePainted(PictureCallback onPicturePainted) {
-    _onPicturePaintedCallbacks.add(onPicturePainted);
-
-    final picture = _picture;
-    if (picture != null) {
-      onPicturePainted(picture);
-    }
-  }
-
-  void notifyPicturePainted(Picture picture) {
-    _picture = picture;
-    _onPicturePaintedCallbacks.forEach((callback) => callback(picture));
+  void notifyPicturePainted(Picture? picture) {
+    if (picture != null) _picture = picture;
+    onPicturePainted(picture);
   }
 }
