@@ -51,7 +51,7 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
   void initState() {
     super.initState();
     final initialCharges = widget.initialCharges;
-    if ((initialCharges != null) && initialCharges.isNotEmpty) {
+    if (initialCharges != null) {
       _charges = [...initialCharges];
       initialCharges.clear();
     }
@@ -153,7 +153,7 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
       onPicturePainted: _onPicturePainted,
     );
     _painter = painter;
-    painter.start();
+    painter.start(startDelay: delay);
     onRenderFieldStarted(this);
   }
 

@@ -49,7 +49,10 @@ class ElectricFieldsPainter {
 
   set brightness(double b) => _hsv[2] = b;
 
-  void start() async {
+  void start({int startDelay = 0}) async {
+    if (startDelay > 0) {
+      await Future.delayed(Duration(milliseconds: startDelay));
+    }
     _run();
   }
 
@@ -135,7 +138,7 @@ class ElectricFieldsPainter {
   }
 
   void _plot(List<Charge> charges, Canvas canvas, double x, double y, double w,
-      double h, double zoom) {
+      double h, double zoom) async {
     double dx;
     double dy;
     double d;
