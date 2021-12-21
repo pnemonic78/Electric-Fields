@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
@@ -21,7 +22,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage>
     implements ElectricFieldsListener {
-
   static const color_action_bar = Color(0x20000000);
 
   ElectricFieldsWidget? _electricFieldsWidget;
@@ -97,12 +97,11 @@ class _MyHomePageState extends State<MyHomePage>
       _random.nextDouble() * (end - start) + start;
 
   void _saveToFile(double width, double height) async {
-    final widget = _electricFieldsWidget;
-    if (widget == null) return;
     final picture = _picture;
-    if (picture == null) return null;
+    if (picture == null) return;
     final task = SaveFileTask();
-    task.savePicture(picture, width.toInt(), height.toInt());
+    final file = await task.savePicture(picture, width.toInt(), height.toInt());
+    print('saved to $file');
   }
 
   @override
