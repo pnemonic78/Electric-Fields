@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
@@ -6,6 +5,7 @@ import 'package:electric_flutter/ElectricFields.dart';
 import 'package:electric_flutter/ElectricFieldsListener.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/widgets.dart' hide Image;
+import 'package:share_plus/share_plus.dart';
 
 import 'Charge.dart';
 import 'ElectricFieldsWidget.dart';
@@ -44,10 +44,10 @@ class _MyHomePageState extends State<MyHomePage>
       onPressed: () => _randomise(fieldWidth, fieldHeight),
     );
 
-    final menuItemSave = IconButton(
-      icon: Icon(Icons.save),
-      tooltip: "Save to file",
-      onPressed: () => _saveToFile(fieldWidth, fieldHeight),
+    final menuItemShare = IconButton(
+      icon: Icon(Icons.share),
+      tooltip: "Share",
+      onPressed: () => _shareImage(fieldWidth, fieldHeight),
     );
 
     _electricFieldsWidget = ElectricFieldsWidget(
@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage>
         title: Text(widget.title),
         actions: [
           menuItemRandom,
-          menuItemSave,
+          menuItemShare,
         ],
       ),
       body: _electricFieldsWidget,
@@ -96,12 +96,20 @@ class _MyHomePageState extends State<MyHomePage>
   double _nextDoubleInRange(double start, double end) =>
       _random.nextDouble() * (end - start) + start;
 
-  void _saveToFile(double width, double height) async {
+  void _shareImage(double width, double height) async {
     final picture = _picture;
     if (picture == null) return;
     final task = SaveFileTask();
     final file = await task.savePicture(picture, width.toInt(), height.toInt());
-    print('saved to $file');
+    if (file == null) return;
+    final path = file.path;
+    print('saved to $path');
+    await Share.shareFiles(
+      [path],
+      mimeTypes: [SaveFileTask.IMAGE_MIME],
+      subject: "Share image",
+      text: "Share Electric Fields Image",
+    );
   }
 
   @override
