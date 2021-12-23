@@ -19,6 +19,7 @@ import android.Manifest
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
@@ -28,6 +29,7 @@ import android.view.View
 import android.widget.Toast
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import com.github.fields.electric.ElectricFieldsView.Companion.MIN_CHARGES
+import com.github.reactivex.addTo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -45,7 +47,7 @@ class MainActivity : Activity(),
     private val disposables = CompositeDisposable()
     private val random = Random.Default
     private var menuStop: MenuItem? = null
-    private var menuSave: MenuItem? = null
+    private var menuShare: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,11 +67,13 @@ class MainActivity : Activity(),
 
         val rendering = !mainView.isIdle()
 
-        menuStop = menu.findItem(R.id.menu_stop)
-        menuStop!!.isVisible = rendering
+        menuStop = menu.findItem(R.id.menu_stop).also {
+            it.isVisible = rendering
+        }
 
-        menuSave = menu.findItem(R.id.menu_save_file)
-        menuSave!!.isVisible = rendering
+        menuShare = menu.findItem(R.id.menu_share)?.also {
+            it.isEnabled = rendering
+        }
 
         return true
     }
@@ -92,8 +96,8 @@ class MainActivity : Activity(),
                 randomise()
                 return true
             }
-            R.id.menu_save_file -> {
-                saveToFile()
+            R.id.menu_share -> {
+                share()
                 return true
             }
             R.id.menu_palette -> {
@@ -120,32 +124,34 @@ class MainActivity : Activity(),
     }
 
     /**
-     * Save the bitmap to a file.
+     * Save the bitmap to a file, and then share it.
      */
-    private fun saveToFile() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val activity: Activity = this@MainActivity
-            if (activity.checkCallingOrSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
-                activity.requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_SAVE)
-                return
-            }
-        }
-
-        // Busy saving?
-        val menuItem = menuSave ?: return
-        if (!menuItem.isVisible) {
+    private fun share() {
+        // Busy sharing?
+        val menuItem = menuShare ?: return
+        if (!menuItem.isEnabled || !menuItem.isVisible) {
             return
         }
-        menuItem.isVisible = false
+        menuItem.isEnabled = false
 
         val context: Context = this
         val bitmap = mainView.bitmap
-        SaveFileTask(context, bitmap).apply {
-            subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(SaveFileObserver(context, bitmap))
-            disposables.add(this)
-        }
+        SaveFileTask(context, bitmap)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ uri ->
+                Intent(Intent.ACTION_SEND).apply {
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    type = SaveFileTask.IMAGE_MIME
+                    startActivity(Intent.createChooser(this, getString(R.string.share_title)));
+                }
+                menuItem.isEnabled = true
+            }, { e ->
+                e.printStackTrace()
+                Toast.makeText(context, R.string.save_failed, Toast.LENGTH_LONG).show()
+                menuItem.isEnabled = true
+            })
+            .addTo(disposables)
     }
 
     override fun onChargeAdded(view: ElectricFields, charge: Charge) {}
@@ -180,7 +186,7 @@ class MainActivity : Activity(),
         if (view == mainView) {
             runOnUiThread {
                 menuStop?.isVisible = true
-                menuSave?.isVisible = true
+                menuShare?.isVisible = false
             }
         }
     }
@@ -189,7 +195,8 @@ class MainActivity : Activity(),
         if (view == mainView) {
             runOnUiThread {
                 menuStop?.isVisible = false
-                menuSave?.isVisible = true
+                menuShare?.isVisible = true
+                menuShare?.isEnabled = true
                 Toast.makeText(this, R.string.finished, Toast.LENGTH_SHORT).show()
             }
         }
@@ -204,13 +211,17 @@ class MainActivity : Activity(),
     }
 
     @TargetApi(Build.VERSION_CODES.M)
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == REQUEST_SAVE) {
             if (permissions.isNotEmpty() && (permissions[0] == Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
-                    saveToFile()
+                    share()
                     return
                 }
             }
@@ -225,9 +236,9 @@ class MainActivity : Activity(),
         val actionBar = actionBar
         if ((actionBar != null) && actionBar.isShowing) {
             window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
 
             // Hide the action bar.
             actionBar.hide()
@@ -244,7 +255,7 @@ class MainActivity : Activity(),
         val actionBar = actionBar
         if (actionBar != null && !actionBar.isShowing) {
             window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
 
             // Show the action bar.
             actionBar.show()

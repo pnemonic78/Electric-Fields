@@ -5,11 +5,8 @@
     <!-- Notifications. -->
     <string name="finished">نقاشی به پایان رسید است.</string>
 
-    <!-- Saved. -->
-    <string name="menu_save_file">ذخیره در فایل</string>
-    <string name="saving_text">صرفه جویی در تصویر به فایل…</string>
-    <string name="saved_title">میدان های الکتریکی را نجات داد.</string>
-    <string name="saved_text">به مشاهده زمینه های خود را لمس کنید.</string>
+    <!-- Share. -->
+    <string name="sendImage" msgid="7279510542799399570">"اشتراک‌گذاری تصویر از طریق"</string>
     <string name="save_failed">برای ذخیره کردن تصویر شکست خورده است.</string>
 
     <!-- Menu. -->

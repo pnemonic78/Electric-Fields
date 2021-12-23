@@ -5,11 +5,8 @@
     <!-- Notifications. -->
     <string name="finished">Çizim bitti.</string>
 
-    <!-- Saved. -->
-    <string name="menu_save_file">Dosyaya kaydet</string>
-    <string name="saving_text">Resim dosyaya kaydediliyor…</string>
-    <string name="saved_title">Elektrik alanları kaydedilir.</string>
-    <string name="saved_text">Alanlarınızı görüntülemek için dokunun.</string>
+    <!-- Share. -->
+    <string name="sendImage" msgid="7279510542799399570">"Resmi şunun aracılığıyla paylaş:"</string>
     <string name="save_failed">Resim kaydedilemedi.</string>
 
     <!-- Menu. -->
