@@ -1,43 +1,42 @@
+import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
+import 'package:flutter/widgets.dart' as w;
+import 'package:image/image.dart' as img;
 
 import 'Charge.dart';
 
-typedef PictureCallback = void Function(Picture? picture);
+typedef ImageCallback = void Function(Image? image);
 
 const DEFAULT_DENSITY = 1000.0;
 const DEFAULT_HUES = 360.0;
+
+const white = 0xFFFFFFFF;
 
 class ElectricFieldsPainter {
   ElectricFieldsPainter({
     required this.width,
     required this.height,
     required this.charges,
-    required this.onPicturePainted,
+    required this.onImagePainted,
   })  : assert(width > 0),
         assert(height > 0);
 
-  final double width;
-  final double height;
+  final int width;
+  final int height;
   final List<Charge> charges;
-  final PictureCallback onPicturePainted;
+  final ImageCallback onImagePainted;
 
   final density = DEFAULT_DENSITY;
   final hues = DEFAULT_HUES;
 
-  Picture? _picture;
+  Image? _image;
 
-  Picture? get picture => _picture;
+  Image? get image => _image;
 
   bool _running = false;
-
-  Paint _paint = Paint()
-    ..strokeCap = StrokeCap.square
-    ..strokeWidth = 1
-    ..style = PaintingStyle.fill;
 
   List<double> _hsv = [0, 1, 1];
 
@@ -58,8 +57,7 @@ class ElectricFieldsPainter {
 
   void cancel() {
     _running = false;
-    _picture?.dispose();
-    _picture = null;
+    _image = null;
   }
 
   void _run() async {
@@ -71,7 +69,7 @@ class ElectricFieldsPainter {
 
     var shifts = 0;
     while (size > 1) {
-      size = size / 2;
+      size = size >> 1;
       shifts++;
     }
 
@@ -79,11 +77,9 @@ class ElectricFieldsPainter {
     var resolution2 = (1 << shifts).toDouble();
     var resolution = resolution2;
 
-    Picture picture;
-    Picture? pictureOld = _picture;
-    PictureRecorder pictureRecorder = PictureRecorder();
-    Canvas canvas = Canvas(pictureRecorder);
-    canvas.drawColor(Colors.white, BlendMode.src);
+    img.Image canvas = img.Image(w, h);
+    Image image;
+    canvas.fill(white);
     _plot(charges, canvas, 0, 0, resolution, resolution, density);
 
     double x1;
@@ -108,21 +104,14 @@ class ElectricFieldsPainter {
           x2 += resolution2;
         } while ((x1 < w) && _running);
 
-        if (!_running) {
-          break;
-        }
-
         y1 += resolution2;
         y2 += resolution2;
-      } while (y1 < h);
+      } while ((y1 < h) && _running);
 
-      pictureOld?.dispose();
-      picture = pictureRecorder.endRecording();
-      notifyPicturePainted(picture);
-      pictureOld = picture;
-      pictureRecorder = PictureRecorder();
-      canvas = Canvas(pictureRecorder);
-      canvas.drawPicture(picture);
+      if (_running) {
+        image = await toImage(canvas);
+        notifyImagePainted(image);
+      }
 
       resolution2 = resolution;
       resolution = resolution2 / 2;
@@ -130,15 +119,14 @@ class ElectricFieldsPainter {
 
     if (_running) {
       _running = false;
-      pictureOld.dispose();
-      picture = pictureRecorder.endRecording();
-      notifyPicturePainted(picture);
+      image = await toImage(canvas);
+      notifyImagePainted(image);
     }
-    notifyPicturePainted(null);
+    notifyImagePainted(null);
   }
 
-  void _plot(List<Charge> charges, Canvas canvas, double x, double y, double w,
-      double h, double zoom) async {
+  void _plot(List<Charge> charges, img.Image image, double x, double y,
+      double w, double h, double zoom) async {
     double dx;
     double dy;
     double d;
@@ -161,21 +149,42 @@ class ElectricFieldsPainter {
       v += charge.size / r;
     }
 
-    _paint.color = _mapColor(v, zoom);
-    Rect rect = Rect.fromLTWH(x, y, w, h);
-    canvas.drawRect(rect, _paint);
+    int color = _mapColor(v, zoom);
+    int x1 = x.toInt();
+    int y1 = y.toInt();
+    int x2 = (x + w).toInt();
+    int y2 = (y + h).toInt();
+
+    img.fillRect(image, x1, y1, x2, y2, color);
   }
 
-  Color _mapColor(double z, double density) {
+  int _mapColor(double z, double density) {
     if (z.isInfinite || z.isNaN) {
-      return Colors.white;
+      return white;
     }
     _hsv[0] = (z * density) % hues;
-    return HSVColor.fromAHSV(1.0, _hsv[0], _hsv[1], _hsv[2]).toColor();
+    return w.HSVColor.fromAHSV(1.0, _hsv[0], _hsv[1], _hsv[2]).toColor().value;
   }
 
-  void notifyPicturePainted(Picture? picture) {
-    if (picture != null) _picture = picture;
-    onPicturePainted(picture);
+  Future<Image> toImage(img.Image img) async {
+    final width = img.width;
+    final height = img.height;
+    final rgba = Uint8List.view(img.data.buffer);
+    final buffer = await ImmutableBuffer.fromUint8List(rgba);
+    final desc = ImageDescriptor.raw(
+      buffer,
+      width: width,
+      height: height,
+      pixelFormat: PixelFormat.rgba8888,
+    );
+    final codec = await desc.instantiateCodec();
+    final frame = await codec.getNextFrame();
+    final image = frame.image;
+    return Future.value(image);
+  }
+
+  void notifyImagePainted(Image? image) {
+    if (image != null) _image = image;
+    onImagePainted(image);
   }
 }

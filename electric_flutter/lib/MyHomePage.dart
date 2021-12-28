@@ -27,16 +27,17 @@ class _MyHomePageState extends State<MyHomePage>
   ElectricFieldsWidget? _electricFieldsWidget;
   List<Charge>? _charges;
   final _random = Random();
-  Picture? _picture;
+  Image? _image;
 
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
     final mediaWidth = media.size.width;
     final mediaHeight = media.size.height;
+    final mediaRatio = media.devicePixelRatio;
 
-    final fieldWidth = mediaWidth;
-    final fieldHeight = mediaHeight;
+    final fieldWidth = mediaWidth * mediaRatio;
+    final fieldHeight = mediaHeight * mediaRatio;
 
     final menuItemRandom = IconButton(
       icon: Icon(Icons.shuffle),
@@ -47,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage>
     final menuItemShare = IconButton(
       icon: Icon(Icons.share),
       tooltip: "Share",
-      onPressed: () => _shareImage(fieldWidth, fieldHeight),
+      onPressed: () => _shareImage(),
     );
 
     _electricFieldsWidget = ElectricFieldsWidget(
@@ -75,14 +76,17 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _randomise(double width, double height) async {
-    int w = width.toInt();
-    int h = height.toInt();
     final count = _nextIntInRange(
-        ElectricFieldsWidget.MIN_CHARGES, ElectricFieldsWidget.MAX_CHARGES);
+      ElectricFieldsWidget.MIN_CHARGES,
+      ElectricFieldsWidget.MAX_CHARGES,
+    );
     final List<Charge> charges = <Charge>[];
     for (var i = 0; i < count; i++) {
-      Charge charge = Charge(_random.nextDouble() * w, _random.nextDouble() * h,
-          _nextDoubleInRange(-20.0, 20.0));
+      Charge charge = Charge(
+        _random.nextDouble() * width,
+        _random.nextDouble() * height,
+        _nextDoubleInRange(-20.0, 20.0),
+      );
       charges.add(charge);
     }
     setState(() {
@@ -96,11 +100,11 @@ class _MyHomePageState extends State<MyHomePage>
   double _nextDoubleInRange(double start, double end) =>
       _random.nextDouble() * (end - start) + start;
 
-  void _shareImage(double width, double height) async {
-    final picture = _picture;
-    if (picture == null) return;
+  void _shareImage() async {
+    final image = _image;
+    if (image == null) return;
     final task = SaveFileTask();
-    final file = await task.savePicture(picture, width.toInt(), height.toInt());
+    final file = await task.saveImage(image);
     if (file == null) return;
     final path = file.path;
     print('saved to $path');
@@ -146,8 +150,8 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   @override
-  void onRenderFieldFinished(ElectricFields view, Picture picture) {
-    _picture = picture;
+  void onRenderFieldFinished(ElectricFields view, Image image) {
+    _image = image;
   }
 
   @override
@@ -155,8 +159,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void dispose() {
-    _picture?.dispose();
-    _picture = null;
+    _image = null;
     super.dispose();
   }
 }

@@ -25,13 +25,18 @@ class ElectricFieldsListener {
 
   void onChargesCleared(ElectricFields view) {}
 
-  bool onRenderFieldClicked(ElectricFields view, double x, double y, double size) {
+  bool onRenderFieldClicked(
+    ElectricFields view,
+    double x,
+    double y,
+    double size,
+  ) {
     return false;
   }
 
   void onRenderFieldStarted(ElectricFields view) {}
 
-  void onRenderFieldFinished(ElectricFields view, Picture picture) {}
+  void onRenderFieldFinished(ElectricFields view, Image image) {}
 
   void onRenderFieldCancelled(ElectricFields view) {}
 }

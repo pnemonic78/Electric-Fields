@@ -1,7 +1,6 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
 
-import 'package:electric_flutter/ui/PictureWidget.dart';
-import 'package:flutter/widgets.dart' hide Image;
+import 'package:flutter/widgets.dart';
 
 import 'Charge.dart';
 import 'ElectricFields.dart';
@@ -41,7 +40,7 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
 
   List<Charge> _charges = <Charge>[];
   ElectricFieldsPainter? _painter;
-  Picture? _picture;
+  ui.Image? _image;
 
   double _measuredWidthDiff = 0;
   double _measuredHeightDiff = 0;
@@ -147,10 +146,10 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
   @override
   void start({int delay = 0}) async {
     ElectricFieldsPainter painter = ElectricFieldsPainter(
-      width: widget.width,
-      height: widget.height,
+      width: widget.width.toInt(),
+      height: widget.height.toInt(),
       charges: _charges,
-      onPicturePainted: _onPicturePainted,
+      onImagePainted: _onImagePainted,
     );
     _painter = painter;
     painter.start(startDelay: delay);
@@ -172,21 +171,15 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
 
   @override
   Widget build(BuildContext context) {
-    final width = widget.width;
-    final height = widget.height;
-
-    final pictureWidget = PictureWidget(
-      key: Key(_picture?.hashCode.toString() ?? "0"),
-      picture: _picture,
-      width: width,
-      height: height,
-      dispose: false,
+    final imageWidget = RawImage(
+      key: Key(_image?.hashCode.toString() ?? "0"),
+      image: _image,
     );
 
     final gestureWidget = GestureDetector(
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
-      child: pictureWidget,
+      child: imageWidget,
     );
 
     return gestureWidget;
@@ -240,9 +233,9 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
   }
 
   @override
-  void onRenderFieldFinished(ElectricFields view, Picture picture) {
+  void onRenderFieldFinished(ElectricFields view, ui.Image image) {
     clear();
-    widget.listener?.onRenderFieldFinished(view, picture);
+    widget.listener?.onRenderFieldFinished(view, image);
   }
 
   @override
@@ -250,14 +243,14 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
     widget.listener?.onRenderFieldStarted(view);
   }
 
-  void _onPicturePainted(Picture? picture) {
-    if (picture != null) {
+  void _onImagePainted(ui.Image? image) {
+    if (image != null) {
       setState(() {
-        _picture = picture;
+        _image = image;
       });
     } else {
-      final picturePrevious = _picture;
-      if (picturePrevious != null) onRenderFieldFinished(this, picturePrevious);
+      final imagePrevious = _image;
+      if (imagePrevious != null) onRenderFieldFinished(this, imagePrevious);
     }
   }
 
