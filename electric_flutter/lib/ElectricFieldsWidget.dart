@@ -1,6 +1,9 @@
-import 'dart:ui' as ui;
+import 'dart:isolate';
+import 'dart:typed_data';
+import 'dart:ui';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide Image;
+import 'package:image/image.dart' as img;
 
 import 'Charge.dart';
 import 'ElectricFields.dart';
@@ -35,13 +38,14 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
   _ElectricFieldsWidgetState() : super();
 
   static const double sameChargeDistance = 40;
-  static const double sameChargeDistanceSquared =
+  static double _sameChargeDistanceSquaredPx =
       sameChargeDistance * sameChargeDistance;
 
   List<Charge> _charges = <Charge>[];
   ElectricFieldsPainter? _painter;
-  ui.Image? _image;
+  Image? _image;
 
+  double _pixelRatio = 1;
   double _measuredWidthDiff = 0;
   double _measuredHeightDiff = 0;
   DateTime _timeTapDown = DateTime.now();
@@ -114,7 +118,7 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
       dx = x - charge.x;
       dy = y - charge.y;
       d = (dx * dx) + (dy * dy);
-      if ((d <= sameChargeDistanceSquared) && (d < dMin)) {
+      if ((d <= _sameChargeDistanceSquaredPx) && (d < dMin)) {
         chargeNearest = i;
         dMin = d;
       }
@@ -145,15 +149,20 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
 
   @override
   void start({int delay = 0}) async {
-    ElectricFieldsPainter painter = ElectricFieldsPainter(
+    ReceivePort port = ReceivePort();
+
+    _painter = await ElectricFieldsPainter.paint(
       width: widget.width.toInt(),
       height: widget.height.toInt(),
       charges: _charges,
-      onImagePainted: _onImagePainted,
+      port: port,
     );
-    _painter = painter;
-    painter.start(startDelay: delay);
     onRenderFieldStarted(this);
+
+    await for (var image in port) {
+      _onImagePainted(image);
+      if (image == null) return;
+    }
   }
 
   @override
@@ -171,6 +180,12 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
 
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    _pixelRatio = media.devicePixelRatio;
+
+    final sameChargeDistancePx = sameChargeDistance * _pixelRatio;
+    _sameChargeDistanceSquaredPx = sameChargeDistancePx * sameChargeDistancePx;
+
     final imageWidget = RawImage(
       key: Key(_image?.hashCode.toString() ?? "0"),
       image: _image,
@@ -233,7 +248,7 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
   }
 
   @override
-  void onRenderFieldFinished(ElectricFields view, ui.Image image) {
+  void onRenderFieldFinished(ElectricFields view, Image image) {
     clear();
     widget.listener?.onRenderFieldFinished(view, image);
   }
@@ -243,8 +258,9 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
     widget.listener?.onRenderFieldStarted(view);
   }
 
-  void _onImagePainted(ui.Image? image) {
-    if (image != null) {
+  void _onImagePainted(img.Image? img) async {
+    if (img != null) {
+      final image = await _toImage(img);
       setState(() {
         _image = image;
       });
@@ -259,10 +275,27 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
   }
 
   void _onTapUp(TapUpDetails details) {
-    final x = details.localPosition.dx - _measuredWidthDiff;
-    final y = details.localPosition.dy - _measuredHeightDiff;
+    final x = (details.localPosition.dx - _measuredWidthDiff) * _pixelRatio;
+    final y = (details.localPosition.dy - _measuredHeightDiff) * _pixelRatio;
     final duration = DateTime.now().difference(_timeTapDown).inMilliseconds;
-    final size = 1.0 + (duration / 20);
+    final size = 1.0 + (duration / 10);
     onRenderFieldClicked(this, x, y, size);
+  }
+
+  Future<Image> _toImage(img.Image img) async {
+    final width = img.width;
+    final height = img.height;
+    final rgba = Uint8List.view(img.data.buffer);
+    final buffer = await ImmutableBuffer.fromUint8List(rgba);
+    final desc = ImageDescriptor.raw(
+      buffer,
+      width: width,
+      height: height,
+      pixelFormat: PixelFormat.rgba8888,
+    );
+    final codec = await desc.instantiateCodec();
+    final frame = await codec.getNextFrame();
+    final image = frame.image;
+    return image;
   }
 }

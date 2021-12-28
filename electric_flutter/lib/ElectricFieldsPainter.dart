@@ -1,8 +1,9 @@
 import 'dart:async';
+import 'dart:isolate';
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' as w;
 import 'package:image/image.dart' as img;
 
@@ -27,14 +28,14 @@ class ElectricFieldsPainter {
   final int width;
   final int height;
   final List<Charge> charges;
-  final ImageCallback onImagePainted;
+  final SendPort onImagePainted;
 
   final density = DEFAULT_DENSITY;
   final hues = DEFAULT_HUES;
 
-  Image? _image;
+  img.Image? _image;
 
-  Image? get image => _image;
+  img.Image? get image => _image;
 
   bool _running = false;
 
@@ -78,7 +79,6 @@ class ElectricFieldsPainter {
     var resolution = resolution2;
 
     img.Image canvas = img.Image(w, h);
-    Image image;
     canvas.fill(white);
     _plot(charges, canvas, 0, 0, resolution, resolution, density);
 
@@ -109,8 +109,7 @@ class ElectricFieldsPainter {
       } while ((y1 < h) && _running);
 
       if (_running) {
-        image = await toImage(canvas);
-        notifyImagePainted(image);
+        notifyImagePainted(canvas);
       }
 
       resolution2 = resolution;
@@ -119,13 +118,12 @@ class ElectricFieldsPainter {
 
     if (_running) {
       _running = false;
-      image = await toImage(canvas);
-      notifyImagePainted(image);
+      notifyImagePainted(canvas);
+      notifyImagePainted(null);
     }
-    notifyImagePainted(null);
   }
 
-  void _plot(List<Charge> charges, img.Image image, double x, double y,
+  void _plot(List<Charge> charges, img.Image canvas, double x, double y,
       double w, double h, double zoom) async {
     double dx;
     double dy;
@@ -155,7 +153,7 @@ class ElectricFieldsPainter {
     int x2 = (x + w).toInt();
     int y2 = (y + h).toInt();
 
-    img.fillRect(image, x1, y1, x2, y2, color);
+    img.fillRect(canvas, x1, y1, x2, y2, color);
   }
 
   int _mapColor(double z, double density) {
@@ -166,25 +164,32 @@ class ElectricFieldsPainter {
     return w.HSVColor.fromAHSV(1.0, _hsv[0], _hsv[1], _hsv[2]).toColor().value;
   }
 
-  Future<Image> toImage(img.Image img) async {
-    final width = img.width;
-    final height = img.height;
-    final rgba = Uint8List.view(img.data.buffer);
-    final buffer = await ImmutableBuffer.fromUint8List(rgba);
-    final desc = ImageDescriptor.raw(
-      buffer,
-      width: width,
-      height: height,
-      pixelFormat: PixelFormat.rgba8888,
-    );
-    final codec = await desc.instantiateCodec();
-    final frame = await codec.getNextFrame();
-    final image = frame.image;
-    return Future.value(image);
+  void notifyImagePainted(img.Image? image) {
+    if (image != null) _image = image;
+    onImagePainted.send(image);
   }
 
-  void notifyImagePainted(Image? image) {
-    if (image != null) _image = image;
-    onImagePainted(image);
+  static void paintWithPainter(ElectricFieldsPainter painter) async {
+    await compute(_paintIsolated, painter);
+  }
+
+  static Future<ElectricFieldsPainter> paint({
+    required int width,
+    required int height,
+    required List<Charge> charges,
+    required ReceivePort port,
+  }) async {
+    ElectricFieldsPainter painter = ElectricFieldsPainter(
+      width: width,
+      height: height,
+      charges: charges,
+      onImagePainted: port.sendPort,
+    );
+    paintWithPainter(painter);
+    return painter;
+  }
+
+  static void _paintIsolated(ElectricFieldsPainter painter) async {
+    painter.start();
   }
 }
