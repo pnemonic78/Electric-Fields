@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:isolate';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' as w;
@@ -9,7 +8,7 @@ import 'package:image/image.dart' as img;
 
 import 'Charge.dart';
 
-typedef ImageCallback = void Function(Image? image);
+typedef ImageCallback = void Function(w.Image? image);
 
 const DEFAULT_DENSITY = 1000.0;
 const DEFAULT_HUES = 360.0;
@@ -104,6 +103,10 @@ class ElectricFieldsPainter {
           x2 += resolution2;
         } while ((x1 < w) && _running);
 
+        if (_running) {
+          notifyImagePainted(canvas);
+        }
+
         y1 += resolution2;
         y2 += resolution2;
       } while ((y1 < h) && _running);
@@ -169,7 +172,7 @@ class ElectricFieldsPainter {
     onImagePainted.send(image);
   }
 
-  static void paintWithPainter(ElectricFieldsPainter painter) async {
+  static void execute(ElectricFieldsPainter painter) async {
     await compute(_paintIsolated, painter);
   }
 
@@ -185,7 +188,7 @@ class ElectricFieldsPainter {
       charges: charges,
       onImagePainted: port.sendPort,
     );
-    paintWithPainter(painter);
+    execute(painter);
     return painter;
   }
 

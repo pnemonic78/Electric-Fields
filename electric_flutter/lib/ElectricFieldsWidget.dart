@@ -149,17 +149,19 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
 
   @override
   void start({int delay = 0}) async {
-    ReceivePort port = ReceivePort();
+    final port = ReceivePort();
 
-    _painter = await ElectricFieldsPainter.paint(
+    final painter = await ElectricFieldsPainter.paint(
       width: widget.width.toInt(),
       height: widget.height.toInt(),
       charges: _charges,
       port: port,
     );
+    _painter = painter;
     onRenderFieldStarted(this);
 
     await for (var image in port) {
+      if (painter != _painter) return;
       _onImagePainted(image);
       if (image == null) return;
     }
