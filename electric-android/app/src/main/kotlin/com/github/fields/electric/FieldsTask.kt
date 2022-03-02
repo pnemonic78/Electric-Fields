@@ -15,9 +15,13 @@
  */
 package com.github.fields.electric
 
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Color.WHITE
+import android.graphics.Paint
 import android.graphics.Paint.ANTI_ALIAS_FLAG
+import android.graphics.RectF
 import com.github.reactivex.DefaultDisposable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Observer
@@ -31,7 +35,12 @@ import kotlin.math.sqrt
  *
  * @author Moshe Waisberg
  */
-class FieldsTask(private val charges: List<Charge>, private val bitmap: Bitmap, private val density: Double = DEFAULT_DENSITY, private val hues: Double = DEFAULT_HUES) : Observable<Bitmap>(), Disposable {
+class FieldsTask(
+    private val charges: List<Charge>,
+    private val bitmap: Bitmap,
+    private val density: Double = DEFAULT_DENSITY,
+    private val hues: Double = DEFAULT_HUES
+) : Observable<Bitmap>(), Disposable {
 
     private var runner: FieldRunner? = null
     var brightness = 1f
@@ -68,7 +77,13 @@ class FieldsTask(private val charges: List<Charge>, private val bitmap: Bitmap, 
         runner?.dispose()
     }
 
-    private class FieldRunner(val charges: List<Charge>, val bitmap: Bitmap, val density: Double, val hues: Double, val observer: Observer<in Bitmap>) : DefaultDisposable() {
+    private class FieldRunner(
+        val charges: List<Charge>,
+        val bitmap: Bitmap,
+        val density: Double,
+        val hues: Double,
+        val observer: Observer<in Bitmap>
+    ) : DefaultDisposable() {
 
         private val paint = Paint(ANTI_ALIAS_FLAG).apply {
             strokeCap = Paint.Cap.SQUARE
@@ -104,7 +119,6 @@ class FieldsTask(private val charges: List<Charge>, private val bitmap: Bitmap, 
                 running = false
                 return
             }
-            observer.onNext(bitmap)
 
             val w = bitmap.width
             val h = bitmap.height
@@ -123,6 +137,7 @@ class FieldsTask(private val charges: List<Charge>, private val bitmap: Bitmap, 
             val canvas = Canvas(bitmap)
             canvas.drawColor(WHITE)
             plot(charges, canvas, 0, 0, resolution, resolution, density)
+            observer.onNext(bitmap)
 
             var x1: Int
             var y1: Int
@@ -149,12 +164,18 @@ class FieldsTask(private val charges: List<Charge>, private val bitmap: Bitmap, 
                     if (isDisposed) {
                         break@loop
                     }
-                    observer.onNext(bitmap)
+                    if (!BuildConfig.SAVE_FRAMES) {
+                        observer.onNext(bitmap)
+                    }
 
                     y1 += resolution2
                     y2 += resolution2
                 } while (y1 < h)
 
+                if (BuildConfig.SAVE_FRAMES) {
+                    val clone = bitmap.copy(Bitmap.Config.ARGB_8888, false)
+                    observer.onNext(clone)
+                }
                 resolution2 = resolution
                 resolution = resolution2 shr 1
             } while ((resolution >= 1) && !isDisposed)
@@ -166,7 +187,15 @@ class FieldsTask(private val charges: List<Charge>, private val bitmap: Bitmap, 
             }
         }
 
-        private fun plot(charges: List<Charge>, canvas: Canvas, x: Int, y: Int, w: Int, h: Int, zoom: Double) {
+        private fun plot(
+            charges: List<Charge>,
+            canvas: Canvas,
+            x: Int,
+            y: Int,
+            w: Int,
+            h: Int,
+            zoom: Double
+        ) {
             var dx: Int
             var dy: Int
             var d: Int

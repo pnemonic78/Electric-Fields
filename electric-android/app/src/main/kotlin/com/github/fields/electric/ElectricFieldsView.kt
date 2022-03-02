@@ -253,7 +253,7 @@ class ElectricFieldsView : View,
         return false
     }
 
-    override fun onLongPress(e: MotionEvent) {}
+    override fun onLongPress(e: MotionEvent) = Unit
 
     override fun onScroll(
         e1: MotionEvent,
@@ -295,7 +295,7 @@ class ElectricFieldsView : View,
         }
     }
 
-    override fun onShowPress(e: MotionEvent) {}
+    override fun onShowPress(e: MotionEvent) = Unit
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val x = (e.x - measuredWidthDiff).toInt()
@@ -314,6 +314,7 @@ class ElectricFieldsView : View,
     }
 
     override fun onNext(value: Bitmap) {
+        listener?.onRenderFieldProgress(this, value)
         postInvalidate()
     }
 

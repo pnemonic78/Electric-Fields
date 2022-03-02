@@ -155,13 +155,13 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         return false
     }
 
-    override fun onLongPress(e: MotionEvent) {}
+    override fun onLongPress(e: MotionEvent) = Unit
 
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
         return false
     }
 
-    override fun onShowPress(e: MotionEvent) {}
+    override fun onShowPress(e: MotionEvent) = Unit
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val x = e.x.toInt()

@@ -16,6 +16,7 @@
 package com.github.fields.electric.wallpaper
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.service.wallpaper.WallpaperService
 import android.text.format.DateUtils
 import android.view.MotionEvent
@@ -103,9 +104,9 @@ class ElectricFieldsWallpaperService : WallpaperService() {
             mainView.restart(delay)
         }
 
-        override fun onChargeAdded(view: ElectricFields, charge: Charge) {}
+        override fun onChargeAdded(view: ElectricFields, charge: Charge) = Unit
 
-        override fun onChargeInverted(view: ElectricFields, charge: Charge) {}
+        override fun onChargeInverted(view: ElectricFields, charge: Charge) = Unit
 
         override fun onChargeScaleBegin(view: ElectricFields, charge: Charge): Boolean {
             return false
@@ -127,7 +128,9 @@ class ElectricFieldsWallpaperService : WallpaperService() {
             return false
         }
 
-        override fun onRenderFieldStarted(view: ElectricFields) {}
+        override fun onRenderFieldStarted(view: ElectricFields) = Unit
+
+        override fun onRenderFieldProgress(view: ElectricFields, field: Bitmap) = Unit
 
         override fun onRenderFieldFinished(view: ElectricFields) {
             if (view === mainView) {
@@ -135,7 +138,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
             }
         }
 
-        override fun onRenderFieldCancelled(view: ElectricFields) {}
+        override fun onRenderFieldCancelled(view: ElectricFields) = Unit
 
         override fun onDraw(view: WallpaperView) {
             if (view === mainView) {

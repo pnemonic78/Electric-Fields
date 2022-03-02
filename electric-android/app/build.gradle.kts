@@ -16,7 +16,8 @@ android {
         versionCode = generateVersionCode(versionMajor, versionMinor)
         versionName = "${versionMajor}.${versionMinor.toString().padLeft(2, "0")}"
 
-        testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
+        // Save each rendered frame to file?
+        buildConfigField("boolean", "SAVE_FRAMES", "false")
     }
 
     signingConfigs {

@@ -21,6 +21,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
@@ -97,7 +98,7 @@ class MainActivity : Activity(),
                 return true
             }
             R.id.menu_share -> {
-                share()
+                share(bitmap = mainView.bitmap)
                 return true
             }
             R.id.menu_palette -> {
@@ -118,7 +119,9 @@ class MainActivity : Activity(),
         val count = random.nextInt(MIN_CHARGES, MAX_CHARGES)
         mainView.clear()
         for (i in 0 until count) {
-            mainView.addCharge(random.nextInt(w), random.nextInt(h), random.nextDouble(-20.0, 20.0))
+            mainView.addCharge(
+                random.nextInt(w), random.nextInt(h), random.nextDouble(-40.0, 40.0)
+            )
         }
         mainView.restart()
     }
@@ -126,7 +129,7 @@ class MainActivity : Activity(),
     /**
      * Save the bitmap to a file, and then share it.
      */
-    private fun share() {
+    private fun share(bitmap: Bitmap) {
         // Busy sharing?
         val menuItem = menuShare ?: return
         if (!menuItem.isEnabled || !menuItem.isVisible) {
@@ -135,7 +138,6 @@ class MainActivity : Activity(),
         menuItem.isEnabled = false
 
         val context: Context = this
-        val bitmap = mainView.bitmap
         SaveFileTask(context, bitmap)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -154,9 +156,19 @@ class MainActivity : Activity(),
             .addTo(disposables)
     }
 
-    override fun onChargeAdded(view: ElectricFields, charge: Charge) {}
+    private fun save(bitmap: Bitmap) {
+        val context: Context = this
+        SaveFileTask(context, bitmap)
+            .subscribeOn(Schedulers.io())
+            .subscribe({ }, { e ->
+                e.printStackTrace()
+            })
+            .addTo(disposables)
+    }
 
-    override fun onChargeInverted(view: ElectricFields, charge: Charge) {}
+    override fun onChargeAdded(view: ElectricFields, charge: Charge) = Unit
+
+    override fun onChargeInverted(view: ElectricFields, charge: Charge) = Unit
 
     override fun onChargeScaleBegin(view: ElectricFields, charge: Charge): Boolean {
         return (view == mainView)
@@ -191,6 +203,14 @@ class MainActivity : Activity(),
         }
     }
 
+    override fun onRenderFieldProgress(view: ElectricFields, field: Bitmap) {
+        if (BuildConfig.SAVE_FRAMES) {
+            if (view == mainView) {
+                save(field)
+            }
+        }
+    }
+
     override fun onRenderFieldFinished(view: ElectricFields) {
         if (view == mainView) {
             runOnUiThread {
@@ -221,7 +241,7 @@ class MainActivity : Activity(),
         if (requestCode == REQUEST_SAVE) {
             if (permissions.isNotEmpty() && (permissions[0] == Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
-                    share()
+                    share(bitmap = mainView.bitmap)
                     return
                 }
             }
