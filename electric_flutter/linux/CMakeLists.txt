@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(runner LANGUAGES CXX)
 
 set(BINARY_NAME "electric_flutter")
-set(APPLICATION_ID "com.github.fields.electric.electric_flutter")
+set(APPLICATION_ID "com.github.fields.electric.flutter")
 
 cmake_policy(SET CMP0063 NEW)
 
