@@ -23,12 +23,19 @@ class SaveFileTask {
     final byteData = await image.toByteData(format: ImageByteFormat.png);
     final bytes = byteData!.buffer.asUint8List();
 
-    final directories =
-        await getExternalStorageDirectories(type: StorageDirectory.pictures);
-    final folderPictures = directories!.first;
-    final folder =
-        await Directory(folderPictures.path + "/" + app_folder_pictures)
-            .create(recursive: true);
+    final slash = Platform.pathSeparator;
+    final Directory folderApp;
+
+    if (Platform.isAndroid) {
+      final directories =
+          await getExternalStorageDirectories(type: StorageDirectory.pictures);
+      final folderPics = directories!.first;
+      folderApp = Directory(folderPics.path + slash + app_folder_pictures);
+    } else {
+      final folderDocs = await getApplicationDocumentsDirectory();
+      folderApp = Directory(folderDocs.path + slash + app_folder_pictures);
+    }
+    final Directory folder = await folderApp.create(recursive: true);
     final folderPath = folder.path;
     final filename = _generateFileName();
     final file = File(folderPath + "/" + filename);
