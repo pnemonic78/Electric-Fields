@@ -15,19 +15,17 @@
  */
 package com.github.fields.electric
 
-import android.Manifest
-import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Bitmap
-import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import com.github.fields.electric.ElectricFieldsView.Companion.MIN_CHARGES
 import com.github.reactivex.addTo
@@ -230,24 +228,6 @@ class MainActivity : Activity(),
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if (requestCode == REQUEST_SAVE) {
-            if (permissions.isNotEmpty() && (permissions[0] == Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
-                    share(bitmap = mainView.bitmap)
-                    return
-                }
-            }
-        }
-    }
-
     /**
      * Maximise the image in fullscreen mode.
      * @return `true` if screen is now fullscreen.
@@ -255,10 +235,11 @@ class MainActivity : Activity(),
     private fun showFullscreen(): Boolean {
         val actionBar = actionBar
         if ((actionBar != null) && actionBar.isShowing) {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            WindowInsetsControllerCompat(window, window.decorView).also { controller ->
+                controller.hide(WindowInsetsCompat.Type.systemBars())
+                controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
 
             // Hide the action bar.
             actionBar.hide()
@@ -274,8 +255,10 @@ class MainActivity : Activity(),
     private fun showNormalScreen(): Boolean {
         val actionBar = actionBar
         if (actionBar != null && !actionBar.isShowing) {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+            WindowCompat.setDecorFitsSystemWindows(window, true)
+            WindowInsetsControllerCompat(window, window.decorView).also { controller ->
+                controller.show(WindowInsetsCompat.Type.systemBars())
+            }
 
             // Show the action bar.
             actionBar.show()
@@ -299,9 +282,5 @@ class MainActivity : Activity(),
 
     private fun choosePalette() {
         PaletteDialog(this).show()
-    }
-
-    companion object {
-        private const val REQUEST_SAVE = 0x5473 // "SAVE"
     }
 }
