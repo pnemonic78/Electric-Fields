@@ -45,6 +45,7 @@ open class Charge(x: Int, y: Int, var size: Double = 0.0) : Point(x, y) {
 
     companion object {
 
+        @JvmField
         val CREATOR: Parcelable.Creator<Charge> = object : Parcelable.Creator<Charge> {
 
             override fun createFromParcel(p: Parcel): Charge {

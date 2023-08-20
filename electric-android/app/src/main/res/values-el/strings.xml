@@ -5,11 +5,8 @@
     <!-- Notifications. -->
     <string name="finished">Αντλώντας έχει τελειώσει.</string>
 
-    <!-- Saved. -->
-    <string name="menu_save_file">Αποθήκευση σε αρχείο</string>
-    <string name="saving_text">Αποθήκευση εικόνας σε αρχείο…</string>
-    <string name="saved_title">Τα ηλεκτρικά πεδία σώζονται.</string>
-    <string name="saved_text">Αγγίξτε για να δείτε τα πεδία σας.</string>
+    <!-- Share. -->
+    <string name="sendImage" msgid="7279510542799399570">"Κοινοποίηση εικόνας μέσω"</string>
     <string name="save_failed">Αποτυχία για να αποθηκεύσετε την εικόνα.</string>
 
     <!-- Menu. -->

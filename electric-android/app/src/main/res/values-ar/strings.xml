@@ -5,11 +5,8 @@
     <!-- Notifications. -->
     <string name="finished">الانتهاء من التقديم.</string>
 
-    <!-- Saved. -->
-    <string name="menu_save_file">حفظ إلى ملف</string>
-    <string name="saving_text">إنقاذ صورة للملف…</string>
-    <string name="saved_title">يتم حفظ الحقول الكهربائية.</string>
-    <string name="saved_text">المس لعرض الحقول.</string>
+    <!-- Share. -->
+    <string name="sendImage" msgid="7279510542799399570">"مشاركة الصورة عبر"</string>
     <string name="save_failed">فشل في حفظ الصورة.</string>
 
     <!-- Menu. -->

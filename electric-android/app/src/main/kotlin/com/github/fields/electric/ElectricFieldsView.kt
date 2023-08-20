@@ -70,6 +70,7 @@ class ElectricFieldsView : View,
         }
     private var task: FieldsTask? = null
     private var sameChargeDistance: Int = 0
+    private var sameChargeDistanceSquared: Int = 0
     private var listener: ElectricFieldsListener? = null
     private lateinit var gestureDetector: GestureDetector
     private lateinit var scaleGestureDetector: ScaleGestureDetector
@@ -87,14 +88,18 @@ class ElectricFieldsView : View,
         init(context)
     }
 
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
         init(context)
     }
 
     private fun init(context: Context) {
         val res = context.resources
         sameChargeDistance = res.getDimensionPixelSize(R.dimen.same_charge)
-        sameChargeDistance *= sameChargeDistance
+        sameChargeDistanceSquared = sameChargeDistance * sameChargeDistance
         gestureDetector = GestureDetector(context, this)
         scaleGestureDetector = ScaleGestureDetector(context, this)
         prefs = PreferenceManager.getDefaultSharedPreferences(context)
@@ -141,7 +146,7 @@ class ElectricFieldsView : View,
             dx = x - charge.x
             dy = y - charge.y
             d = (dx * dx) + (dy * dy)
-            if ((d <= sameChargeDistance) && (d < dMin)) {
+            if ((d <= sameChargeDistanceSquared) && (d < dMin)) {
                 chargeNearest = charge
                 dMin = d
             }
@@ -160,7 +165,8 @@ class ElectricFieldsView : View,
 
     override fun start(delay: Long) {
         if (isIdle()) {
-            val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
+            val density =
+                prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
             val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
             val observer = this
             FieldsTask(charges.copy(), bitmap, density, hues).apply {
@@ -220,6 +226,12 @@ class ElectricFieldsView : View,
      */
     fun isIdle(): Boolean = (task == null) || task!!.isIdle()
 
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        var result = scaleGestureDetector.onTouchEvent(event)
+        result = gestureDetector.onTouchEvent(event) || result
+        return result || super.onTouchEvent(event)
+    }
+
     override fun onDoubleTap(e: MotionEvent): Boolean {
         return false
     }
@@ -232,13 +244,23 @@ class ElectricFieldsView : View,
         return false
     }
 
-    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+    override fun onFling(
+        e1: MotionEvent,
+        e2: MotionEvent,
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
         return false
     }
 
-    override fun onLongPress(e: MotionEvent) {}
+    override fun onLongPress(e: MotionEvent) = Unit
 
-    override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+    override fun onScroll(
+        e1: MotionEvent,
+        e2: MotionEvent,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
         /*val dx = distanceX.absoluteValue
         val dy = distanceY.absoluteValue
         if (dx >= dy) {
@@ -255,7 +277,10 @@ class ElectricFieldsView : View,
         val x = (detector.focusX - measuredWidthDiff).toInt()
         val y = (detector.focusY - measuredHeightDiff).toInt()
         chargeToScale = findCharge(x, y)
-        return (listener != null) && (chargeToScale != null) && listener!!.onChargeScaleBegin(this, chargeToScale!!)
+        return (listener != null) && (chargeToScale != null) && listener!!.onChargeScaleBegin(
+            this,
+            chargeToScale!!
+        )
     }
 
     override fun onScale(detector: ScaleGestureDetector): Boolean {
@@ -270,7 +295,7 @@ class ElectricFieldsView : View,
         }
     }
 
-    override fun onShowPress(e: MotionEvent) {}
+    override fun onShowPress(e: MotionEvent) = Unit
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val x = (e.x - measuredWidthDiff).toInt()
@@ -288,13 +313,8 @@ class ElectricFieldsView : View,
         return false
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        var result = scaleGestureDetector.onTouchEvent(event)
-        result = gestureDetector.onTouchEvent(event) || result
-        return result || super.onTouchEvent(event)
-    }
-
     override fun onNext(value: Bitmap) {
+        listener?.onRenderFieldProgress(this, value)
         postInvalidate()
     }
 

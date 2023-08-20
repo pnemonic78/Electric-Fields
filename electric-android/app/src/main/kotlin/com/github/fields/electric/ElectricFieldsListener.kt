@@ -15,6 +15,8 @@
  */
 package com.github.fields.electric
 
+import android.graphics.Bitmap
+
 /**
  * Electric fields event listener.
  *
@@ -35,6 +37,8 @@ interface ElectricFieldsListener {
     fun onRenderFieldClicked(view: ElectricFields, x: Int, y: Int, size: Double): Boolean
 
     fun onRenderFieldStarted(view: ElectricFields)
+
+    fun onRenderFieldProgress(view: ElectricFields, field: Bitmap)
 
     fun onRenderFieldFinished(view: ElectricFields)
 

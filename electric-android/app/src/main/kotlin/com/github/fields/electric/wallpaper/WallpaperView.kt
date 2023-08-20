@@ -135,6 +135,10 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         isIdle = true
     }
 
+    fun onTouchEvent(event: MotionEvent) {
+        gestureDetector.onTouchEvent(event)
+    }
+
     override fun onDoubleTap(e: MotionEvent): Boolean {
         return false
     }
@@ -151,13 +155,13 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         return false
     }
 
-    override fun onLongPress(e: MotionEvent) {}
+    override fun onLongPress(e: MotionEvent) = Unit
 
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
         return false
     }
 
-    override fun onShowPress(e: MotionEvent) {}
+    override fun onShowPress(e: MotionEvent) = Unit
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val x = e.x.toInt()
@@ -236,10 +240,6 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     private fun onDraw(canvas: Canvas) {
         canvas.drawBitmap(bitmap!!, 0f, 0f, null)
-    }
-
-    fun onTouchEvent(event: MotionEvent) {
-        gestureDetector.onTouchEvent(event)
     }
 
     fun onDestroy() {
