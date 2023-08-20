@@ -119,7 +119,7 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
         companion object {
             private const val TAG = "SaveFileTask"
 
-            private val timestampFormat = SimpleDateFormat("yyyyMMdd-HHmmssSS", Locale.US)
+            private val timestampFormat = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US)
         }
     }
 
@@ -127,6 +127,5 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
         const val IMAGE_MIME = "image/png"
 
         private const val IMAGE_EXT = ".png"
-        private const val SCHEME_FILE = "file"
     }
 }
