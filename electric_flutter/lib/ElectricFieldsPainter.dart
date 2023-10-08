@@ -13,7 +13,7 @@ typedef ImageCallback = void Function(w.Image? image);
 const DEFAULT_DENSITY = 1000.0;
 const DEFAULT_HUES = 360.0;
 
-const white = 0xFFFFFFFF;
+final img.Color white = img.ColorUint8.rgba(0xFF, 0xFF, 0xFF, 0xFF);
 
 class ElectricFieldsPainter {
   ElectricFieldsPainter({
@@ -77,8 +77,8 @@ class ElectricFieldsPainter {
     var resolution2 = (1 << shifts).toDouble();
     var resolution = resolution2;
 
-    img.Image canvas = img.Image(w, h);
-    canvas.fill(white);
+    img.Image canvas = img.Image(width: w, height: h, numChannels: 4);
+    canvas.clear(white);
     _plot(charges, canvas, 0, 0, resolution, resolution, density);
 
     double x1;
@@ -103,10 +103,6 @@ class ElectricFieldsPainter {
           x2 += resolution2;
         } while ((x1 < w) && _running);
 
-        if (_running) {
-          notifyImagePainted(canvas);
-        }
-
         y1 += resolution2;
         y2 += resolution2;
       } while ((y1 < h) && _running);
@@ -126,14 +122,21 @@ class ElectricFieldsPainter {
     }
   }
 
-  void _plot(List<Charge> charges, img.Image canvas, double x, double y,
-      double w, double h, double zoom) async {
+  void _plot(
+    List<Charge> charges,
+    img.Image canvas,
+    double x,
+    double y,
+    double w,
+    double h,
+    double zoom,
+  ) async {
     double dx;
     double dy;
     double d;
     double r;
-    double v = 1.0;
-    int count = charges.length;
+    double v = 0.0;
+    final count = charges.length;
     Charge charge;
 
     for (var i = 0; i < count; i++) {
@@ -141,7 +144,7 @@ class ElectricFieldsPainter {
       dx = x - charge.x;
       dy = y - charge.y;
       d = (dx * dx) + (dy * dy);
-      r = sqrt(d.toDouble());
+      r = sqrt(d);
       if (r == 0.0) {
         //Force "overflow".
         v = double.maxFinite;
@@ -150,21 +153,22 @@ class ElectricFieldsPainter {
       v += charge.size / r;
     }
 
-    int color = _mapColor(v, zoom);
+    img.Color color = _mapColor(v, zoom);
     int x1 = x.toInt();
     int y1 = y.toInt();
     int x2 = (x + w).toInt();
     int y2 = (y + h).toInt();
 
-    img.fillRect(canvas, x1, y1, x2, y2, color);
+    img.fillRect(canvas, x1: x1, y1: y1, x2: x2, y2: y2, color: color);
   }
 
-  int _mapColor(double z, double density) {
+  img.Color _mapColor(double z, double density) {
     if (z.isInfinite || z.isNaN) {
       return white;
     }
     _hsv[0] = (z * density) % hues;
-    return w.HSVColor.fromAHSV(1.0, _hsv[0], _hsv[1], _hsv[2]).toColor().value;
+    final List<int> rgb = img.hsvToRgb(_hsv[0], _hsv[1], _hsv[2]);
+    return img.ColorUint8.fromList(rgb);
   }
 
   void notifyImagePainted(img.Image? image) {

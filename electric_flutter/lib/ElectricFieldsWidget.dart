@@ -188,9 +188,10 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
     final sameChargeDistancePx = sameChargeDistance * _pixelRatio;
     _sameChargeDistanceSquaredPx = sameChargeDistancePx * sameChargeDistancePx;
 
+    final image = _image;
     final imageWidget = RawImage(
-      key: Key(_image?.hashCode.toString() ?? "0"),
-      image: _image,
+      key: Key(image?.hashCode.toString() ?? "0"),
+      image: image,
     );
 
     final gestureWidget = GestureDetector(
@@ -239,7 +240,11 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
 
   @override
   bool onRenderFieldClicked(
-      ElectricFields view, double x, double y, double size) {
+    ElectricFields view,
+    double x,
+    double y,
+    double size,
+  ) {
     if ((view == this) &&
         (view.invertCharge(x, y) || view.addChargeDetails(x, y, size))) {
       widget.listener?.onRenderFieldClicked(view, x, y, size);
@@ -260,12 +265,15 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
     widget.listener?.onRenderFieldStarted(view);
   }
 
-  void _onImagePainted(img.Image? img) async {
-    if (img != null) {
-      final image = await _toImage(img);
-      setState(() {
-        _image = image;
-      });
+  void _onImagePainted(img.Image? imagePainted) async {
+    if (imagePainted != null) {
+      final Image? image = await _toImage(imagePainted);
+      if (image != null) {
+        setState(() {
+          _image?.dispose();
+          _image = image;
+        });
+      }
     } else {
       final imagePrevious = _image;
       if (imagePrevious != null) onRenderFieldFinished(this, imagePrevious);
@@ -284,20 +292,21 @@ class _ElectricFieldsWidgetState extends State<ElectricFieldsWidget>
     onRenderFieldClicked(this, x, y, size);
   }
 
-  Future<Image> _toImage(img.Image img) async {
-    final width = img.width;
-    final height = img.height;
-    final rgba = Uint8List.view(img.data.buffer);
-    final buffer = await ImmutableBuffer.fromUint8List(rgba);
+  Future<Image?> _toImage(img.Image image) async {
+    final int width = image.width;
+    final int height = image.height;
+    final img.ImageData? data = image.data;
+    if (data == null) return null;
+    final Uint8List rgba = Uint8List.view(data.buffer);
+    final ImmutableBuffer buffer = await ImmutableBuffer.fromUint8List(rgba);
     final desc = ImageDescriptor.raw(
       buffer,
       width: width,
       height: height,
       pixelFormat: PixelFormat.rgba8888,
     );
-    final codec = await desc.instantiateCodec();
-    final frame = await codec.getNextFrame();
-    final image = frame.image;
-    return image;
+    final Codec codec = await desc.instantiateCodec();
+    final FrameInfo frame = await codec.getNextFrame();
+    return frame.image;
   }
 }

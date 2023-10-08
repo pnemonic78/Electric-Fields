@@ -4,7 +4,9 @@ import 'Charge.dart';
 ///
 /// @author Moshe Waisberg
 class ElectricFields {
-  Charge? findCharge(double x, double y) {}
+  Charge? findCharge(double x, double y) {
+    return null;
+  }
 
   bool invertCharge(double x, double y) {
     return false;

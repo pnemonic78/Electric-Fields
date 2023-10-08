@@ -4,9 +4,13 @@ import 'package:electric_flutter/ui/RawPicture.dart';
 import 'package:flutter/widgets.dart';
 
 class PictureWidget extends StatelessWidget {
-  const PictureWidget(
-      {Key? key, this.picture, this.width, this.height, bool dispose = true})
-      : _dispose = dispose,
+  const PictureWidget({
+    Key? key,
+    this.picture,
+    this.width,
+    this.height,
+    bool dispose = true,
+  })  : _dispose = dispose,
         super(key: key);
 
   final Picture? picture;
