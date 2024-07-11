@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:electric_flutter/ElectricFields.dart';
 import 'package:electric_flutter/ElectricFieldsListener.dart';
 import 'package:flutter/material.dart' hide Image;
-import 'package:flutter/widgets.dart' hide Image;
 import 'package:share_plus/share_plus.dart';
 
 import 'Charge.dart';

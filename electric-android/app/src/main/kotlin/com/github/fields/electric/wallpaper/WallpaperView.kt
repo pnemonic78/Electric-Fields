@@ -24,8 +24,12 @@ import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.preference.PreferenceManager
-import com.github.fields.electric.*
+import com.github.fields.electric.Charge
+import com.github.fields.electric.ElectricFields
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
+import com.github.fields.electric.FieldsTask
+import com.github.fields.electric.PaletteDialog
+import com.github.fields.electric.R
 import com.github.utils.copy
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
@@ -116,7 +120,8 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
 
     override fun start(delay: Long) {
         if (isIdle) {
-            val density = prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
+            val density =
+                prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
             val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
             val observer = this
             FieldsTask(charges.copy(), bitmap!!, density, hues).apply {
@@ -151,13 +156,23 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         return false
     }
 
-    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+    override fun onFling(
+        e1: MotionEvent?,
+        e2: MotionEvent,
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
         return false
     }
 
     override fun onLongPress(e: MotionEvent) = Unit
 
-    override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+    override fun onScroll(
+        e1: MotionEvent?,
+        e2: MotionEvent,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
         return false
     }
 
