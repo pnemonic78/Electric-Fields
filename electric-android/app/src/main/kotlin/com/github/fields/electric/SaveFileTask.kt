@@ -90,7 +90,7 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
                     return
                 }
 
-                cr.openOutputStream(uri).use { out ->
+                cr.openOutputStream(uri)!!.use { out ->
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
 
                     values.put(MediaStore.MediaColumns.IS_PENDING, 0)
@@ -105,7 +105,6 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
             } catch (e: Exception) {
                 Log.e(TAG, "save failed: $uri", e)
                 observer.onError(e)
-                return
             }
         }
 
