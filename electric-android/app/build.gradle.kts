@@ -7,13 +7,13 @@ val versionMajor = project.property("APP_VERSION_MAJOR").toString().toInt()
 val versionMinor = project.property("APP_VERSION_MINOR").toString().toInt()
 
 android {
-    compileSdk = Versions.androidBuildSdk
+    compileSdk = BuildVersions.compileSdk
     namespace = "com.github.fields.electric"
 
     defaultConfig {
         applicationId = "com.github.fields.electric"
-        minSdk = Versions.androidBuildMinSdk
-        targetSdk = Versions.androidBuildTargetSdk
+        minSdk = BuildVersions.minSdk
+        targetSdk = BuildVersions.targetSdk
         versionCode = generateVersionCode(versionMajor, versionMinor)
         versionName = "${versionMajor}.${versionMinor.toString().padStart(2, '0')}"
 
@@ -50,12 +50,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = Versions.jvm
-        targetCompatibility = Versions.jvm
+        sourceCompatibility = BuildVersions.jvm
+        targetCompatibility = BuildVersions.jvm
     }
 
     kotlinOptions {
-        jvmTarget = Versions.jvm.toString()
+        jvmTarget = BuildVersions.jvm.toString()
     }
 
     lint {
@@ -68,7 +68,7 @@ android {
 
 dependencies {
     // Jetpack
-    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
 
     // TODO migrate Rx to Flow
