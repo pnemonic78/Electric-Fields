@@ -38,7 +38,7 @@ interface ElectricFieldsListener {
 
     fun onRenderFieldStarted(view: ElectricFields)
 
-    fun onRenderFieldProgress(view: ElectricFields, field: Bitmap)
+    fun onRenderFieldProgress(view: ElectricFields, field: ElectricFieldImage)
 
     fun onRenderFieldFinished(view: ElectricFields)
 

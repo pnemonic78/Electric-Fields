@@ -19,6 +19,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -84,6 +85,7 @@ class MainActivity : Activity(),
                 stop()
                 return true
             }
+
             R.id.menu_fullscreen -> {
                 if (actionBar?.isShowing == true) {
                     showFullscreen()
@@ -92,14 +94,18 @@ class MainActivity : Activity(),
                 }
                 return true
             }
+
             R.id.menu_random -> {
                 randomise()
                 return true
             }
+
             R.id.menu_share -> {
-                share(bitmap = mainView.bitmap)
+                val bitmap = mainView.bitmap ?: return false
+                share(bitmap = bitmap)
                 return true
             }
+
             R.id.menu_palette -> {
                 choosePalette()
                 return true
@@ -117,9 +123,11 @@ class MainActivity : Activity(),
         val h = mainView.measuredHeight
         val count = random.nextInt(MIN_CHARGES, MAX_CHARGES)
         mainView.clear()
-        for (i in 0 until count) {
+        (0 until count).forEach { _ ->
             mainView.addCharge(
-                random.nextInt(w), random.nextInt(h), random.nextDouble(-40.0, 40.0)
+                x = random.nextInt(w),
+                y = random.nextInt(h),
+                size = random.nextDouble(-40.0, 40.0)
             )
         }
         mainView.restart()
@@ -140,18 +148,10 @@ class MainActivity : Activity(),
         SaveFileTask(context, bitmap)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ uri ->
-                Intent(Intent.ACTION_SEND).apply {
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    type = SaveFileTask.IMAGE_MIME
-                    startActivity(Intent.createChooser(this, getString(R.string.share_title)));
-                }
-                menuItem.isEnabled = true
-            }, { e ->
-                Timber.e(e)
-                Toast.makeText(context, R.string.save_failed, Toast.LENGTH_LONG).show()
-                menuItem.isEnabled = true
-            })
+            .subscribe(
+                { uri -> onSaveFile(uri, menuItem) },
+                { e -> onSaveFile(context, e, menuItem) }
+            )
             .addTo(disposables)
     }
 
@@ -202,10 +202,10 @@ class MainActivity : Activity(),
         }
     }
 
-    override fun onRenderFieldProgress(view: ElectricFields, field: Bitmap) {
+    override fun onRenderFieldProgress(view: ElectricFields, field: ElectricFieldImage) {
         if (BuildConfig.SAVE_FRAMES) {
             if (view == mainView) {
-                save(field)
+                save(field.bitmap)
             }
         }
     }
@@ -239,7 +239,8 @@ class MainActivity : Activity(),
             WindowCompat.setDecorFitsSystemWindows(window, false)
             WindowInsetsControllerCompat(window, window.decorView).also { controller ->
                 controller.hide(WindowInsetsCompat.Type.systemBars())
-                controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                controller.systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
 
             // Hide the action bar.
@@ -283,5 +284,20 @@ class MainActivity : Activity(),
 
     private fun choosePalette() {
         PaletteDialog(this).show()
+    }
+
+    private fun onSaveFile(uri: Uri, menuItem: MenuItem) {
+        Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_STREAM, uri)
+            type = SaveFileTask.IMAGE_MIME
+            startActivity(Intent.createChooser(this, getString(R.string.share_title)));
+        }
+        menuItem.isEnabled = true
+    }
+
+    private fun onSaveFile(context: Context, error: Throwable, menuItem: MenuItem) {
+        Timber.e(error)
+        Toast.makeText(context, R.string.save_failed, Toast.LENGTH_LONG).show()
+        menuItem.isEnabled = true
     }
 }

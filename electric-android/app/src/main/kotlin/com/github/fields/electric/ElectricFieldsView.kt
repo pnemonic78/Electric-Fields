@@ -26,6 +26,7 @@ import android.os.SystemClock.uptimeMillis
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.util.AttributeSet
 import android.view.*
+import androidx.core.graphics.createBitmap
 import androidx.preference.PreferenceManager
 import com.github.utils.copy
 import io.reactivex.rxjava3.core.Observer
@@ -41,7 +42,7 @@ import kotlin.math.min
  */
 class ElectricFieldsView : View,
     ElectricFields,
-    Observer<Bitmap>,
+    Observer<ElectricFieldImage>,
     GestureDetector.OnGestureListener,
     GestureDetector.OnDoubleTapListener,
     ScaleGestureDetector.OnScaleGestureListener {
@@ -57,17 +58,8 @@ class ElectricFieldsView : View,
         sizeValue
     }
 
-    private var _bitmap: Bitmap? = null
-    val bitmap: Bitmap
-        get() {
-            if (_bitmap == null) {
-                val size = this.size
-                val width = size.x
-                val height = size.y
-                _bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            }
-            return _bitmap!!
-        }
+    var bitmap: Bitmap? = null
+        private set
     private var task: FieldsTask? = null
     private var sameChargeDistance: Int = 0
     private var sameChargeDistanceSquared: Int = 0
@@ -107,6 +99,7 @@ class ElectricFieldsView : View,
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
+        val bitmap = bitmap ?: return
         measuredWidthDiff = (w - bitmap.width) / 2f
         measuredHeightDiff = (h - bitmap.height) / 2f
     }
@@ -160,6 +153,7 @@ class ElectricFieldsView : View,
     }
 
     override fun onDraw(canvas: Canvas) {
+        val bitmap = bitmap ?: return
         canvas.drawBitmap(bitmap, measuredWidthDiff, measuredHeightDiff, null)
     }
 
@@ -168,9 +162,16 @@ class ElectricFieldsView : View,
             val density =
                 prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
             val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
+
+            var bitmap = bitmap
+            if (bitmap == null) {
+                val width = size.x
+                val height = size.y
+                bitmap = createBitmap(width, height)
+            }
+
             val observer = this
-            FieldsTask(charges.copy(), bitmap, density, hues).apply {
-                task = this
+            task = FieldsTask(charges.copy(), bitmap, density, hues).apply {
                 startDelay = delay
                 subscribeOn(Schedulers.computation())
                     .subscribe(observer)
@@ -313,7 +314,8 @@ class ElectricFieldsView : View,
         return false
     }
 
-    override fun onNext(value: Bitmap) {
+    override fun onNext(value: ElectricFieldImage) {
+        this.bitmap = value.bitmap
         listener?.onRenderFieldProgress(this, value)
         postInvalidate()
     }
@@ -333,8 +335,8 @@ class ElectricFieldsView : View,
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        _bitmap?.recycle()
-        _bitmap = null
+        bitmap?.recycle()
+        bitmap = null
     }
 
     class SavedState : BaseSavedState {

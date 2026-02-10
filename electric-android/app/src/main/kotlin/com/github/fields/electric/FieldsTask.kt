@@ -41,7 +41,7 @@ class FieldsTask(
     private val bitmap: Bitmap,
     private val density: Double = DEFAULT_DENSITY,
     private val hues: Double = DEFAULT_HUES
-) : Observable<Bitmap>(), Disposable {
+) : Observable<ElectricFieldImage>(), Disposable {
 
     private var runner: FieldRunner? = null
     var brightness = 1f
@@ -60,7 +60,7 @@ class FieldsTask(
             runner?.let { it.startDelay = value }
         }
 
-    override fun subscribeActual(observer: Observer<in Bitmap>) {
+    override fun subscribeActual(observer: Observer<in ElectricFieldImage>) {
         val d = FieldRunner(charges, bitmap, density, hues, observer)
         d.brightness = brightness
         d.saturation = saturation
@@ -83,7 +83,7 @@ class FieldsTask(
         val bitmap: Bitmap,
         val density: Double,
         val hues: Double,
-        val observer: Observer<in Bitmap>
+        val observer: Observer<in ElectricFieldImage>
     ) : DefaultDisposable() {
 
         private val paint = Paint(ANTI_ALIAS_FLAG).apply {
@@ -137,9 +137,8 @@ class FieldsTask(
             var resolution = resolution2
 
             val canvas = Canvas(bitmap)
-            canvas.drawColor(WHITE)
             plot(charges, canvas, 0, 0, resolution, resolution, density)
-            observer.onNext(bitmap)
+            observer.onNext(ElectricFieldImage(bitmap, Int.MAX_VALUE))
 
             var x1: Int
             var y1: Int
@@ -167,7 +166,7 @@ class FieldsTask(
                         break@loop
                     }
                     if (!BuildConfig.SAVE_FRAMES) {
-                        observer.onNext(bitmap)
+                        observer.onNext(ElectricFieldImage(bitmap, resolution))
                     }
 
                     y1 += resolution2
@@ -176,7 +175,7 @@ class FieldsTask(
 
                 if (BuildConfig.SAVE_FRAMES) {
                     val clone = bitmap.copy(Bitmap.Config.ARGB_8888, false)
-                    observer.onNext(clone)
+                    observer.onNext(ElectricFieldImage(clone, resolution))
                 }
                 resolution2 = resolution
                 resolution = resolution2 shr 1
@@ -184,7 +183,7 @@ class FieldsTask(
 
             running = false
             if (!isDisposed) {
-                observer.onNext(bitmap)
+                observer.onNext(ElectricFieldImage(bitmap, resolution))
                 observer.onComplete()
             }
         }

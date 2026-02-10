@@ -21,7 +21,11 @@ import android.service.wallpaper.WallpaperService
 import android.text.format.DateUtils
 import android.view.MotionEvent
 import android.view.SurfaceHolder
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ServiceLifecycleDispatcher
 import com.github.fields.electric.Charge
+import com.github.fields.electric.ElectricFieldImage
 import com.github.fields.electric.ElectricFields
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import com.github.fields.electric.ElectricFieldsView.Companion.MIN_CHARGES
@@ -34,9 +38,19 @@ import kotlin.random.Random
  *
  * @author Moshe Waisberg
  */
-class ElectricFieldsWallpaperService : WallpaperService() {
+class ElectricFieldsWallpaperService : WallpaperService(), LifecycleOwner {
 
-    override fun onCreateEngine(): WallpaperService.Engine {
+    private val dispatcher = ServiceLifecycleDispatcher(this)
+
+    override fun onCreate() {
+        dispatcher.onServicePreSuperOnCreate()
+        super.onCreate()
+    }
+
+    override val lifecycle: Lifecycle
+        get() = dispatcher.lifecycle
+
+    override fun onCreateEngine(): Engine {
         return ElectricFieldsWallpaperEngine()
     }
 
@@ -44,7 +58,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
      * Electric Fields wallpaper engine.
      * @author Moshe Waisberg
      */
-    private inner class ElectricFieldsWallpaperEngine : WallpaperService.Engine(), WallpaperListener {
+    private inner class ElectricFieldsWallpaperEngine : Engine(), WallpaperListener {
 
         private lateinit var mainView: WallpaperView
         private val random = Random.Default
@@ -131,7 +145,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
 
         override fun onRenderFieldStarted(view: ElectricFields) = Unit
 
-        override fun onRenderFieldProgress(view: ElectricFields, field: Bitmap) = Unit
+        override fun onRenderFieldProgress(view: ElectricFields, field: ElectricFieldImage) = Unit
 
         override fun onRenderFieldFinished(view: ElectricFields) {
             if (view === mainView) {
@@ -174,6 +188,6 @@ class ElectricFieldsWallpaperService : WallpaperService() {
         /**
          * Enough time for user to admire the wallpaper before starting the next rendition.
          */
-        private const val DELAY = 10L * DateUtils.SECOND_IN_MILLIS
+        private const val DELAY = 15 * DateUtils.SECOND_IN_MILLIS
     }
 }

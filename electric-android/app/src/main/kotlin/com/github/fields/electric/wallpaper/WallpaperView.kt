@@ -25,6 +25,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.preference.PreferenceManager
 import com.github.fields.electric.Charge
+import com.github.fields.electric.ElectricFieldImage
 import com.github.fields.electric.ElectricFields
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import com.github.fields.electric.FieldsTask
@@ -35,6 +36,8 @@ import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlin.math.min
+import androidx.core.graphics.scale
+import androidx.core.graphics.createBitmap
 
 /**
  * Live wallpaper view.
@@ -43,7 +46,7 @@ import kotlin.math.min
  */
 class WallpaperView(context: Context, listener: WallpaperListener) :
     ElectricFields,
-    Observer<Bitmap>,
+    Observer<ElectricFieldImage>,
     GestureDetector.OnGestureListener,
     GestureDetector.OnDoubleTapListener {
 
@@ -124,8 +127,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
                 prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
             val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
             val observer = this
-            FieldsTask(charges.copy(), bitmap!!, density, hues).apply {
-                task = this
+            task = FieldsTask(charges.copy(), bitmap!!, density, hues).apply {
                 saturation = 0.5f
                 brightness = 0.5f
                 startDelay = delay
@@ -190,7 +192,7 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         return false
     }
 
-    override fun onNext(value: Bitmap) {
+    override fun onNext(value: ElectricFieldImage) {
         invalidate()
     }
 
@@ -241,11 +243,11 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
                 }
                 val rotated = Bitmap.createBitmap(bitmapOld, 0, 0, bw, bh, m, true)
                 if (rotated !== bitmapOld) bitmapOld.recycle()
-                bitmap = Bitmap.createScaledBitmap(rotated, width, height, true)
+                bitmap = rotated.scale(width, height)
                 if (rotated !== bitmap) rotated.recycle()
             }
         } else {
-            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+            bitmap = createBitmap(width, height, Bitmap.Config.RGB_565)
         }
     }
 
