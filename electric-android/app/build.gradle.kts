@@ -74,6 +74,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.preference.ktx)
 
+    // Logging
+    implementation(libs.timber)
+
     // TODO migrate Rx to Flow
     implementation(libs.rxandroid)
 

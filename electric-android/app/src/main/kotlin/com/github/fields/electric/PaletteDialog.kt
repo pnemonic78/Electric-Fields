@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.view.LayoutInflater
 import android.widget.NumberPicker
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 
 /**
@@ -59,10 +60,10 @@ class PaletteDialog(context: Context) : AlertDialog(context) {
     }
 
     private fun savePreferences() {
-        prefs.edit()
-                .putInt(PREF_DENSITY, densityPicker.value)
-                .putInt(PREF_HUES, huesPicker.value)
-                .apply()
+        prefs.edit {
+            putInt(PREF_DENSITY, densityPicker.value)
+            putInt(PREF_HUES, huesPicker.value)
+        }
     }
 
     companion object {

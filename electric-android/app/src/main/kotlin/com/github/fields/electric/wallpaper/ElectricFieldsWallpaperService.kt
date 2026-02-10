@@ -25,6 +25,7 @@ import com.github.fields.electric.Charge
 import com.github.fields.electric.ElectricFields
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import com.github.fields.electric.ElectricFieldsView.Companion.MIN_CHARGES
+import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.random.Random
 
@@ -162,7 +163,7 @@ class ElectricFieldsWallpaperService : WallpaperService() {
                         }
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Timber.e(e)
                 }
             }
             isDrawing.set(false)

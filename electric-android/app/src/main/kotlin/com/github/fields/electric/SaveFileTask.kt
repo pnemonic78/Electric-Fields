@@ -15,19 +15,17 @@
  */
 package com.github.fields.electric
 
-import android.annotation.TargetApi
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Build
 import android.os.Environment.DIRECTORY_PICTURES
 import android.provider.MediaStore
-import android.util.Log
 import com.github.reactivex.DefaultDisposable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
+import timber.log.Timber
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -68,25 +66,25 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
             saveContent(context, bitmap, observer)
         }
 
-        @TargetApi(Build.VERSION_CODES.Q)
         private fun saveContent(context: Context, bitmap: Bitmap, observer: Observer<in Uri>) {
             val path =
                 DIRECTORY_PICTURES + File.separator + context.getString(R.string.app_folder_pictures)
 
-            val values = ContentValues()
-            values.put(MediaStore.Images.Media.DISPLAY_NAME, generateFileName())
-            values.put(MediaStore.Images.Media.MIME_TYPE, IMAGE_MIME)
-            values.put(MediaStore.Images.Media.RELATIVE_PATH, path)
-            values.put(MediaStore.MediaColumns.WIDTH, bitmap.width)
-            values.put(MediaStore.MediaColumns.HEIGHT, bitmap.height)
-            values.put(MediaStore.MediaColumns.IS_PENDING, 1)
+            val values = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, generateFileName())
+                put(MediaStore.Images.Media.MIME_TYPE, IMAGE_MIME)
+                put(MediaStore.Images.Media.RELATIVE_PATH, path)
+                put(MediaStore.MediaColumns.WIDTH, bitmap.width)
+                put(MediaStore.MediaColumns.HEIGHT, bitmap.height)
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
 
             val cr = context.contentResolver
             var uri: Uri? = null
             try {
                 uri = cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
                 if (uri == null) {
-                    Log.e(TAG, "save failed: $uri")
+                    Timber.e("save failed: %s", uri)
                     return
                 }
 
@@ -95,7 +93,7 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
 
                     values.put(MediaStore.MediaColumns.IS_PENDING, 0)
                     cr.update(uri, values, null, null)
-                    Log.i(TAG, "save success: $bitmap $uri")
+                    Timber.i("save success: %s %s", bitmap, uri)
 
                     if (!isDisposed) {
                         observer.onNext(uri)
@@ -103,7 +101,7 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
                     }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "save failed: $uri", e)
+                Timber.e(e, "save failed: %s", uri)
                 observer.onError(e)
             }
         }
@@ -116,8 +114,6 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
         }
 
         companion object {
-            private const val TAG = "SaveFileTask"
-
             private val timestampFormat = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US)
         }
     }

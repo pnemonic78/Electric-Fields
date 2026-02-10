@@ -29,6 +29,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import java.lang.Thread.sleep
 import kotlin.math.max
 import kotlin.math.sqrt
+import timber.log.Timber
 
 /**
  * Electric Fields task.
@@ -112,7 +113,8 @@ class FieldsTask(
             if (startDelay > 0L) {
                 try {
                     sleep(startDelay)
-                } catch (ignore: InterruptedException) {
+                } catch (e: InterruptedException) {
+                    Timber.v(e)
                 }
             }
             if (isDisposed) {

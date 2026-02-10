@@ -32,6 +32,7 @@ import com.github.reactivex.addTo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import timber.log.Timber
 import kotlin.random.Random
 
 /**
@@ -147,7 +148,7 @@ class MainActivity : Activity(),
                 }
                 menuItem.isEnabled = true
             }, { e ->
-                e.printStackTrace()
+                Timber.e(e)
                 Toast.makeText(context, R.string.save_failed, Toast.LENGTH_LONG).show()
                 menuItem.isEnabled = true
             })
@@ -159,7 +160,7 @@ class MainActivity : Activity(),
         SaveFileTask(context, bitmap)
             .subscribeOn(Schedulers.io())
             .subscribe({ }, { e ->
-                e.printStackTrace()
+                Timber.e(e)
             })
             .addTo(disposables)
     }
