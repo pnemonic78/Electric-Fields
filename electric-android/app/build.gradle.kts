@@ -1,21 +1,23 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
-    id("com.android.application")
-    kotlin("android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 val versionMajor = project.property("APP_VERSION_MAJOR").toString().toInt()
 val versionMinor = project.property("APP_VERSION_MINOR").toString().toInt()
 
 android {
-    compileSdk = BuildVersions.compileSdk
+    compileSdk = libs.versions.compileSdk.get().toInt()
     namespace = "com.github.fields.electric"
 
     defaultConfig {
         applicationId = "com.github.fields.electric"
-        minSdk = BuildVersions.minSdk
-        targetSdk = BuildVersions.targetSdk
-        versionCode = generateVersionCode(versionMajor, versionMinor)
-        versionName = "${versionMajor}.${versionMinor.toString().padStart(2, '0')}"
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
+        versionCode = (versionMajor * 100) + versionMinor
+        versionName = "${versionMajor}.${versionMinor}"
 
         // Save each rendered frame to file?
         buildConfigField("boolean", "SAVE_FRAMES", "false")
@@ -31,15 +33,14 @@ android {
     }
 
     buildTypes {
-        getByName("debug") {
-            isDebuggable = true
+        debug {
             applicationIdSuffix = ".debug"
         }
 
-        getByName("release") {
+        release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFile(getDefaultProguardFile("proguard-android.txt"))
+            proguardFile(getDefaultProguardFile("proguard-android-optimize.txt"))
             proguardFile("proguard-rules.pro")
             signingConfig = signingConfigs.getByName("release")
         }
@@ -50,12 +51,14 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = BuildVersions.jvm
-        targetCompatibility = BuildVersions.jvm
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
-    kotlinOptions {
-        jvmTarget = BuildVersions.jvm.toString()
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
     }
 
     lint {
@@ -68,12 +71,12 @@ android {
 
 dependencies {
     // Jetpack
-    implementation("androidx.core:core-ktx:1.15.0")
-    implementation("androidx.preference:preference-ktx:1.2.1")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.preference.ktx)
 
     // TODO migrate Rx to Flow
-    implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
+    implementation(libs.rxandroid)
 
     // Testing
-    testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.junit)
 }
