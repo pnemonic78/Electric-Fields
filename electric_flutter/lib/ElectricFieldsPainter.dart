@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
 
@@ -32,10 +33,6 @@ class ElectricFieldsPainter {
   final density = DEFAULT_DENSITY;
   final hues = DEFAULT_HUES;
 
-  img.Image? _image;
-
-  img.Image? get image => _image;
-
   bool _running = false;
 
   List<double> _hsv = [0, 1, 1];
@@ -57,7 +54,6 @@ class ElectricFieldsPainter {
 
   void cancel() {
     _running = false;
-    _image = null;
   }
 
   void _run() async {
@@ -118,6 +114,8 @@ class ElectricFieldsPainter {
     if (_running) {
       _running = false;
       notifyImagePainted(canvas);
+      // wait for the image to be processed before ending.
+      sleep(const Duration(milliseconds: 200));
       notifyImagePainted(null);
     }
   }
@@ -167,12 +165,17 @@ class ElectricFieldsPainter {
       return white;
     }
     _hsv[0] = (z * density) % hues;
-    final List<int> rgb = img.hsvToRgb(_hsv[0], _hsv[1], _hsv[2]);
-    return img.ColorUint8.fromList(rgb);
+    final List<num> rgb = [0, 0, 0];
+    img.hsvToRgb(_hsv[0], _hsv[1], _hsv[2], rgb);
+    final List<int> rgb8 = [
+      (rgb[0] * 255).round(),
+      (rgb[1] * 255).round(),
+      (rgb[2] * 255).round()
+    ];
+    return img.ColorUint8.fromList(rgb8);
   }
 
   void notifyImagePainted(img.Image? image) {
-    if (image != null) _image = image;
     onImagePainted.send(image);
   }
 

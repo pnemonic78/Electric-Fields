@@ -107,11 +107,12 @@ class _MyHomePageState extends State<MyHomePage>
     if (file == null) return;
     final path = file.path;
     print('saved to $path');
-    await Share.shareFiles(
-      [path],
-      mimeTypes: [SaveFileTask.IMAGE_MIME],
-      subject: "Share image",
-      text: "Share Electric Fields Image",
+    await SharePlus.instance.share(
+      ShareParams(
+        text: "Share Electric Fields Image",
+        subject: "Share image",
+        files: [XFile(path, mimeType: SaveFileTask.IMAGE_MIME)],
+      ),
     );
   }
 
