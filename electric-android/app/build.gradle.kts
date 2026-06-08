@@ -2,20 +2,21 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
 }
 
 val versionMajor = project.property("APP_VERSION_MAJOR").toString().toInt()
 val versionMinor = project.property("APP_VERSION_MINOR").toString().toInt()
 
 android {
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk {
+        version = release(libs.versions.android.compileSdk.get().toInt())
+    }
     namespace = "com.github.fields.electric"
 
     defaultConfig {
         applicationId = "com.github.fields.electric"
-        minSdk = libs.versions.minSdk.get().toInt()
-        targetSdk = libs.versions.targetSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = (versionMajor * 100) + versionMinor
         versionName = "${versionMajor}.${versionMinor}"
 
@@ -65,9 +66,6 @@ android {
     }
 
     lint {
-        disable += "AllowBackup"
-        disable += "AlwaysShowAction"
-        disable += "ClickableViewAccessibility"
         disable += "GoogleAppIndexingWarning"
     }
 }

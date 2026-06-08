@@ -1,14 +1,14 @@
 [versions]
-agp = "8.13.2"
-compileSdk = "36"
-coreKtx = "1.17.0"
+agp = "9.2.1"
+android-compileSdk = "37"
+android-minSdk = "23"
+android-targetSdk = "37"
+coreKtx = "1.18.0"
 junit = "4.13.2"
-kotlin = "2.3.10"
+kotlin = "2.4.0"
 lifecycleService = "2.10.0"
-minSdk = "21"
 preferenceKtx = "1.2.1"
 rxandroid = "3.0.2"
-targetSdk = "36"
 timber = "5.0.1"
 
 [libraries]
@@ -21,4 +21,3 @@ timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "tim
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
