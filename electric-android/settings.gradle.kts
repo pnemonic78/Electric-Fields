@@ -11,6 +11,13 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
     }
+    versionCatalogs {
+        create("alibs") {
+            from(files("android-lib/gradle/libs.versions.toml"))
+        }
+    }
 }
 rootProject.name = "Electric Fields"
+include(":android-lib:kotlin")
+include(":android-lib:lib")
 include(":app")

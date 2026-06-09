@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.android.application)
+    alias(alibs.plugins.android.application)
 }
 
 val versionMajor = project.property("APP_VERSION_MAJOR").toString().toInt()
@@ -9,14 +9,14 @@ val versionMinor = project.property("APP_VERSION_MINOR").toString().toInt()
 
 android {
     compileSdk {
-        version = release(libs.versions.android.compileSdk.get().toInt())
+        version = release(alibs.versions.android.compileSdk.get().toInt())
     }
     namespace = "com.github.fields.electric"
 
     defaultConfig {
         applicationId = "com.github.fields.electric"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
+        minSdk = alibs.versions.android.minSdk.get().toInt()
+        targetSdk = alibs.versions.android.compileSdk.get().toInt()
         versionCode = (versionMajor * 100) + versionMinor
         versionName = "${versionMajor}.${versionMinor}"
 
@@ -71,16 +71,18 @@ android {
 }
 
 dependencies {
+    implementation(project(":android-lib:lib"))
+
     // Jetpack
-    implementation(libs.bundles.ktx)
-    implementation(libs.lifecycle.service)
+    implementation(alibs.bundles.ktx)
+    implementation(alibs.lifecycle.service)
 
     // Logging
-    implementation(libs.timber)
+    implementation(alibs.log.timber)
 
     // TODO migrate Rx to Flow
     implementation(libs.rxandroid)
 
     // Testing
-    testImplementation(libs.junit)
+    testImplementation(alibs.bundles.test)
 }

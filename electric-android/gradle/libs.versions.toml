@@ -1,32 +1,9 @@
 [versions]
-activity = "1.13.0"
-agp = "9.2.1"
-android-compileSdk = "37"
-android-minSdk = "23"
-android-targetSdk = "37"
-coreKtx = "1.18.0"
-junit = "4.13.2"
-kotlin = "2.4.0"
-lifecycleService = "2.10.0"
-preferenceKtx = "1.2.1"
 rxandroid = "3.0.2"
-timber = "5.0.1"
 
 [libraries]
-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "lifecycleService" }
-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceKtx" }
 rxandroid = { group = "io.reactivex.rxjava3", name = "rxandroid", version.ref = "rxandroid" }
-timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 
 [bundles]
-ktx = [
-    "activity-ktx",
-    "core-ktx",
-    "preference-ktx"
-]
 
 [plugins]
-android-application = { id = "com.android.application", version.ref = "agp" }

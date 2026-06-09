@@ -1,0 +1,4 @@
+[submodule "electric-android/android-lib"]
+	path = electric-android/android-lib
+	url = https://github.com/pnemonic78/android-lib.git
+	branch = master
