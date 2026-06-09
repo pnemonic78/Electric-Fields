@@ -22,14 +22,14 @@ import android.graphics.Color.WHITE
 import android.graphics.Paint
 import android.graphics.Paint.ANTI_ALIAS_FLAG
 import android.graphics.RectF
-import com.github.reactivex.DefaultDisposable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Observer
-import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import timber.log.Timber
 import java.lang.Thread.sleep
 import kotlin.math.max
 import kotlin.math.sqrt
-import timber.log.Timber
 
 /**
  * Electric Fields task.
@@ -41,7 +41,7 @@ class FieldsTask(
     private val bitmap: Bitmap,
     private val density: Double = DEFAULT_DENSITY,
     private val hues: Double = DEFAULT_HUES
-) : Observable<ElectricFieldImage>(), Disposable {
+) : Flow<ElectricFieldImage> {
 
     private var runner: FieldRunner? = null
     var brightness = 1f
@@ -52,30 +52,21 @@ class FieldsTask(
     var saturation = 1f
         set(value) {
             field = value
-            runner?.let { it.saturation = value }
+            runner?.saturation = value
         }
     var startDelay = 0L
         set(value) {
             field = value
-            runner?.let { it.startDelay = value }
+            runner?.startDelay = value
         }
 
-    override fun subscribeActual(observer: Observer<in ElectricFieldImage>) {
-        val d = FieldRunner(charges, bitmap, density, hues, observer)
-        d.brightness = brightness
-        d.saturation = saturation
-        d.startDelay = startDelay
-        runner = d
-        observer.onSubscribe(d)
-        d.run()
-    }
-
-    override fun isDisposed(): Boolean {
-        return runner?.isDisposed ?: false
-    }
-
-    override fun dispose() {
-        runner?.dispose()
+    override suspend fun collect(collector: FlowCollector<ElectricFieldImage>) {
+        runner = FieldRunner(charges, bitmap, density, hues, collector).apply {
+            brightness = this@FieldsTask.brightness
+            saturation = this@FieldsTask.saturation
+            startDelay = this@FieldsTask.startDelay
+            run()
+        }
     }
 
     private class FieldRunner(
@@ -83,8 +74,8 @@ class FieldsTask(
         val bitmap: Bitmap,
         val density: Double,
         val hues: Double,
-        val observer: Observer<in ElectricFieldImage>
-    ) : DefaultDisposable() {
+        val collector: FlowCollector<ElectricFieldImage>
+    ) {
 
         private val paint = Paint(ANTI_ALIAS_FLAG).apply {
             strokeCap = Paint.Cap.SQUARE
@@ -108,7 +99,7 @@ class FieldsTask(
                 hsv[2] = value
             }
 
-        fun run() {
+        suspend fun run() {
             running = true
             if (startDelay > 0L) {
                 try {
@@ -116,10 +107,6 @@ class FieldsTask(
                 } catch (e: InterruptedException) {
                     Timber.v(e)
                 }
-            }
-            if (isDisposed) {
-                running = false
-                return
             }
 
             val w = bitmap.width
@@ -138,7 +125,7 @@ class FieldsTask(
 
             val canvas = Canvas(bitmap)
             plot(charges, canvas, 0, 0, resolution, resolution, density)
-            observer.onNext(ElectricFieldImage(bitmap, Int.MAX_VALUE))
+            collector.emit(ElectricFieldImage(bitmap, Int.MAX_VALUE))
 
             var x1: Int
             var y1: Int
@@ -160,13 +147,13 @@ class FieldsTask(
 
                         x1 += resolution2
                         x2 += resolution2
-                    } while ((x1 < w) && !isDisposed)
+                    } while ((x1 < w) && !isDisposed())
 
-                    if (isDisposed) {
+                    if (isDisposed()) {
                         break@loop
                     }
                     if (!BuildConfig.SAVE_FRAMES) {
-                        observer.onNext(ElectricFieldImage(bitmap, resolution))
+                        collector.emit(ElectricFieldImage(bitmap, resolution))
                     }
 
                     y1 += resolution2
@@ -175,16 +162,15 @@ class FieldsTask(
 
                 if (BuildConfig.SAVE_FRAMES) {
                     val clone = bitmap.copy(Bitmap.Config.ARGB_8888, false)
-                    observer.onNext(ElectricFieldImage(clone, resolution))
+                    collector.emit(ElectricFieldImage(clone, resolution))
                 }
                 resolution2 = resolution
                 resolution = resolution2 shr 1
-            } while ((resolution >= 1) && !isDisposed)
+            } while ((resolution >= 1) && !isDisposed())
 
             running = false
-            if (!isDisposed) {
-                observer.onNext(ElectricFieldImage(bitmap, resolution))
-                observer.onComplete()
+            if (!isDisposed()) {
+                collector.emit(ElectricFieldImage(bitmap, resolution))
             }
         }
 
@@ -232,20 +218,14 @@ class FieldsTask(
             return Color.HSVToColor(hsv)
         }
 
-        override fun onDispose() {
+        suspend fun isDisposed(): Boolean {
+            val job = currentCoroutineContext()[Job] ?: return true
+            return job.isCancelled || job.isCompleted
         }
     }
 
-    fun cancel() {
-        dispose()
-    }
-
-    fun isIdle(): Boolean = (runner == null) || !runner!!.running || isDisposed
-
     companion object {
-
         const val DEFAULT_DENSITY = 1000.0
         const val DEFAULT_HUES = 360.0
-
     }
 }

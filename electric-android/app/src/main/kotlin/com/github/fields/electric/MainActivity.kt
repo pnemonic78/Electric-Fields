@@ -28,13 +28,14 @@ import androidx.activity.addCallback
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.lifecycleScope
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import com.github.fields.electric.ElectricFieldsView.Companion.MIN_CHARGES
 import com.github.fields.electric.wallpaper.ElectricFieldsWallpaperManager
-import com.github.reactivex.addTo
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.random.Random
 
@@ -46,7 +47,6 @@ import kotlin.random.Random
 class MainActivity : ComponentActivity(), ElectricFieldsListener {
 
     private lateinit var mainView: ElectricFieldsView
-    private val disposables = CompositeDisposable()
     private val random = Random.Default
     private var menuStop: MenuItem? = null
     private var menuShare: MenuItem? = null
@@ -65,7 +65,6 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
 
     override fun onDestroy() {
         mainView.stop()
-        disposables.clear()
         super.onDestroy()
     }
 
@@ -156,24 +155,19 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
         menuItem.isEnabled = false
 
         val context: Context = this
-        SaveFileTask(context, bitmap)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { uri -> onSaveFile(uri, menuItem) },
-                { e -> onSaveFile(context, e, menuItem) }
-            )
-            .addTo(disposables)
+        lifecycleScope.launch {
+            SaveFileTask(context, bitmap)
+                .flowOn(Dispatchers.IO)
+                .catch { e -> onSaveFile(context, e, menuItem) }
+                .flowOn(Dispatchers.Main)
+                .collect { uri -> onSaveFile(uri, menuItem) }
+        }
     }
 
     private fun save(bitmap: Bitmap) {
         val context: Context = this
         SaveFileTask(context, bitmap)
-            .subscribeOn(Schedulers.io())
-            .subscribe({ }, { e ->
-                Timber.e(e)
-            })
-            .addTo(disposables)
+            .flowOn(Dispatchers.IO)
     }
 
     override fun onChargeAdded(view: ElectricFields, charge: Charge) = Unit

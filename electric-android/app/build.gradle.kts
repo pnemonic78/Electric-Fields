@@ -132,9 +132,6 @@ dependencies {
     // Logging
     implementation(alibs.log.timber)
 
-    // TODO migrate Rx to Flow
-    implementation(libs.rxandroid)
-
     // Testing
     testImplementation(alibs.bundles.test)
 }

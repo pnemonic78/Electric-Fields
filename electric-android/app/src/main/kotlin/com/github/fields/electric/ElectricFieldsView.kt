@@ -25,14 +25,24 @@ import android.os.Parcelable
 import android.os.SystemClock.uptimeMillis
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.util.AttributeSet
-import android.view.*
+import android.view.GestureDetector
+import android.view.HapticFeedbackConstants
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
+import android.view.View
 import androidx.core.graphics.createBitmap
 import androidx.preference.PreferenceManager
 import com.github.utils.copy
-import io.reactivex.rxjava3.core.Observer
-import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.*
+import com.github.view.findDisplay
+import com.github.view.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import kotlin.math.min
 
 /**
@@ -42,7 +52,6 @@ import kotlin.math.min
  */
 class ElectricFieldsView : View,
     ElectricFields,
-    Observer<ElectricFieldImage>,
     GestureDetector.OnGestureListener,
     GestureDetector.OnDoubleTapListener,
     ScaleGestureDetector.OnScaleGestureListener {
@@ -51,8 +60,7 @@ class ElectricFieldsView : View,
 
     private val size: Point by lazy {
         val sizeValue = Point()
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val display = windowManager.defaultDisplay
+        val display = findDisplay()
         // include navigation bar
         display.getRealSize(sizeValue)
         sizeValue
@@ -60,7 +68,7 @@ class ElectricFieldsView : View,
 
     var bitmap: Bitmap? = null
         private set
-    private var task: FieldsTask? = null
+    private var task: Job? = null
     private var sameChargeDistance: Int = 0
     private var sameChargeDistanceSquared: Int = 0
     private var listener: ElectricFieldsListener? = null
@@ -159,28 +167,55 @@ class ElectricFieldsView : View,
 
     override fun start(delay: Long) {
         if (isIdle()) {
-            val density =
-                prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
-            val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
+            task = lifecycleScope.launch(Dispatchers.Default) {
+                val density =
+                    prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY)
+                        .toDouble()
+                val hues =
+                    prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
 
-            var bitmap = bitmap
-            if (bitmap == null) {
-                val width = size.x
-                val height = size.y
-                bitmap = createBitmap(width, height)
-            }
+                var bitmap = bitmap
+                if (bitmap == null) {
+                    val width = size.x
+                    val height = size.y
+                    bitmap = createBitmap(width, height)
+                }
 
-            val observer = this
-            task = FieldsTask(charges.copy(), bitmap, density, hues).apply {
-                startDelay = delay
-                subscribeOn(Schedulers.computation())
-                    .subscribe(observer)
+                FieldsTask(charges.copy(), bitmap, density, hues).apply {
+                    startDelay = delay
+                }
+                    .flowOn(Dispatchers.Default)
+                    .onStart {
+                        val job = currentCoroutineContext()[Job] ?: return@onStart
+                        if (job === task) {
+                            onTaskStart()
+                        }
+                    }
+                    .onCompletion {
+                        val job = currentCoroutineContext()[Job] ?: return@onCompletion
+                        if (job === task) {
+                            if (job.isCancelled) {
+                                onTaskCancelled()
+                            } else {
+                                onTaskComplete()
+                            }
+                        }
+                    }
+                    .catch { onTaskError(it) }
+                    .collect {
+                        val job = currentCoroutineContext()[Job] ?: return@collect
+                        if (job === task) {
+                            onTaskNext(it)
+                        }
+                    }
             }
         }
     }
 
     override fun stop() {
-        task?.cancel()
+        lifecycleScope.launch {
+            task?.cancel()
+        }
     }
 
     /**
@@ -225,7 +260,10 @@ class ElectricFieldsView : View,
      * Is the task idle and not rendering the fields?
      * @return `true` if idle.
      */
-    fun isIdle(): Boolean = (task == null) || task!!.isIdle()
+    fun isIdle(): Boolean {
+        val job = task ?: return true
+        return job.isCancelled || job.isCompleted
+    }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         var result = scaleGestureDetector.onTouchEvent(event)
@@ -304,7 +342,7 @@ class ElectricFieldsView : View,
         val duration = min(uptimeMillis() - e.downTime, SECOND_IN_MILLIS)
         val size = 1.0 + (duration / 20L).toDouble()
         if (listener?.onRenderFieldClicked(this, x, y, size) == true) {
-            performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
             return true
         }
         return false
@@ -314,22 +352,26 @@ class ElectricFieldsView : View,
         return false
     }
 
-    override fun onNext(value: ElectricFieldImage) {
+    private fun onTaskNext(value: ElectricFieldImage) {
         this.bitmap = value.bitmap
         listener?.onRenderFieldProgress(this, value)
         postInvalidate()
     }
 
-    override fun onError(e: Throwable) {
+    private fun onTaskError(e: Throwable) {
         listener?.onRenderFieldCancelled(this)
     }
 
-    override fun onComplete() {
+    private fun onTaskCancelled() {
+        listener?.onRenderFieldCancelled(this)
+    }
+
+    private fun onTaskComplete() {
         listener?.onRenderFieldFinished(this)
         clear()
     }
 
-    override fun onSubscribe(d: Disposable) {
+    private fun onTaskStart() {
         listener?.onRenderFieldStarted(this)
     }
 

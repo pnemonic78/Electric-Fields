@@ -21,10 +21,8 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment.DIRECTORY_PICTURES
 import android.provider.MediaStore
-import com.github.reactivex.DefaultDisposable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Observer
-import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
 import timber.log.Timber
 import java.io.File
 import java.text.SimpleDateFormat
@@ -36,37 +34,27 @@ import java.util.Locale
  *
  * @author Moshe Waisberg
  */
-class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : Observable<Uri>(),
-    Disposable {
+class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : Flow<Uri> {
 
-    private lateinit var runner: SaveFileRunner
-
-    override fun subscribeActual(observer: Observer<in Uri>) {
-        val d = SaveFileRunner(context, bitmap, observer)
-        runner = d
-        observer.onSubscribe(d)
-        d.run()
-    }
-
-    override fun isDisposed(): Boolean {
-        return runner.isDisposed
-    }
-
-    override fun dispose() {
-        runner.dispose()
+    override suspend fun collect(collector: FlowCollector<Uri>) {
+        val runner = SaveFileRunner(context, bitmap, collector)
+        runner.run()
     }
 
     private class SaveFileRunner(
         val context: Context,
         val bitmap: Bitmap,
-        val observer: Observer<in Uri>
-    ) : DefaultDisposable() {
-
-        fun run() {
-            saveContent(context, bitmap, observer)
+        val collector: FlowCollector<Uri>
+    ) {
+        suspend fun run() {
+            saveContent(context, bitmap, collector)
         }
 
-        private fun saveContent(context: Context, bitmap: Bitmap, observer: Observer<in Uri>) {
+        private suspend fun saveContent(
+            context: Context,
+            bitmap: Bitmap,
+            collector: FlowCollector<Uri>
+        ) {
             val path =
                 DIRECTORY_PICTURES + File.separator + context.getString(R.string.app_folder_pictures)
 
@@ -95,18 +83,12 @@ class SaveFileTask(private val context: Context, private val bitmap: Bitmap) : O
                     cr.update(uri, values, null, null)
                     Timber.i("save success: %s %s", bitmap, uri)
 
-                    if (!isDisposed) {
-                        observer.onNext(uri)
-                        observer.onComplete()
-                    }
+                    collector.emit(uri)
                 }
             } catch (e: Exception) {
                 Timber.e(e, "save failed: %s", uri)
-                observer.onError(e)
+                throw e
             }
-        }
-
-        override fun onDispose() {
         }
 
         fun generateFileName(): String {

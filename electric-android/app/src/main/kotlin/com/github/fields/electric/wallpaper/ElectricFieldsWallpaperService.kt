@@ -24,6 +24,7 @@ import android.view.SurfaceHolder
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ServiceLifecycleDispatcher
+import androidx.lifecycle.lifecycleScope
 import com.github.fields.electric.Charge
 import com.github.fields.electric.ElectricFieldImage
 import com.github.fields.electric.ElectricFields
@@ -69,7 +70,7 @@ class ElectricFieldsWallpaperService : WallpaperService(), LifecycleOwner {
             setTouchEventsEnabled(true)
 
             val context: Context = this@ElectricFieldsWallpaperService
-            mainView = WallpaperView(context, this)
+            mainView = WallpaperView(context, lifecycleScope, this)
         }
 
         override fun onDestroy() {

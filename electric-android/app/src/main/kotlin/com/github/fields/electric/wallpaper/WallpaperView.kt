@@ -23,6 +23,9 @@ import android.os.SystemClock.uptimeMillis
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.view.GestureDetector
 import android.view.MotionEvent
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.scale
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.preference.PreferenceManager
 import com.github.fields.electric.Charge
 import com.github.fields.electric.ElectricFieldImage
@@ -32,21 +35,26 @@ import com.github.fields.electric.FieldsTask
 import com.github.fields.electric.PaletteDialog
 import com.github.fields.electric.R
 import com.github.utils.copy
-import io.reactivex.rxjava3.core.Observer
-import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import kotlin.math.min
-import androidx.core.graphics.scale
-import androidx.core.graphics.createBitmap
 
 /**
  * Live wallpaper view.
  *
  * @author Moshe Waisberg
  */
-class WallpaperView(context: Context, listener: WallpaperListener) :
-    ElectricFields,
-    Observer<ElectricFieldImage>,
+class WallpaperView(
+    context: Context,
+    private val lifecycleScope: LifecycleCoroutineScope,
+    listener: WallpaperListener
+) : ElectricFields,
     GestureDetector.OnGestureListener,
     GestureDetector.OnDoubleTapListener {
 
@@ -56,11 +64,10 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         private set
     private val charges: MutableList<Charge> = ArrayList()
     private var bitmap: Bitmap? = null
-    private var task: FieldsTask? = null
+    private var task: Job? = null
     private var sameChargeDistance: Int = 0
     private var listener: WallpaperListener? = null
     private val gestureDetector: GestureDetector = GestureDetector(context, this)
-    private var isIdle = false
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     init {
@@ -68,6 +75,11 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         sameChargeDistance = res.getDimensionPixelSize(R.dimen.same_charge)
         sameChargeDistance *= sameChargeDistance
         setWallpaperListener(listener)
+    }
+
+    fun isIdle(): Boolean {
+        val job = task ?: return true
+        return job.isCancelled || job.isCompleted
     }
 
     override fun addCharge(x: Int, y: Int, size: Double): Boolean {
@@ -122,24 +134,46 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
     }
 
     override fun start(delay: Long) {
-        if (isIdle) {
+        val bitmap = bitmap ?: return
+
+        if (isIdle()) {
             val density =
                 prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
             val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
-            val observer = this
-            task = FieldsTask(charges.copy(), bitmap!!, density, hues).apply {
-                saturation = 0.5f
-                brightness = 0.5f
-                startDelay = delay
-                subscribeOn(Schedulers.computation())
-                    .subscribe(observer)
+            task = lifecycleScope.launch(Dispatchers.Default) {
+                FieldsTask(charges.copy(), bitmap!!, density, hues).apply {
+                    saturation = 0.5f
+                    brightness = 0.5f
+                    startDelay = delay
+                }
+                    .flowOn(Dispatchers.Default)
+                    .onStart {
+                        val job = currentCoroutineContext()[Job]
+                        if (job === task) {
+                            onTaskStart()
+                        }
+                    }
+                    .onCompletion {
+                        val job = currentCoroutineContext()[Job]
+                        if (job === task) {
+                            onTaskComplete()
+                        }
+                    }
+                    .catch { onTaskError(it) }
+                    .collect {
+                        val job = currentCoroutineContext()[Job]
+                        if (job === task) {
+                            onTaskNext(it)
+                        }
+                    }
             }
         }
     }
 
     override fun stop() {
-        task?.cancel()
-        isIdle = true
+        lifecycleScope.launch {
+            task?.cancel()
+        }
     }
 
     fun onTouchEvent(event: MotionEvent) {
@@ -192,22 +226,19 @@ class WallpaperView(context: Context, listener: WallpaperListener) :
         return false
     }
 
-    override fun onNext(value: ElectricFieldImage) {
+    private fun onTaskNext(value: ElectricFieldImage) {
         invalidate()
     }
 
-    override fun onError(e: Throwable) {
-        isIdle = true
+    private fun onTaskError(e: Throwable) {
         listener?.onRenderFieldCancelled(this)
     }
 
-    override fun onComplete() {
-        isIdle = true
+    private fun onTaskComplete() {
         listener?.onRenderFieldFinished(this)
     }
 
-    override fun onSubscribe(d: Disposable) {
-        isIdle = false
+    private fun onTaskStart() {
         listener?.onRenderFieldStarted(this)
     }
 
