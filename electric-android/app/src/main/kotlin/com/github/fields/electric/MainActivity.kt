@@ -29,6 +29,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import com.github.fields.electric.ElectricFieldsView.Companion.MIN_CHARGES
+import com.github.fields.electric.wallpaper.ElectricFieldsWallpaperManager
 import com.github.reactivex.addTo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -108,6 +109,11 @@ class MainActivity : Activity(),
 
             R.id.menu_palette -> {
                 choosePalette()
+                return true
+            }
+
+            R.id.menu_wallpaper -> {
+                applyWallpaper()
                 return true
             }
         }
@@ -230,7 +236,7 @@ class MainActivity : Activity(),
     }
 
     /**
-     * Maximise the image in fullscreen mode.
+     * Maximize the image in fullscreen mode.
      * @return `true` if screen is now fullscreen.
      */
     private fun showFullscreen(): Boolean {
@@ -299,5 +305,9 @@ class MainActivity : Activity(),
         Timber.e(error)
         Toast.makeText(context, R.string.save_failed, Toast.LENGTH_LONG).show()
         menuItem.isEnabled = true
+    }
+
+    private fun applyWallpaper() {
+        ElectricFieldsWallpaperManager.apply(this)
     }
 }

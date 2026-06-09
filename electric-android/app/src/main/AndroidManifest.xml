@@ -5,6 +5,8 @@
         android:name="android.software.live_wallpaper"
         android:required="false" />
 
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+
     <application
         android:name="com.github.fields.electric.ElectricFieldsApplication"
         android:allowBackup="true"
