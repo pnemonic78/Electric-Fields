@@ -6,7 +6,6 @@
     <string name="finished">Joonistus on lõppenud.</string>
 
     <!-- Share. -->
-    <string name="sendImage" msgid="7279510542799399570">"Pildi jagamine:"</string>
     <string name="save_failed">Õnnestunud salvestada pilti.</string>
 
     <!-- Menu. -->

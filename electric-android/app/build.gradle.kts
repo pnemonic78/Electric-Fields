@@ -22,6 +22,58 @@ android {
 
         // Save each rendered frame to file?
         buildConfigField("boolean", "SAVE_FRAMES", "false")
+
+        androidResources {
+            localeFilters += setOf(
+                "ar",
+                "bg",
+                "cs",
+                "da",
+                "de",
+                "el",
+                "en",
+                "en-rAU",
+                "en-rCA",
+                "en-rGB",
+                "en-rIE",
+                "en-rIN",
+                "en-rNZ",
+                "en-rUS",
+                "en-rZA",
+                "es",
+                "et",
+                "fa",
+                "fi",
+                "fr",
+                "he",
+                "hi",
+                "hu",
+                "in",
+                "it",
+                "iw",
+                "ja",
+                "ko",
+                "lt",
+                "lv",
+                "ms",
+                "nb",
+                "nl",
+                "pl",
+                "pt",
+                "pt-rPT",
+                "ro",
+                "ru",
+                "sv",
+                "th",
+                "tr",
+                "uk",
+                "vi",
+                "zh-rCN",
+                "zh-rHK",
+                "zh-rTW",
+                "zu"
+            )
+        }
     }
 
     signingConfigs {

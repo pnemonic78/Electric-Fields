@@ -6,7 +6,6 @@
     <string name="finished">El dibujo está terminado.</string>
 
     <!-- Share. -->
-    <string name="sendImage" msgid="7279510542799399570">"Compartir imagen por"</string>
     <string name="save_failed">Error al guardar la imagen.</string>
 
     <!-- Menu. -->

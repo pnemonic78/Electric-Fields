@@ -6,7 +6,6 @@
     <string name="finished">図面は完成しました。</string>
 
     <!-- Share. -->
-    <string name="sendImage" msgid="7279510542799399570">"画像を共有:"</string>
     <string name="save_failed">画像を保存できませんでした。</string>
 
     <!-- Menu. -->

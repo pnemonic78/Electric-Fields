@@ -7,8 +7,7 @@
     <string name="finished">Rendering is finished.</string>
 
     <!-- Share. -->
-    <string name="sendImage" msgid="7279510542799399570">"Share picture via"</string>
-    <string name="menu_share" translatable="false">@string/sendImage</string>
+    <string name="menu_share" translatable="false">@string/share</string>
     <string name="share_title" translatable="false">@string/app_name</string>
     <string name="save_failed">Saving image failed.</string>
 
@@ -18,7 +17,7 @@
     <string name="menu_stop" translatable="false">@android:string/cancel</string>
 
     <!-- Live wallpaper. -->
-    <string name="menu_wallpaper">Set as wallpaper</string>
+    <string name="menu_wallpaper" translatable="false">@string/set_wallpaper</string>
     <string name="wallpaper_description" translatable="false">@string/app_name</string>
 
     <!-- Palette -->
