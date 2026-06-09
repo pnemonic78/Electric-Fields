@@ -15,7 +15,6 @@
  */
 package com.github.fields.electric
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -24,6 +23,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.addCallback
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -42,8 +43,7 @@ import kotlin.random.Random
  *
  * @author Moshe Waisberg
  */
-class MainActivity : Activity(),
-    ElectricFieldsListener {
+class MainActivity : ComponentActivity(), ElectricFieldsListener {
 
     private lateinit var mainView: ElectricFieldsView
     private val disposables = CompositeDisposable()
@@ -53,15 +53,20 @@ class MainActivity : Activity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback(this) {
+            handleBackPressed()
+        }
+
         setContentView(R.layout.activity_main)
         mainView = findViewById(R.id.electric_fields)
         mainView.setElectricFieldsListener(this)
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         mainView.stop()
         disposables.clear()
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -275,11 +280,11 @@ class MainActivity : Activity(),
         return false
     }
 
-    override fun onBackPressed() {
+    private fun handleBackPressed() {
         if (showNormalScreen()) {
             return
         }
-        super.onBackPressed()
+        finish()
     }
 
     private fun stop() {
@@ -296,7 +301,7 @@ class MainActivity : Activity(),
         Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_STREAM, uri)
             type = SaveFileTask.IMAGE_MIME
-            startActivity(Intent.createChooser(this, getString(R.string.share_title)));
+            startActivity(Intent.createChooser(this, getString(R.string.share_title)))
         }
         menuItem.isEnabled = true
     }

@@ -72,9 +72,8 @@ android {
 
 dependencies {
     // Jetpack
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.service)
-    implementation(libs.androidx.preference.ktx)
+    implementation(libs.bundles.ktx)
+    implementation(libs.lifecycle.service)
 
     // Logging
     implementation(libs.timber)
