@@ -30,7 +30,7 @@ import androidx.preference.PreferenceManager
  */
 class PaletteDialog(context: Context) : AlertDialog(context) {
 
-    private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+    private val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     private val densityPicker: NumberPicker
     private val huesPicker: NumberPicker
 
@@ -42,12 +42,12 @@ class PaletteDialog(context: Context) : AlertDialog(context) {
         densityPicker = view.findViewById(R.id.palette_density)
         densityPicker.minValue = 100
         densityPicker.maxValue = 10000
-        densityPicker.value = prefs.getInt(PREF_DENSITY, DEFAULT_DENSITY)
+        densityPicker.value = preferences.getInt(KEY_DENSITY, DEFAULT_DENSITY)
 
         huesPicker = view.findViewById(R.id.palette_hues)
         huesPicker.minValue = 10
         huesPicker.maxValue = 1000
-        huesPicker.value = prefs.getInt(PREF_HUES, DEFAULT_HUES)
+        huesPicker.value = preferences.getInt(KEY_HUES, DEFAULT_HUES)
 
         setButton(BUTTON_NEGATIVE, context.getText(android.R.string.cancel)) { _, _ ->
         }
@@ -60,16 +60,16 @@ class PaletteDialog(context: Context) : AlertDialog(context) {
     }
 
     private fun savePreferences() {
-        prefs.edit {
-            putInt(PREF_DENSITY, densityPicker.value)
-            putInt(PREF_HUES, huesPicker.value)
+        preferences.edit {
+            putInt(KEY_DENSITY, densityPicker.value)
+            putInt(KEY_HUES, huesPicker.value)
         }
     }
 
     companion object {
 
-        const val PREF_DENSITY = "density"
-        const val PREF_HUES = "hues"
+        const val KEY_DENSITY = "density"
+        const val KEY_HUES = "hues"
 
         const val DEFAULT_DENSITY = FieldsTask.DEFAULT_DENSITY.toInt()
         const val DEFAULT_HUES = FieldsTask.DEFAULT_HUES.toInt()

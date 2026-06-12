@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(alibs.plugins.android.application)
+    alias(alibs.plugins.compose.compiler)
 }
 
 val versionMajor = project.property("APP_VERSION_MAJOR").toString().toInt()
@@ -104,6 +105,7 @@ android {
 
     buildFeatures {
         buildConfig = true
+        compose = true
     }
 
     compileOptions {
@@ -126,6 +128,7 @@ dependencies {
     implementation(project(":android-lib:lib"))
 
     // Jetpack
+    implementation(alibs.bundles.compose)
     implementation(alibs.bundles.ktx)
     implementation(alibs.lifecycle.service)
 

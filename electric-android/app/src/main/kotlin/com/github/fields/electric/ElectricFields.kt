@@ -22,6 +22,9 @@ package com.github.fields.electric
  */
 interface ElectricFields {
 
+    var density: Int
+    var hues: Int
+
     fun findCharge(x: Int, y: Int): Charge?
 
     fun invertCharge(x: Int, y: Int): Boolean

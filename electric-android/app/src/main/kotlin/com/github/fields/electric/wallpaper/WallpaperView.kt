@@ -32,7 +32,10 @@ import com.github.fields.electric.ElectricFieldImage
 import com.github.fields.electric.ElectricFields
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import com.github.fields.electric.FieldsTask
-import com.github.fields.electric.PaletteDialog
+import com.github.fields.electric.PaletteDialog.Companion.DEFAULT_DENSITY
+import com.github.fields.electric.PaletteDialog.Companion.DEFAULT_HUES
+import com.github.fields.electric.PaletteDialog.Companion.KEY_DENSITY
+import com.github.fields.electric.PaletteDialog.Companion.KEY_HUES
 import com.github.fields.electric.R
 import com.github.utils.copy
 import kotlinx.coroutines.Dispatchers
@@ -68,7 +71,7 @@ class WallpaperView(
     private var sameChargeDistance: Int = 0
     private var listener: WallpaperListener? = null
     private val gestureDetector: GestureDetector = GestureDetector(context, this)
-    private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+    private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     init {
         val res = context.resources
@@ -81,6 +84,14 @@ class WallpaperView(
         val job = task ?: return true
         return job.isCancelled || job.isCompleted
     }
+
+    override var density: Int
+        get() = preferences.getInt(KEY_DENSITY, DEFAULT_DENSITY)
+        set(value) {}
+
+    override var hues: Int
+        get() = preferences.getInt(KEY_HUES, DEFAULT_HUES)
+        set(value) {}
 
     override fun addCharge(x: Int, y: Int, size: Double): Boolean {
         return addCharge(Charge(x, y, size))
@@ -137,11 +148,10 @@ class WallpaperView(
         val bitmap = bitmap ?: return
 
         if (isIdle()) {
-            val density =
-                prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY).toDouble()
-            val hues = prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
+            val density = density.toDouble()
+            val hues = hues.toDouble()
             task = lifecycleScope.launch(Dispatchers.Default) {
-                FieldsTask(charges.copy(), bitmap!!, density, hues).apply {
+                FieldsTask(charges.copy(), bitmap, density, hues).apply {
                     saturation = 0.5f
                     brightness = 0.5f
                     startDelay = delay

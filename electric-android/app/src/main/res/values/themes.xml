@@ -2,12 +2,9 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="Base.Theme.Electric" parent="android:Theme.DeviceDefault.Light">
+    <style name="Base.Theme.Electric" parent="Theme.AppCompat.NoActionBar">
         <item name="android:colorBackground">@color/bg_window</item>
         <item name="android:windowBackground">@color/bg_window</item>
-        <!-- Translucent action bar -->
-        <item name="android:actionBarStyle">@style/Widget.Electric.ActionBar</item>
-        <item name="android:actionOverflowButtonStyle">@style/Widget.Electric.ActionButton.Overflow</item>
         <item name="android:itemBackground">@color/action_popup_menu_item</item>
         <item name="android:itemTextAppearance">?android:textAppearanceMediumInverse</item>
         <item name="android:windowActionBarOverlay">true</item>

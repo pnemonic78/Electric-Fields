@@ -20,21 +20,35 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.addCallback
+import androidx.compose.ui.platform.ComposeView
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowCompat.enableEdgeToEdge
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import com.github.fields.electric.ElectricFieldsView.Companion.MIN_CHARGES
+import com.github.fields.electric.PaletteDialog.Companion.DEFAULT_DENSITY
+import com.github.fields.electric.PaletteDialog.Companion.DEFAULT_HUES
+import com.github.fields.electric.PaletteDialog.Companion.KEY_DENSITY
+import com.github.fields.electric.PaletteDialog.Companion.KEY_HUES
+import com.github.fields.electric.compose.AppTheme
+import com.github.fields.electric.compose.MainMenuState
+import com.github.fields.electric.compose.MainScreen
 import com.github.fields.electric.wallpaper.ElectricFieldsWallpaperManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.random.Random
@@ -48,8 +62,9 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
 
     private lateinit var mainView: ElectricFieldsView
     private val random = Random.Default
-    private var menuStop: MenuItem? = null
-    private var menuShare: MenuItem? = null
+    private val isNormalScreen = MutableStateFlow(true)
+    private val isRendering = MutableStateFlow(false)
+    private val preferences = PreferenceManager.getDefaultSharedPreferences(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,9 +73,69 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
             handleBackPressed()
         }
 
-        setContentView(R.layout.activity_main)
-        mainView = findViewById(R.id.electric_fields)
-        mainView.setElectricFieldsListener(this)
+        enableEdgeToEdge(window)
+        val activityView = FrameLayout(this)
+
+        mainView = ElectricFieldsView(this).apply {
+            setElectricFieldsListener(this@MainActivity)
+            density = preferences.getInt(KEY_DENSITY, DEFAULT_DENSITY)
+            hues = preferences.getInt(KEY_HUES, DEFAULT_HUES)
+        }
+        activityView.addView(mainView)
+
+        val menuState = object : MainMenuState {
+            override val isMenuVisible: StateFlow<Boolean> = this@MainActivity.isNormalScreen
+            override val isRendering: StateFlow<Boolean> = this@MainActivity.isRendering
+
+            override fun onStopClick() {
+                stop()
+            }
+
+            override fun onStartClick() {
+                randomise()
+            }
+
+            override fun onPaletteClick() {
+                choosePalette()
+            }
+
+            override fun onShareClick() {
+                val bitmap = mainView.bitmap ?: return
+                share(bitmap = bitmap)
+            }
+
+            override fun onFullscreenClick() {
+                toggleFullscreen()
+            }
+
+            override fun onWallpaperClick() {
+                applyWallpaper()
+            }
+        }
+        val composeView = ComposeView(this)
+        composeView.setContent {
+            AppTheme {
+                MainScreen(uiState = menuState)
+            }
+        }
+        activityView.addView(composeView)
+
+        ViewCompat.setOnApplyWindowInsetsListener(activityView) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            // Apply the insets as padding to avoid overlap
+            composeView.updatePadding(
+                left = insets.left,
+                top = insets.top,
+                right = insets.right,
+                bottom = insets.bottom,
+            )
+
+            // Return consumed insets
+            WindowInsetsCompat.CONSUMED
+        }
+
+        setContentView(activityView)
     }
 
     override fun onDestroy() {
@@ -68,61 +143,12 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
         super.onDestroy()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main, menu)
-
-        val rendering = !mainView.isIdle()
-
-        menuStop = menu.findItem(R.id.menu_stop).also {
-            it.isVisible = rendering
+    private fun toggleFullscreen() {
+        if (isNormalScreen.value) {
+            showFullscreen()
+        } else {
+            showNormalScreen()
         }
-
-        menuShare = menu.findItem(R.id.menu_share)?.also {
-            it.isEnabled = rendering
-        }
-
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_stop -> {
-                stop()
-                return true
-            }
-
-            R.id.menu_fullscreen -> {
-                if (actionBar?.isShowing == true) {
-                    showFullscreen()
-                } else {
-                    showNormalScreen()
-                }
-                return true
-            }
-
-            R.id.menu_random -> {
-                randomise()
-                return true
-            }
-
-            R.id.menu_share -> {
-                val bitmap = mainView.bitmap ?: return false
-                share(bitmap = bitmap)
-                return true
-            }
-
-            R.id.menu_palette -> {
-                choosePalette()
-                return true
-            }
-
-            R.id.menu_wallpaper -> {
-                applyWallpaper()
-                return true
-            }
-        }
-
-        return super.onOptionsItemSelected(item)
     }
 
     /**
@@ -140,6 +166,8 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
                 size = random.nextDouble(-40.0, 40.0)
             )
         }
+        mainView.density = preferences.getInt(KEY_DENSITY, DEFAULT_DENSITY)
+        mainView.hues = preferences.getInt(KEY_HUES, DEFAULT_HUES)
         mainView.restart()
     }
 
@@ -147,27 +175,25 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
      * Save the bitmap to a file, and then share it.
      */
     private fun share(bitmap: Bitmap) {
-        // Busy sharing?
-        val menuItem = menuShare ?: return
-        if (!menuItem.isEnabled || !menuItem.isVisible) {
-            return
-        }
-        menuItem.isEnabled = false
-
         val context: Context = this
         lifecycleScope.launch {
             SaveFileTask(context, bitmap)
                 .flowOn(Dispatchers.IO)
-                .catch { e -> onSaveFile(context, e, menuItem) }
+                .catch { e -> onSaveFile(context, e) }
                 .flowOn(Dispatchers.Main)
-                .collect { uri -> onSaveFile(uri, menuItem) }
+                .collect { uri -> onSaveFile(uri) }
         }
     }
 
     private fun save(bitmap: Bitmap) {
         val context: Context = this
-        SaveFileTask(context, bitmap)
-            .flowOn(Dispatchers.IO)
+        lifecycleScope.launch {
+            SaveFileTask(context, bitmap)
+                .flowOn(Dispatchers.IO)
+                .collect {
+                    // Do nothing with the file.
+                }
+        }
     }
 
     override fun onChargeAdded(view: ElectricFields, charge: Charge) = Unit
@@ -200,10 +226,7 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
 
     override fun onRenderFieldStarted(view: ElectricFields) {
         if (view == mainView) {
-            runOnUiThread {
-                menuStop?.isVisible = true
-                menuShare?.isVisible = false
-            }
+            isRendering.update { true }
         }
     }
 
@@ -217,10 +240,8 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
 
     override fun onRenderFieldFinished(view: ElectricFields) {
         if (view == mainView) {
+            isRendering.update { false }
             runOnUiThread {
-                menuStop?.isVisible = false
-                menuShare?.isVisible = true
-                menuShare?.isEnabled = true
                 Toast.makeText(this, R.string.finished, Toast.LENGTH_SHORT).show()
             }
         }
@@ -228,9 +249,7 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
 
     override fun onRenderFieldCancelled(view: ElectricFields) {
         if (view == mainView) {
-            runOnUiThread {
-                menuStop?.isVisible = false
-            }
+            isRendering.update { false }
         }
     }
 
@@ -239,8 +258,8 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
      * @return `true` if screen is now fullscreen.
      */
     private fun showFullscreen(): Boolean {
-        val actionBar = actionBar
-        if ((actionBar != null) && actionBar.isShowing) {
+        if (isNormalScreen.value) {
+            val window = window
             WindowCompat.setDecorFitsSystemWindows(window, false)
             WindowInsetsControllerCompat(window, window.decorView).also { controller ->
                 controller.hide(WindowInsetsCompat.Type.systemBars())
@@ -248,8 +267,8 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
                     WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
 
-            // Hide the action bar.
-            actionBar.hide()
+            // Hide the menu.
+            isNormalScreen.update { false }
             return true
         }
         return false
@@ -260,15 +279,15 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
      * @return `true` if screen was fullscreen.
      */
     private fun showNormalScreen(): Boolean {
-        val actionBar = actionBar
-        if (actionBar != null && !actionBar.isShowing) {
+        if (!isNormalScreen.value) {
+            val window = window
             WindowCompat.setDecorFitsSystemWindows(window, true)
             WindowInsetsControllerCompat(window, window.decorView).also { controller ->
                 controller.show(WindowInsetsCompat.Type.systemBars())
             }
 
-            // Show the action bar.
-            actionBar.show()
+            // Show the menu.
+            isNormalScreen.update { true }
             return true
         }
         return false
@@ -282,28 +301,26 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
     }
 
     private fun stop() {
-        menuStop?.isVisible = false
         mainView.stop()
         mainView.clear()
+        isRendering.update { false }
     }
 
     private fun choosePalette() {
         PaletteDialog(this).show()
     }
 
-    private fun onSaveFile(uri: Uri, menuItem: MenuItem) {
+    private fun onSaveFile(uri: Uri) {
         Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_STREAM, uri)
             type = SaveFileTask.IMAGE_MIME
             startActivity(Intent.createChooser(this, getString(R.string.share_title)))
         }
-        menuItem.isEnabled = true
     }
 
-    private fun onSaveFile(context: Context, error: Throwable, menuItem: MenuItem) {
+    private fun onSaveFile(context: Context, error: Throwable) {
         Timber.e(error)
         Toast.makeText(context, R.string.save_failed, Toast.LENGTH_LONG).show()
-        menuItem.isEnabled = true
     }
 
     private fun applyWallpaper() {

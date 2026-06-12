@@ -16,7 +16,6 @@
 package com.github.fields.electric
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Point
@@ -31,7 +30,6 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.core.graphics.createBitmap
-import androidx.preference.PreferenceManager
 import com.github.utils.copy
 import com.github.view.findDisplay
 import com.github.view.lifecycleScope
@@ -76,7 +74,6 @@ class ElectricFieldsView : View,
     private lateinit var scaleGestureDetector: ScaleGestureDetector
     private var chargeToScale: Charge? = null
     private var scaleFactor = 1f
-    private lateinit var prefs: SharedPreferences
     private var measuredWidthDiff = 0f
     private var measuredHeightDiff = 0f
 
@@ -102,7 +99,6 @@ class ElectricFieldsView : View,
         sameChargeDistanceSquared = sameChargeDistance * sameChargeDistance
         gestureDetector = GestureDetector(context, this)
         scaleGestureDetector = ScaleGestureDetector(context, this)
-        prefs = PreferenceManager.getDefaultSharedPreferences(context)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -111,6 +107,10 @@ class ElectricFieldsView : View,
         measuredWidthDiff = (w - bitmap.width) / 2f
         measuredHeightDiff = (h - bitmap.height) / 2f
     }
+
+    override var density: Int = PaletteDialog.DEFAULT_DENSITY
+
+    override var hues: Int = PaletteDialog.DEFAULT_HUES
 
     override fun addCharge(x: Int, y: Int, size: Double): Boolean {
         return addCharge(Charge(x, y, size))
@@ -166,20 +166,18 @@ class ElectricFieldsView : View,
     }
 
     override fun start(delay: Long) {
-        if (isIdle()) {
-            task = lifecycleScope.launch(Dispatchers.Default) {
-                val density =
-                    prefs.getInt(PaletteDialog.PREF_DENSITY, PaletteDialog.DEFAULT_DENSITY)
-                        .toDouble()
-                val hues =
-                    prefs.getInt(PaletteDialog.PREF_HUES, PaletteDialog.DEFAULT_HUES).toDouble()
+        if (!isIdle()) return
 
-                var bitmap = bitmap
-                if (bitmap == null) {
-                    val width = size.x
-                    val height = size.y
-                    bitmap = createBitmap(width, height)
-                }
+        task = lifecycleScope.launch(Dispatchers.Default) {
+            val density = density.toDouble()
+            val hues = hues.toDouble()
+
+            var bitmap = bitmap
+            if (bitmap == null) {
+                val width = size.x
+                val height = size.y
+                bitmap = createBitmap(width, height)
+            }
 
                 FieldsTask(charges.copy(), bitmap, density, hues).apply {
                     startDelay = delay
@@ -204,11 +202,10 @@ class ElectricFieldsView : View,
                     .catch { onTaskError(it) }
                     .collect {
                         val job = currentCoroutineContext()[Job] ?: return@collect
-                        if (job === task) {
-                            onTaskNext(it)
-                        }
+                    if (job === task) {
+                        onTaskNext(it)
                     }
-            }
+                }
         }
     }
 
@@ -230,7 +227,7 @@ class ElectricFieldsView : View,
     override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
 
-        if ((superState != null) && (charges.size > 0)) {
+        if ((superState != null) && charges.isNotEmpty()) {
             val ss = SavedState(superState)
             ss.charges = charges
             return ss
@@ -300,14 +297,6 @@ class ElectricFieldsView : View,
         distanceX: Float,
         distanceY: Float
     ): Boolean {
-        /*val dx = distanceX.absoluteValue
-        val dy = distanceY.absoluteValue
-        if (dx >= dy) {
-            //TODO change palette hues
-        } else {
-            //TODO change palette density
-        }
-        return true*/
         return false
     }
 
@@ -324,13 +313,15 @@ class ElectricFieldsView : View,
 
     override fun onScale(detector: ScaleGestureDetector): Boolean {
         scaleFactor *= detector.scaleFactor
-        return (listener != null) && listener!!.onChargeScale(this, chargeToScale!!)
+        val listener = listener ?: return false
+        return listener.onChargeScale(this, chargeToScale!!)
     }
 
     override fun onScaleEnd(detector: ScaleGestureDetector) {
+        val chargeToScale = chargeToScale
         if (chargeToScale != null) {
-            chargeToScale!!.size *= scaleFactor
-            listener?.onChargeScaleEnd(this, chargeToScale!!)
+            chargeToScale.size *= scaleFactor
+            listener?.onChargeScaleEnd(this, chargeToScale)
         }
     }
 
@@ -383,11 +374,15 @@ class ElectricFieldsView : View,
 
     class SavedState : BaseSavedState {
 
-        internal var charges: MutableList<Charge>? = null
+        internal var charges: MutableList<Charge> = ArrayList()
+        internal var density: Int = PaletteDialog.DEFAULT_DENSITY
+        internal var hues: Int = PaletteDialog.DEFAULT_HUES
 
         private constructor(source: Parcel) : super(source) {
-            charges = ArrayList<Charge>()
-            source.readTypedList(charges!!, Charge.CREATOR)
+            charges.clear()
+            source.readTypedList(charges, Charge.CREATOR)
+            density = source.readInt()
+            hues = source.readInt()
         }
 
         constructor(superState: Parcelable) : super(superState)
@@ -395,6 +390,8 @@ class ElectricFieldsView : View,
         override fun writeToParcel(out: Parcel, flags: Int) {
             super.writeToParcel(out, flags)
             out.writeTypedList(charges)
+            out.writeInt(density)
+            out.writeInt(hues)
         }
 
         override fun describeContents(): Int {
