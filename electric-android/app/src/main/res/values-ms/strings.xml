@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Medan Elektrik</string>
+
+    <!-- Notifications. -->
+    <string name="finished">Rendering telah selesai.</string>
+
+    <!-- Share. -->
+    <string name="save_failed">Menyimpan imej gagal.</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">Skrin penuh</string>
+    <string name="menu_random">Rawak</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Palet</string>
+    <string name="palette_blue">Biru</string>
+    <string name="palette_cyan">Ais</string>
+    <string name="palette_green">Hijau</string>
+    <string name="palette_grey">Perak</string>
+    <string name="palette_lava">Lava</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Pelangi</string>
+    <string name="palette_red">Merah</string>
+    <string name="palette_yellow">Kuning</string>
+</resources>

@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">የኤሌክትሪክ መስኮች</string>
+
+    <!-- Notifications. -->
+    <string name="finished">አተረጓጎም አልቋል።</string>
+
+    <!-- Share. -->
+    <string name="save_failed">ምስልን ማስቀመጥ አልተሳካም።</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">ሙሉ ማያ ገጽ</string>
+    <string name="menu_random">በዘፈቀደ</string>
+
+    <!-- Palette -->
+    <string name="palette_title">ቤተ-ስዕል</string>
+    <string name="palette_blue">ሰማያዊ</string>
+    <string name="palette_cyan">አይስ</string>
+    <string name="palette_green">አረንጓዴ</string>
+    <string name="palette_grey">ገንዘብ</string>
+    <string name="palette_lava">ላቫ</string>
+    <string name="palette_magenta">ማጌንታ</string>
+    <string name="palette_rainbow">ቀስተ ደመና</string>
+    <string name="palette_red">ቀይ</string>
+    <string name="palette_yellow">ቢጫ</string>
+</resources>

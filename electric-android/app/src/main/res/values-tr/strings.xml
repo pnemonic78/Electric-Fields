@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Elektrik Alanları</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">Palet</string>
-    <string name="palette_density">Yoğunluk</string>
-    <string name="palette_hues">Tonlarının</string>
+    <string name="palette_blue">Mavi</string>
+    <string name="palette_cyan">Buz</string>
+    <string name="palette_green">Yeşil</string>
+    <string name="palette_grey">Gümüş</string>
+    <string name="palette_lava">Lav</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Gökkuşağı</string>
+    <string name="palette_red">Kırmızı</string>
+    <string name="palette_yellow">Sarı</string>
 </resources>

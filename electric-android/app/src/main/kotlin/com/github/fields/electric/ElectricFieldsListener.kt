@@ -15,8 +15,6 @@
  */
 package com.github.fields.electric
 
-import android.graphics.Bitmap
-
 /**
  * Electric fields event listener.
  *
@@ -34,7 +32,7 @@ interface ElectricFieldsListener {
 
     fun onChargeScaleEnd(view: ElectricFields, charge: Charge): Boolean
 
-    fun onRenderFieldClicked(view: ElectricFields, x: Int, y: Int, size: Double): Boolean
+    fun onRenderFieldClicked(view: ElectricFields, x: Int, y: Int, size: Float): Boolean
 
     fun onRenderFieldStarted(view: ElectricFields)
 

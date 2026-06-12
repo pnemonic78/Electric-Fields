@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Camps elèctrics</string>
+
+    <!-- Notifications. -->
+    <string name="finished">El renderitzat està acabat.</string>
+
+    <!-- Share. -->
+    <string name="save_failed">Desar la imatge ha fallat.</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">Pantalla completa</string>
+    <string name="menu_random">Randomitzar</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Paleta</string>
+    <string name="palette_blue">Blau</string>
+    <string name="palette_cyan">Gel</string>
+    <string name="palette_green">Verd</string>
+    <string name="palette_grey">Plata</string>
+    <string name="palette_lava">Lava</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Arc de Sant Martí</string>
+    <string name="palette_red">Vermell</string>
+    <string name="palette_yellow">Groc</string>
+</resources>

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">전기장</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">팔레트</string>
-    <string name="palette_density">밀도</string>
-    <string name="palette_hues">색조</string>
+    <string name="palette_blue">파란색</string>
+    <string name="palette_cyan">얼음</string>
+    <string name="palette_green">그린</string>
+    <string name="palette_grey">은색</string>
+    <string name="palette_lava">용암</string>
+    <string name="palette_magenta">마젠타</string>
+    <string name="palette_rainbow">무지개</string>
+    <string name="palette_red">빨간색</string>
+    <string name="palette_yellow">노란색</string>
 </resources>

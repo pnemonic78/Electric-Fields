@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Elektriväljade</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">Palett</string>
-    <string name="palette_density">Tihedus</string>
-    <string name="palette_hues">Toonid</string>
+    <string name="palette_blue">Sinine</string>
+    <string name="palette_cyan">Jää</string>
+    <string name="palette_green">Roheline</string>
+    <string name="palette_grey">Hõbe</string>
+    <string name="palette_lava">Laava</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Vikerkaar</string>
+    <string name="palette_red">Punane</string>
+    <string name="palette_yellow">Kollane</string>
 </resources>

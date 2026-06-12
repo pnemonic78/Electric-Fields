@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Campi Elettrici</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">Tavolozza</string>
-    <string name="palette_density">Densità</string>
-    <string name="palette_hues">Hues</string>
+    <string name="palette_blue">Blu</string>
+    <string name="palette_cyan">Ghiaccio</string>
+    <string name="palette_green">Verde</string>
+    <string name="palette_grey">Argento</string>
+    <string name="palette_lava">Lava</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Rainbow</string>
+    <string name="palette_red">Rosso</string>
+    <string name="palette_yellow">Giallo</string>
 </resources>

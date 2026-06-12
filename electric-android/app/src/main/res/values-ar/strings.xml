@@ -14,6 +14,13 @@
 
     <!-- Palette -->
     <string name="palette_title">لوحة</string>
-    <string name="palette_density">كثافة</string>
-    <string name="palette_hues">الأشكال</string>
+    <string name="palette_blue">الأزرق</string>
+    <string name="palette_cyan">آيس</string>
+    <string name="palette_green">الأخضر</string>
+    <string name="palette_grey">الفضة</string>
+    <string name="palette_lava">الحمم</string>
+    <string name="palette_magenta">ماجنتا</string>
+    <string name="palette_rainbow">قوس قزح</string>
+    <string name="palette_red">الأحمر</string>
+    <string name="palette_yellow">الأصفر</string>
 </resources>

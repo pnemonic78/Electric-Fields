@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">برقی میدان</string>
+
+    <!-- Notifications. -->
+    <string name="finished">رینڈرنگ مکمل ہو گئی ہے۔</string>
+
+    <!-- Share. -->
+    <string name="save_failed">تصویر محفوظ کرنا ناکام ہو گیا۔</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">فل اسکرین</string>
+    <string name="menu_random">رینڈمائز</string>
+
+    <!-- Palette -->
+    <string name="palette_title">پیلیٹ</string>
+    <string name="palette_blue">نیلا</string>
+    <string name="palette_cyan">آئس</string>
+    <string name="palette_green">سبز</string>
+    <string name="palette_grey">چاندی</string>
+    <string name="palette_lava">لاوا</string>
+    <string name="palette_magenta">میجنٹا</string>
+    <string name="palette_rainbow">رینبو</string>
+    <string name="palette_red">سرخ</string>
+    <string name="palette_yellow">پیلا</string>
+</resources>

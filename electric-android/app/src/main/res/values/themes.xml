@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="Base.Theme.Electric" parent="Theme.AppCompat.NoActionBar">
+    <style name="Base.Theme.Electric" parent="Theme.Material3.Dark.NoActionBar">
         <item name="android:colorBackground">@color/bg_window</item>
         <item name="android:windowBackground">@color/bg_window</item>
         <item name="android:itemBackground">@color/action_popup_menu_item</item>

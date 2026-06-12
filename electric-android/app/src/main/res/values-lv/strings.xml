@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Elektriskie lauki</string>
+
+    <!-- Notifications. -->
+    <string name="finished">Renderēšana ir pabeigta.</string>
+
+    <!-- Share. -->
+    <string name="save_failed">Attēla saglabāšana neizdevās.</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">Pilnekrāna režīms</string>
+    <string name="menu_random">Nejaušība</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Palete</string>
+    <string name="palette_blue">Zils</string>
+    <string name="palette_cyan">Ledus</string>
+    <string name="palette_green">Zaļš</string>
+    <string name="palette_grey">Sudrabs</string>
+    <string name="palette_lava">Lava</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Varavīksne</string>
+    <string name="palette_red">Sarkans</string>
+    <string name="palette_yellow">Dzeltens</string>
+</resources>

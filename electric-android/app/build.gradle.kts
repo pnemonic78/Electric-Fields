@@ -49,14 +49,11 @@ android {
                 "he",
                 "hi",
                 "hu",
-                "in",
                 "it",
                 "iw",
                 "ja",
                 "ko",
                 "lt",
-                "lv",
-                "ms",
                 "nb",
                 "nl",
                 "pl",
@@ -65,12 +62,9 @@ android {
                 "ro",
                 "ru",
                 "sv",
-                "th",
                 "tr",
                 "uk",
-                "vi",
-                "zh-rCN",
-                "zh-rHK",
+                "zh",
                 "zh-rTW",
                 "zu"
             )
@@ -131,6 +125,7 @@ dependencies {
     implementation(alibs.bundles.compose)
     implementation(alibs.bundles.ktx)
     implementation(alibs.lifecycle.service)
+    implementation(alibs.material)
 
     // Logging
     implementation(alibs.log.timber)

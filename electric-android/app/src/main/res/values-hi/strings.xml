@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">बिजली क्षेत्र</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">पैलेट</string>
-    <string name="palette_density">घनत्व</string>
-    <string name="palette_hues">ह्यूज़</string>
+    <string name="palette_blue">खिन्‍नता</string>
+    <string name="palette_cyan">बर्फ</string>
+    <string name="palette_green">हरा</string>
+    <string name="palette_grey">चाँदी जैसा</string>
+    <string name="palette_lava">लावा</string>
+    <string name="palette_magenta">मैजंटा</string>
+    <string name="palette_rainbow">इंद्रधनुष</string>
+    <string name="palette_red">ललौहा-भूरा</string>
+    <string name="palette_yellow">पीला</string>
 </resources>

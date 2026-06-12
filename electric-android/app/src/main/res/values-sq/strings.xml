@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Fushat elektrike</string>
+
+    <!-- Notifications. -->
+    <string name="finished">Paraqitja ka përfunduar.</string>
+
+    <!-- Share. -->
+    <string name="save_failed">Ruajtja e imazhit dështoi.</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">Ekran i plotë</string>
+    <string name="menu_random">Rastësisht</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Paleta</string>
+    <string name="palette_blue">Blu</string>
+    <string name="palette_cyan">Akulli</string>
+    <string name="palette_green">Jeshile</string>
+    <string name="palette_grey">Argjendi</string>
+    <string name="palette_lava">Llavë</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Ylber</string>
+    <string name="palette_red">E kuqe</string>
+    <string name="palette_yellow">E verdhë</string>
+</resources>

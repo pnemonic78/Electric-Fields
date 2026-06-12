@@ -26,17 +26,15 @@ import android.view.MotionEvent
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
 import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.preference.PreferenceManager
 import com.github.fields.electric.Charge
 import com.github.fields.electric.ElectricFieldImage
 import com.github.fields.electric.ElectricFields
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
+import com.github.fields.electric.FieldsPreferences
 import com.github.fields.electric.FieldsTask
-import com.github.fields.electric.PaletteDialog.Companion.DEFAULT_DENSITY
-import com.github.fields.electric.PaletteDialog.Companion.DEFAULT_HUES
-import com.github.fields.electric.PaletteDialog.Companion.KEY_DENSITY
-import com.github.fields.electric.PaletteDialog.Companion.KEY_HUES
 import com.github.fields.electric.R
+import com.github.fields.electric.SimpleFieldsPreferences
+import com.github.fields.electric.color.Palette
 import com.github.utils.copy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -71,7 +69,7 @@ class WallpaperView(
     private var sameChargeDistance: Int = 0
     private var listener: WallpaperListener? = null
     private val gestureDetector: GestureDetector = GestureDetector(context, this)
-    private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+    private val preferences: FieldsPreferences = SimpleFieldsPreferences(context)
 
     init {
         val res = context.resources
@@ -85,21 +83,17 @@ class WallpaperView(
         return job.isCancelled || job.isCompleted
     }
 
-    override var density: Int
-        get() = preferences.getInt(KEY_DENSITY, DEFAULT_DENSITY)
+    override var palette: Palette
+        get() = preferences.palette
         set(value) {}
 
-    override var hues: Int
-        get() = preferences.getInt(KEY_HUES, DEFAULT_HUES)
-        set(value) {}
-
-    override fun addCharge(x: Int, y: Int, size: Double): Boolean {
+    override fun addCharge(x: Int, y: Int, size: Float): Boolean {
         return addCharge(Charge(x, y, size))
     }
 
     override fun addCharge(charge: Charge): Boolean {
         if (charges.size < MAX_CHARGES) {
-            if ((charge.size != 0.0) && charges.add(charge)) {
+            if ((charge.size != 0f) && charges.add(charge)) {
                 listener?.onChargeAdded(this, charge)
                 return true
             }
@@ -146,37 +140,37 @@ class WallpaperView(
 
     override fun start(delay: Long) {
         val bitmap = bitmap ?: return
+        if (!isIdle()) return
 
-        if (isIdle()) {
-            val density = density.toDouble()
-            val hues = hues.toDouble()
-            task = lifecycleScope.launch(Dispatchers.Default) {
-                FieldsTask(charges.copy(), bitmap, density, hues).apply {
-                    saturation = 0.5f
-                    brightness = 0.5f
-                    startDelay = delay
-                }
-                    .flowOn(Dispatchers.Default)
-                    .onStart {
-                        val job = currentCoroutineContext()[Job]
-                        if (job === task) {
-                            onTaskStart()
-                        }
+        task = lifecycleScope.launch(Dispatchers.Default) {
+            FieldsTask(charges.copy(), bitmap, palette).apply {
+                saturation = 0.5f
+                startDelay = delay
+            }
+                .flowOn(Dispatchers.Default)
+                .onStart {
+                    val job = currentCoroutineContext()[Job] ?: return@onStart
+                    if (job === task) {
+                        onTaskStart()
                     }
-                    .onCompletion {
-                        val job = currentCoroutineContext()[Job]
-                        if (job === task) {
+                }
+                .onCompletion {
+                    val job = currentCoroutineContext()[Job] ?: return@onCompletion
+                    if (job === task) {
+                        if (job.isCancelled) {
+                            onTaskCancelled()
+                        } else {
                             onTaskComplete()
                         }
                     }
-                    .catch { onTaskError(it) }
-                    .collect {
-                        val job = currentCoroutineContext()[Job]
-                        if (job === task) {
-                            onTaskNext(it)
-                        }
+                }
+                .catch { onTaskError(it) }
+                .collect {
+                    val job = currentCoroutineContext()[Job] ?: return@collect
+                    if (job === task) {
+                        onTaskNext(it)
                     }
-            }
+                }
         }
     }
 
@@ -228,7 +222,7 @@ class WallpaperView(
         val x = e.x.toInt()
         val y = e.y.toInt()
         val duration = min(uptimeMillis() - e.downTime, SECOND_IN_MILLIS)
-        val size = 1.0 + (duration / 20L).toDouble()
+        val size = 1f + (duration / 20L)
         return (listener != null) && listener!!.onRenderFieldClicked(this, x, y, size)
     }
 
@@ -241,6 +235,10 @@ class WallpaperView(
     }
 
     private fun onTaskError(e: Throwable) {
+        listener?.onRenderFieldCancelled(this)
+    }
+
+    private fun onTaskCancelled() {
         listener?.onRenderFieldCancelled(this)
     }
 

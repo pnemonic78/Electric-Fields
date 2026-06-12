@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">လျှပ်စစ်စက်ကွင်း</string>
+
+    <!-- Notifications. -->
+    <string name="finished">ပုံဖော်ပြီးသွားပြီ။</string>
+
+    <!-- Share. -->
+    <string name="save_failed">ရုပ်ပုံ သိမ်းဆည်းမှု မအောင်မြင်ဘူး</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">မျက်နှာပြင်အပြည့်</string>
+    <string name="menu_random">ကျပန်း</string>
+
+    <!-- Palette -->
+    <string name="palette_title">အရောင်စပ်ဆေးခွက်</string>
+    <string name="palette_blue">အပြာရောင်</string>
+    <string name="palette_cyan">ရေခဲ</string>
+    <string name="palette_green">အစိမ်းရောင်</string>
+    <string name="palette_grey">ငွေ</string>
+    <string name="palette_lava">ချော်ရည်</string>
+    <string name="palette_magenta">အနီရောင်</string>
+    <string name="palette_rainbow">သက်တံ</string>
+    <string name="palette_red">အနီရောင်</string>
+    <string name="palette_yellow">အဝါရောင်</string>
+</resources>

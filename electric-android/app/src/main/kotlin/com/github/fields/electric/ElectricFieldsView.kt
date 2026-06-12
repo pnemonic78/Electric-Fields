@@ -30,6 +30,7 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.core.graphics.createBitmap
+import com.github.fields.electric.color.Palette
 import com.github.utils.copy
 import com.github.view.findDisplay
 import com.github.view.lifecycleScope
@@ -54,7 +55,7 @@ class ElectricFieldsView : View,
     GestureDetector.OnDoubleTapListener,
     ScaleGestureDetector.OnScaleGestureListener {
 
-    private val charges: MutableList<Charge> = ArrayList()
+    private val charges = mutableListOf<Charge>()
 
     private val size: Point by lazy {
         val sizeValue = Point()
@@ -108,11 +109,9 @@ class ElectricFieldsView : View,
         measuredHeightDiff = (h - bitmap.height) / 2f
     }
 
-    override var density: Int = PaletteDialog.DEFAULT_DENSITY
+    override var palette: Palette = Palette.Rainbow
 
-    override var hues: Int = PaletteDialog.DEFAULT_HUES
-
-    override fun addCharge(x: Int, y: Int, size: Double): Boolean {
+    override fun addCharge(x: Int, y: Int, size: Float): Boolean {
         return addCharge(Charge(x, y, size))
     }
 
@@ -169,9 +168,6 @@ class ElectricFieldsView : View,
         if (!isIdle()) return
 
         task = lifecycleScope.launch(Dispatchers.Default) {
-            val density = density.toDouble()
-            val hues = hues.toDouble()
-
             var bitmap = bitmap
             if (bitmap == null) {
                 val width = size.x
@@ -179,29 +175,29 @@ class ElectricFieldsView : View,
                 bitmap = createBitmap(width, height)
             }
 
-                FieldsTask(charges.copy(), bitmap, density, hues).apply {
-                    startDelay = delay
+            FieldsTask(charges.copy(), bitmap, palette).apply {
+                startDelay = delay
+            }
+                .flowOn(Dispatchers.Default)
+                .onStart {
+                    val job = currentCoroutineContext()[Job] ?: return@onStart
+                    if (job === task) {
+                        onTaskStart()
+                    }
                 }
-                    .flowOn(Dispatchers.Default)
-                    .onStart {
-                        val job = currentCoroutineContext()[Job] ?: return@onStart
-                        if (job === task) {
-                            onTaskStart()
+                .onCompletion {
+                    val job = currentCoroutineContext()[Job] ?: return@onCompletion
+                    if (job === task) {
+                        if (job.isCancelled) {
+                            onTaskCancelled()
+                        } else {
+                            onTaskComplete()
                         }
                     }
-                    .onCompletion {
-                        val job = currentCoroutineContext()[Job] ?: return@onCompletion
-                        if (job === task) {
-                            if (job.isCancelled) {
-                                onTaskCancelled()
-                            } else {
-                                onTaskComplete()
-                            }
-                        }
-                    }
-                    .catch { onTaskError(it) }
-                    .collect {
-                        val job = currentCoroutineContext()[Job] ?: return@collect
+                }
+                .catch { onTaskError(it) }
+                .collect {
+                    val job = currentCoroutineContext()[Job] ?: return@collect
                     if (job === task) {
                         onTaskNext(it)
                     }
@@ -244,9 +240,9 @@ class ElectricFieldsView : View,
 
         super.onRestoreInstanceState(state.superState)
 
-        if (state.charges != null) {
+        if (state.charges.isNotEmpty()) {
             clear()
-            for (charge in state.charges!!) {
+            for (charge in state.charges) {
                 addCharge(charge)
             }
             restart()
@@ -331,7 +327,7 @@ class ElectricFieldsView : View,
         val x = (e.x - measuredWidthDiff).toInt()
         val y = (e.y - measuredHeightDiff).toInt()
         val duration = min(uptimeMillis() - e.downTime, SECOND_IN_MILLIS)
-        val size = 1.0 + (duration / 20L).toDouble()
+        val size = 1f + (duration / 20L)
         if (listener?.onRenderFieldClicked(this, x, y, size) == true) {
             performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
             return true
@@ -375,14 +371,10 @@ class ElectricFieldsView : View,
     class SavedState : BaseSavedState {
 
         internal var charges: MutableList<Charge> = ArrayList()
-        internal var density: Int = PaletteDialog.DEFAULT_DENSITY
-        internal var hues: Int = PaletteDialog.DEFAULT_HUES
 
         private constructor(source: Parcel) : super(source) {
             charges.clear()
             source.readTypedList(charges, Charge.CREATOR)
-            density = source.readInt()
-            hues = source.readInt()
         }
 
         constructor(superState: Parcelable) : super(superState)
@@ -390,8 +382,6 @@ class ElectricFieldsView : View,
         override fun writeToParcel(out: Parcel, flags: Int) {
             super.writeToParcel(out, flags)
             out.writeTypedList(charges)
-            out.writeInt(density)
-            out.writeInt(hues)
         }
 
         override fun describeContents(): Int {

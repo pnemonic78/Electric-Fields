@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Elektriske felt</string>
+
+    <!-- Notifications. -->
+    <string name="finished">Renderingen er ferdig.</string>
+
+    <!-- Share. -->
+    <string name="save_failed">Lagring av bilde feilet.</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">Fullskjerm</string>
+    <string name="menu_random">Randomisering</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Palett</string>
+    <string name="palette_blue">Blå</string>
+    <string name="palette_cyan">Is</string>
+    <string name="palette_green">Grønn</string>
+    <string name="palette_grey">Sølv</string>
+    <string name="palette_lava">Lava</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Rainbow</string>
+    <string name="palette_red">Rød</string>
+    <string name="palette_yellow">Gul</string>
+</resources>

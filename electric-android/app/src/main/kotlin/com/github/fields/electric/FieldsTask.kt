@@ -17,17 +17,26 @@ package com.github.fields.electric
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Color.WHITE
 import android.graphics.Paint
 import android.graphics.Paint.ANTI_ALIAS_FLAG
 import android.graphics.RectF
+import com.github.fields.electric.color.BlueColorMap
+import com.github.fields.electric.color.ColorMap
+import com.github.fields.electric.color.CyanColorMap
+import com.github.fields.electric.color.GreenColorMap
+import com.github.fields.electric.color.GreyColorMap
+import com.github.fields.electric.color.LavaColorMap
+import com.github.fields.electric.color.MagentaColorMap
+import com.github.fields.electric.color.Palette
+import com.github.fields.electric.color.RainbowColorMap
+import com.github.fields.electric.color.RedColorMap
+import com.github.fields.electric.color.YellowColorMap
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
-import timber.log.Timber
-import java.lang.Thread.sleep
 import kotlin.math.max
 import kotlin.math.sqrt
 
@@ -39,74 +48,43 @@ import kotlin.math.sqrt
 class FieldsTask(
     private val charges: List<Charge>,
     private val bitmap: Bitmap,
-    private val density: Double = DEFAULT_DENSITY,
-    private val hues: Double = DEFAULT_HUES
+    private val palette: Palette
 ) : Flow<ElectricFieldImage> {
 
-    private var runner: FieldRunner? = null
-    var brightness = 1f
-        set(value) {
-            field = value
-            runner?.let { it.brightness = value }
-        }
+    private var painter: FieldPainter? = null
     var saturation = 1f
-        set(value) {
-            field = value
-            runner?.saturation = value
-        }
     var startDelay = 0L
-        set(value) {
-            field = value
-            runner?.startDelay = value
-        }
 
     override suspend fun collect(collector: FlowCollector<ElectricFieldImage>) {
-        runner = FieldRunner(charges, bitmap, density, hues, collector).apply {
-            brightness = this@FieldsTask.brightness
-            saturation = this@FieldsTask.saturation
-            startDelay = this@FieldsTask.startDelay
-            run()
+        painter = FieldPainter(charges, bitmap, palette, saturation, collector).apply {
+            run(this@FieldsTask.startDelay)
         }
     }
 
-    private class FieldRunner(
+    private class FieldPainter(
         val charges: List<Charge>,
         val bitmap: Bitmap,
-        val density: Double,
-        val hues: Double,
+        palette: Palette,
+        private val saturation: Float,
         val collector: FlowCollector<ElectricFieldImage>
     ) {
-
         private val paint = Paint(ANTI_ALIAS_FLAG).apply {
             strokeCap = Paint.Cap.SQUARE
             style = Paint.Style.FILL
             strokeWidth = 1f
         }
         private val rect = RectF()
-        private val hsv = floatArrayOf(0f, 1f, 1f)
-        var startDelay = 0L
         var running = false
             private set
 
-        var saturation: Float
-            get() = hsv[1]
-            set(value) {
-                hsv[1] = value
-            }
-        var brightness: Float
-            get() = hsv[2]
-            set(value) {
-                hsv[2] = value
-            }
+        private val colorMap: ColorMap = createColorMap(palette).apply {
+            saturation = this@FieldPainter.saturation
+        }
 
-        suspend fun run() {
+        suspend fun run(startDelay: Long = 0L) {
             running = true
             if (startDelay > 0L) {
-                try {
-                    sleep(startDelay)
-                } catch (e: InterruptedException) {
-                    Timber.v(e)
-                }
+                delay(startDelay)
             }
 
             val w = bitmap.width
@@ -124,7 +102,7 @@ class FieldsTask(
             var resolution = resolution2
 
             val canvas = Canvas(bitmap)
-            plot(charges, canvas, 0, 0, resolution, resolution, density)
+            plot(charges, canvas, 0, 0, resolution, resolution)
             collector.emit(ElectricFieldImage(bitmap, Int.MAX_VALUE))
 
             var x1: Int
@@ -141,9 +119,9 @@ class FieldsTask(
                     x2 = resolution
 
                     do {
-                        plot(charges, canvas, x1, y2, resolution, resolution, density)
-                        plot(charges, canvas, x2, y1, resolution, resolution, density)
-                        plot(charges, canvas, x2, y2, resolution, resolution, density)
+                        plot(charges, canvas, x1, y2, resolution, resolution)
+                        plot(charges, canvas, x2, y1, resolution, resolution)
+                        plot(charges, canvas, x2, y2, resolution, resolution)
 
                         x1 += resolution2
                         x2 += resolution2
@@ -181,51 +159,59 @@ class FieldsTask(
             y: Int,
             w: Int,
             h: Int,
-            zoom: Double
         ) {
             var dx: Int
             var dy: Int
             var d: Int
-            var r: Double
-            var v = 1.0
-            val count = charges.size
-            var charge: Charge
+            var r: Float
+            var v = 1f
 
-            for (i in 0 until count) {
-                charge = charges[i]
+            for (charge in charges) {
                 dx = x - charge.x
                 dy = y - charge.y
                 d = (dx * dx) + (dy * dy)
-                r = sqrt(d.toDouble())
-                if (r == 0.0) {
+                if (d == 0) {
                     //Force "overflow".
-                    v = Double.POSITIVE_INFINITY
+                    v = Float.POSITIVE_INFINITY
                     break
                 }
+                r = sqrt(d.toFloat())
                 v += charge.size / r
             }
 
-            paint.color = mapColor(v, zoom)
+            paint.color = if (v.isInfinite() || v.isNaN()) {
+                WHITE
+            } else {
+                v = v.coerceIn(VALUE_MIN, VALUE_MAX) / VALUE_RANGE
+                colorMap.mapColor(v)
+            }
             rect.set(x.toFloat(), y.toFloat(), (x + w).toFloat(), (y + h).toFloat())
             canvas.drawRect(rect, paint)
-        }
-
-        private fun mapColor(z: Double, density: Double): Int {
-            if (z.isInfinite() || z.isNaN()) {
-                return WHITE
-            }
-            hsv[0] = ((z * density) % hues).toFloat()
-            return Color.HSVToColor(hsv)
         }
 
         suspend fun isDisposed(): Boolean {
             val job = currentCoroutineContext()[Job] ?: return true
             return job.isCancelled || job.isCompleted
         }
-    }
 
-    companion object {
-        const val DEFAULT_DENSITY = 1000.0
-        const val DEFAULT_HUES = 360.0
+        private fun createColorMap(palette: Palette): ColorMap {
+            return when (palette) {
+                Palette.Blue -> BlueColorMap()
+                Palette.Cyan -> CyanColorMap()
+                Palette.Green -> GreenColorMap()
+                Palette.Grey -> GreyColorMap()
+                Palette.Lava -> LavaColorMap()
+                Palette.Magenta -> MagentaColorMap()
+                Palette.Red -> RedColorMap()
+                Palette.Yellow -> YellowColorMap()
+                else -> RainbowColorMap()
+            }
+        }
+
+        companion object {
+            private const val VALUE_MIN = -50f
+            private const val VALUE_MAX = 50f
+            private const val VALUE_RANGE = VALUE_MAX - VALUE_MIN
+        }
     }
 }

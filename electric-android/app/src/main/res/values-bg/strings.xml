@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Електрически Полета</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">Палитра</string>
-    <string name="palette_density">плътност</string>
-    <string name="palette_hues">нюанси</string>
+    <string name="palette_blue">Синьо</string>
+    <string name="palette_cyan">Лед</string>
+    <string name="palette_green">Зелено</string>
+    <string name="palette_grey">Сребро</string>
+    <string name="palette_lava">Лава</string>
+    <string name="palette_magenta">Магента</string>
+    <string name="palette_rainbow">Дъга</string>
+    <string name="palette_red">Червено</string>
+    <string name="palette_yellow">Жълто</string>
 </resources>

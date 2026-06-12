@@ -32,13 +32,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
 import com.github.fields.electric.ElectricFieldsView.Companion.MAX_CHARGES
 import com.github.fields.electric.ElectricFieldsView.Companion.MIN_CHARGES
-import com.github.fields.electric.PaletteDialog.Companion.DEFAULT_DENSITY
-import com.github.fields.electric.PaletteDialog.Companion.DEFAULT_HUES
-import com.github.fields.electric.PaletteDialog.Companion.KEY_DENSITY
-import com.github.fields.electric.PaletteDialog.Companion.KEY_HUES
+import com.github.fields.electric.color.PaletteDialog
 import com.github.fields.electric.compose.AppTheme
 import com.github.fields.electric.compose.MainMenuState
 import com.github.fields.electric.compose.MainScreen
@@ -64,10 +60,11 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
     private val random = Random.Default
     private val isNormalScreen = MutableStateFlow(true)
     private val isRendering = MutableStateFlow(false)
-    private val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+    private lateinit var preferences: FieldsPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        preferences = SimpleFieldsPreferences(this)
 
         onBackPressedDispatcher.addCallback(this) {
             handleBackPressed()
@@ -78,8 +75,7 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
 
         mainView = ElectricFieldsView(this).apply {
             setElectricFieldsListener(this@MainActivity)
-            density = preferences.getInt(KEY_DENSITY, DEFAULT_DENSITY)
-            hues = preferences.getInt(KEY_HUES, DEFAULT_HUES)
+            palette = preferences.palette
         }
         activityView.addView(mainView)
 
@@ -163,11 +159,10 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
             mainView.addCharge(
                 x = random.nextInt(w),
                 y = random.nextInt(h),
-                size = random.nextDouble(-40.0, 40.0)
+                size = -40f + (random.nextFloat() * 80f)
             )
         }
-        mainView.density = preferences.getInt(KEY_DENSITY, DEFAULT_DENSITY)
-        mainView.hues = preferences.getInt(KEY_HUES, DEFAULT_HUES)
+        mainView.palette = preferences.palette
         mainView.restart()
     }
 
@@ -216,7 +211,7 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
         return false
     }
 
-    override fun onRenderFieldClicked(view: ElectricFields, x: Int, y: Int, size: Double): Boolean {
+    override fun onRenderFieldClicked(view: ElectricFields, x: Int, y: Int, size: Float): Boolean {
         if ((view == mainView) && (view.invertCharge(x, y) || view.addCharge(x, y, size))) {
             view.restart()
             return true
@@ -307,7 +302,7 @@ class MainActivity : ComponentActivity(), ElectricFieldsListener {
     }
 
     private fun choosePalette() {
-        PaletteDialog(this).show()
+        PaletteDialog.show(this)
     }
 
     private fun onSaveFile(uri: Uri) {

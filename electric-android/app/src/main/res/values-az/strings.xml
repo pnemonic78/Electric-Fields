@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Elektrik sahələri</string>
+
+    <!-- Notifications. -->
+    <string name="finished">Renderləmə tamamlandı.</string>
+
+    <!-- Share. -->
+    <string name="save_failed">Şəkli yadda saxlamaq uğursuz oldu.</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">Tam ekran</string>
+    <string name="menu_random">Təsadüfi Seçim</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Palitra</string>
+    <string name="palette_blue">Mavi</string>
+    <string name="palette_cyan">Buz</string>
+    <string name="palette_green">Yaşıl</string>
+    <string name="palette_grey">Gümüş</string>
+    <string name="palette_lava">Lava</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Rainbow</string>
+    <string name="palette_red">Qırmızı</string>
+    <string name="palette_yellow">Sarı</string>
+</resources>

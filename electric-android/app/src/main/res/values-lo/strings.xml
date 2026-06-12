@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">ທົ່ງໄຟຟ້າ</string>
+
+    <!-- Notifications. -->
+    <string name="finished">ການ render ສໍາ ເລັດ ແລ້ວ.</string>
+
+    <!-- Share. -->
+    <string name="save_failed">ການບັນທຶກຮູບພາບບໍ່ສໍາເລັດ.</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">ເຕັມ ຈໍ</string>
+    <string name="menu_random">ການບັງເອີນ</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Palette</string>
+    <string name="palette_blue">ສີຟ້າ</string>
+    <string name="palette_cyan">ນ້ໍາແຂງ</string>
+    <string name="palette_green">ສີຂຽວ</string>
+    <string name="palette_grey">ເງິນ</string>
+    <string name="palette_lava">ລາວາ</string>
+    <string name="palette_magenta">ສີມ່ວງ</string>
+    <string name="palette_rainbow">ຮຸ້ງ</string>
+    <string name="palette_red">ສີແດງ</string>
+    <string name="palette_yellow">ສີເຫລືອງ</string>
+</resources>

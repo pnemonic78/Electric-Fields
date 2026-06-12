@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">שדות חשמליים</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">לוח הצבעים</string>
-    <string name="palette_density">צפיפות</string>
-    <string name="palette_hues">גוונים</string>
+    <string name="palette_blue">כחול</string>
+    <string name="palette_cyan">קרח</string>
+    <string name="palette_green">ירוק</string>
+    <string name="palette_grey">כסף</string>
+    <string name="palette_lava">לבה</string>
+    <string name="palette_magenta">מג\'נטה</string>
+    <string name="palette_rainbow">קשת בענן</string>
+    <string name="palette_red">אדום</string>
+    <string name="palette_yellow">צהוב</string>
 </resources>

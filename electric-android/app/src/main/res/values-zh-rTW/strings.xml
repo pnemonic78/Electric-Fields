@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">電場</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">調色板</string>
-    <string name="palette_density">密度</string>
-    <string name="palette_hues">色調</string>
+    <string name="palette_blue">藍色</string>
+    <string name="palette_cyan">冰</string>
+    <string name="palette_green">綠色</string>
+    <string name="palette_grey">銀牌</string>
+    <string name="palette_lava">熔岩</string>
+    <string name="palette_magenta">洋紅色</string>
+    <string name="palette_rainbow">彩虹</string>
+    <string name="palette_red">紅色</string>
+    <string name="palette_yellow">黃色</string>
 </resources>

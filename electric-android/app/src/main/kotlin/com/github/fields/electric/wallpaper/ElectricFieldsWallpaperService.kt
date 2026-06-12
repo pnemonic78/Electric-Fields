@@ -16,7 +16,6 @@
 package com.github.fields.electric.wallpaper
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.service.wallpaper.WallpaperService
 import android.text.format.DateUtils
 import android.view.MotionEvent
@@ -115,7 +114,10 @@ class ElectricFieldsWallpaperService : WallpaperService(), LifecycleOwner {
             val count = random.nextInt(MIN_CHARGES, MAX_CHARGES)
             mainView.clear()
             for (i in 0 until count) {
-                mainView.addCharge(random.nextInt(w), random.nextInt(h), random.nextDouble(-20.0, 20.0))
+                val x = random.nextInt(w)
+                val y = random.nextInt(h)
+                val size = -20f + (random.nextFloat() * 40f)
+                mainView.addCharge(x, y, size)
             }
             mainView.restart(delay)
         }
@@ -136,7 +138,12 @@ class ElectricFieldsWallpaperService : WallpaperService(), LifecycleOwner {
             return false
         }
 
-        override fun onRenderFieldClicked(view: ElectricFields, x: Int, y: Int, size: Double): Boolean {
+        override fun onRenderFieldClicked(
+            view: ElectricFields,
+            x: Int,
+            y: Int,
+            size: Float
+        ): Boolean {
             if (mainView.invertCharge(x, y) || mainView.addCharge(x, y, size)) {
                 mainView.restart()
                 return true

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Câmpuri Electrice</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">Paletă</string>
-    <string name="palette_density">Densitate</string>
-    <string name="palette_hues">Nuanțele</string>
+    <string name="palette_blue">Albastru</string>
+    <string name="palette_cyan">Gheață</string>
+    <string name="palette_green">Verde</string>
+    <string name="palette_grey">Argint</string>
+    <string name="palette_lava">Lavă</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Curcubeu</string>
+    <string name="palette_red">Roșu</string>
+    <string name="palette_yellow">Galben</string>
 </resources>

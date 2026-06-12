@@ -14,6 +14,13 @@
 
     <!-- Palette -->
     <string name="palette_title">Paleta</string>
-    <string name="palette_density">Gęstość</string>
-    <string name="palette_hues">Barwy</string>
+    <string name="palette_blue">Niebieski</string>
+    <string name="palette_cyan">Lód</string>
+    <string name="palette_green">Zielony</string>
+    <string name="palette_grey">Srebrny</string>
+    <string name="palette_lava">Lawa</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Tęczowy</string>
+    <string name="palette_red">Czerwony</string>
+    <string name="palette_yellow">Żółty</string>
 </resources>

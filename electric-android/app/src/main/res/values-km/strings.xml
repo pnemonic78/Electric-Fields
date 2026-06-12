@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">វាលអគ្គិសនី</string>
+
+    <!-- Notifications. -->
+    <string name="finished">ការបង្ហាញត្រូវបានបញ្ចប់។</string>
+
+    <!-- Share. -->
+    <string name="save_failed">ការរក្សាទុករូបភាពបានបរាជ័យ។</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">ពេញអេក្រង់</string>
+    <string name="menu_random">ចៃដន្យ</string>
+
+    <!-- Palette -->
+    <string name="palette_title">ក្ដារលាយ</string>
+    <string name="palette_blue">ខៀវ</string>
+    <string name="palette_cyan">ទឹកកក</string>
+    <string name="palette_green">បៃតង</string>
+    <string name="palette_grey">ប្រាក់</string>
+    <string name="palette_lava">ឡាវ</string>
+    <string name="palette_magenta">ពណ៌ ស្វាយ ក្រហម</string>
+    <string name="palette_rainbow">ឥន្ទធនូ</string>
+    <string name="palette_red">ក្រហម</string>
+    <string name="palette_yellow">ពណ៌ លឿង</string>
+</resources>

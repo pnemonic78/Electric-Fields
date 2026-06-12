@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">విద్యుత్ క్షేత్రాలు</string>
+
+    <!-- Notifications. -->
+    <string name="finished">రెండరింగ్ పూర్తయింది.</string>
+
+    <!-- Share. -->
+    <string name="save_failed">చిత్రాన్ని సేవ్ చేయడం విఫలమైంది.</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">ఫుల్ స్క్రీన్</string>
+    <string name="menu_random">యాదృచ్ఛికం</string>
+
+    <!-- Palette -->
+    <string name="palette_title">పాలెట్</string>
+    <string name="palette_blue">నీలం</string>
+    <string name="palette_cyan">మంచు</string>
+    <string name="palette_green">ఆకుపచ్చ</string>
+    <string name="palette_grey">రజతం</string>
+    <string name="palette_lava">లావా</string>
+    <string name="palette_magenta">మెజెంటా</string>
+    <string name="palette_rainbow">ఇంద్రధనస్సు</string>
+    <string name="palette_red">ఎరుపు</string>
+    <string name="palette_yellow">పసుపు</string>
+</resources>

@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Električna polja</string>
+
+    <!-- Notifications. -->
+    <string name="finished">Renderiranje je završeno.</string>
+
+    <!-- Share. -->
+    <string name="save_failed">Spremanje slike nije uspjelo.</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">Fullscreen</string>
+    <string name="menu_random">Nasumično</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Paleta</string>
+    <string name="palette_blue">Plava</string>
+    <string name="palette_cyan">Led</string>
+    <string name="palette_green">Zelena</string>
+    <string name="palette_grey">Srebro</string>
+    <string name="palette_lava">Lava</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Duga</string>
+    <string name="palette_red">Crvena</string>
+    <string name="palette_yellow">Žuta</string>
+</resources>

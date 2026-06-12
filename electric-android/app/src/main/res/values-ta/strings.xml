@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">மின் புலங்கள்</string>
+
+    <!-- Notifications. -->
+    <string name="finished">ரெண்டரிங் முடிந்தது.</string>
+
+    <!-- Share. -->
+    <string name="save_failed">படத்தைச் சேமிப்பது தோல்வியடைந்தது.</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">முழுத்திரை</string>
+    <string name="menu_random">சீரற்ற</string>
+
+    <!-- Palette -->
+    <string name="palette_title">தட்டு</string>
+    <string name="palette_blue">நீலம்</string>
+    <string name="palette_cyan">பனிக்கட்டி</string>
+    <string name="palette_green">பச்சை</string>
+    <string name="palette_grey">வெள்ளி</string>
+    <string name="palette_lava">எரிமலை</string>
+    <string name="palette_magenta">மெஜந்தா</string>
+    <string name="palette_rainbow">வானவில்</string>
+    <string name="palette_red">சிவப்பு</string>
+    <string name="palette_yellow">மஞ்சள்</string>
+</resources>

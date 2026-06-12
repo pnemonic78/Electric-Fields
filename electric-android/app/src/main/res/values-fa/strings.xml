@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">میدان های الکتریکی</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">جعبه رنگ نقاشی</string>
-    <string name="palette_density">تراکم</string>
-    <string name="palette_hues">رنگ ها</string>
+    <string name="palette_blue">آبی</string>
+    <string name="palette_cyan">یخ</string>
+    <string name="palette_green">سبز</string>
+    <string name="palette_grey">نقره ای</string>
+    <string name="palette_lava">گدازه</string>
+    <string name="palette_magenta">ماژنتا</string>
+    <string name="palette_rainbow">رنگین کمان</string>
+    <string name="palette_red">قرمز</string>
+    <string name="palette_yellow">زرد</string>
 </resources>

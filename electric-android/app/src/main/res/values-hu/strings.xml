@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Elektromos Mezők</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">Paletta</string>
-    <string name="palette_density">Sűrűség</string>
-    <string name="palette_hues">Árnyalatokat</string>
+    <string name="palette_blue">Kék</string>
+    <string name="palette_cyan">Jég</string>
+    <string name="palette_green">Zöld</string>
+    <string name="palette_grey">Ezüst</string>
+    <string name="palette_lava">Láva</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Szivárvány</string>
+    <string name="palette_red">Piros</string>
+    <string name="palette_yellow">Sárga</string>
 </resources>

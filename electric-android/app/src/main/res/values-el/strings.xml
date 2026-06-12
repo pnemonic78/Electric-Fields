@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Ηλεκτρικά Πεδία</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">Παλέτα</string>
-    <string name="palette_density">Πυκνότητα</string>
-    <string name="palette_hues">Χρώματα</string>
+    <string name="palette_blue">Μπλε</string>
+    <string name="palette_cyan">Πάγος</string>
+    <string name="palette_green">Πράσινο</string>
+    <string name="palette_grey">Ασήμι</string>
+    <string name="palette_lava">Λάβα</string>
+    <string name="palette_magenta">Ματζέντα</string>
+    <string name="palette_rainbow">Ουράνιο τόξο</string>
+    <string name="palette_red">Κόκκινο</string>
+    <string name="palette_yellow">Κίτρινος</string>
 </resources>

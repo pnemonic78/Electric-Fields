@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">电场</string>
+
+    <!-- Notifications. -->
+    <string name="finished">渲染完成了。</string>
+
+    <!-- Share. -->
+    <string name="save_failed">保存图片失败了。</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">全屏</string>
+    <string name="menu_random">随机化</string>
+
+    <!-- Palette -->
+    <string name="palette_title">调色板</string>
+    <string name="palette_blue">蓝色</string>
+    <string name="palette_cyan">冰</string>
+    <string name="palette_green">绿色</string>
+    <string name="palette_grey">银牌</string>
+    <string name="palette_lava">熔岩</string>
+    <string name="palette_magenta">品红色</string>
+    <string name="palette_rainbow">彩虹</string>
+    <string name="palette_red">红色</string>
+    <string name="palette_yellow">黄色</string>
+</resources>

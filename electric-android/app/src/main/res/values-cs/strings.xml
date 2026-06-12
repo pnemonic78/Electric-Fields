@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Elektrické Pole</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">Paleta</string>
-    <string name="palette_density">Hustota</string>
-    <string name="palette_hues">Hue</string>
+    <string name="palette_blue">Modrá</string>
+    <string name="palette_cyan">Led</string>
+    <string name="palette_green">Zelená</string>
+    <string name="palette_grey">Stříbro</string>
+    <string name="palette_lava">Láva</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Duha</string>
+    <string name="palette_red">Červená</string>
+    <string name="palette_yellow">Žlutá</string>
 </resources>

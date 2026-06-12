@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Elektrische Felder</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">Palette</string>
-    <string name="palette_density">Dichte</string>
-    <string name="palette_hues">Farbtöne</string>
+    <string name="palette_blue">Blau</string>
+    <string name="palette_cyan">Eis</string>
+    <string name="palette_green">Grün</string>
+    <string name="palette_grey">Silber</string>
+    <string name="palette_lava">Lava</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Regenbogen</string>
+    <string name="palette_red">Rot</string>
+    <string name="palette_yellow">Gelb</string>
 </resources>

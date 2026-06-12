@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Champs Électriques</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">Palette</string>
-    <string name="palette_density">Densité</string>
-    <string name="palette_hues">Teintes</string>
+    <string name="palette_blue">Bleu</string>
+    <string name="palette_cyan">Glace</string>
+    <string name="palette_green">Vert</string>
+    <string name="palette_grey">Argent</string>
+    <string name="palette_lava">Lave</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Rainbow</string>
+    <string name="palette_red">Rouge</string>
+    <string name="palette_yellow">Jaune</string>
 </resources>

@@ -46,11 +46,14 @@ fun MainScreen(uiState: MainMenuState) {
 @Preview(widthDp = previewWidthDp, heightDp = previewHeightDp)
 private fun Preview() {
     val uiState = object : MainMenuState {
+        override val isMenuVisible: StateFlow<Boolean> = MutableStateFlow(true)
         override val isRendering: StateFlow<Boolean> = MutableStateFlow(true)
         override fun onStopClick() = Unit
         override fun onStartClick() = Unit
         override fun onPaletteClick() = Unit
         override fun onShareClick() = Unit
+        override fun onFullscreenClick() = Unit
+        override fun onWallpaperClick() = Unit
     }
 
     AppTheme {

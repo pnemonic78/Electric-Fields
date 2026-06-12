@@ -15,6 +15,8 @@
  */
 package com.github.fields.electric
 
+import com.github.fields.electric.color.Palette
+
 /**
  * Electric fields view for drawing.
  *
@@ -22,8 +24,7 @@ package com.github.fields.electric
  */
 interface ElectricFields {
 
-    var density: Int
-    var hues: Int
+    var palette: Palette
 
     fun findCharge(x: Int, y: Int): Charge?
 
@@ -31,7 +32,7 @@ interface ElectricFields {
 
     fun addCharge(charge: Charge): Boolean
 
-    fun addCharge(x: Int, y: Int, size: Double): Boolean
+    fun addCharge(x: Int, y: Int, size: Float): Boolean
 
     /**
      * Clear the charges.

@@ -24,12 +24,12 @@ import android.os.Parcelable
  *
  * @author Moshe Waisberg
  */
-class Charge(x: Int, y: Int, var size: Double = 0.0) : Point(x, y) {
+class Charge(x: Int, y: Int, var size: Float = 0f) : Point(x, y) {
 
     /**
      * Set the point's x and y coordinates, and size.
      */
-    operator fun set(x: Int, y: Int, size: Double) {
+    operator fun set(x: Int, y: Int, size: Float) {
         set(x, y)
         this.size = size
     }
@@ -40,7 +40,7 @@ class Charge(x: Int, y: Int, var size: Double = 0.0) : Point(x, y) {
 
     override fun readFromParcel(p: Parcel) {
         super.readFromParcel(p)
-        size = p.readDouble()
+        size = p.readFloat()
     }
 
     companion object {
@@ -49,7 +49,7 @@ class Charge(x: Int, y: Int, var size: Double = 0.0) : Point(x, y) {
         val CREATOR: Parcelable.Creator<Charge> = object : Parcelable.Creator<Charge> {
 
             override fun createFromParcel(p: Parcel): Charge {
-                val r = Charge(0, 0, 0.0)
+                val r = Charge(0, 0, 0f)
                 r.readFromParcel(p)
                 return r
             }

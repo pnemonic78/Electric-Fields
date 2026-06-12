@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Elektriska Fält</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">Palett</string>
-    <string name="palette_density">Densitet</string>
-    <string name="palette_hues">Hues</string>
+    <string name="palette_blue">Blå</string>
+    <string name="palette_cyan">Is</string>
+    <string name="palette_green">Grön</string>
+    <string name="palette_grey">Silver</string>
+    <string name="palette_lava">Lava</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Rainbow</string>
+    <string name="palette_red">Röd</string>
+    <string name="palette_yellow">Gul</string>
 </resources>

@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Điện trường</string>
+
+    <!-- Notifications. -->
+    <string name="finished">Kết xuất hoàn tất.</string>
+
+    <!-- Share. -->
+    <string name="save_failed">Lưu hình ảnh không thành công.</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">Toàn màn hình</string>
+    <string name="menu_random">Ngẫu nhiên</string>
+
+    <!-- Palette -->
+    <string name="palette_title">Bảng màu</string>
+    <string name="palette_blue">Màu xanh lam</string>
+    <string name="palette_cyan">Nước đá</string>
+    <string name="palette_green">màu xanh lá</string>
+    <string name="palette_grey">Bạc</string>
+    <string name="palette_lava">Dung nham</string>
+    <string name="palette_magenta">Màu đỏ tươi</string>
+    <string name="palette_rainbow">Cầu vồng</string>
+    <string name="palette_red">Đỏ</string>
+    <string name="palette_yellow">Màu vàng</string>
+</resources>

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sähkökentät</string>
 
@@ -14,6 +13,13 @@
 
     <!-- Palette -->
     <string name="palette_title">Paletti</string>
-    <string name="palette_density">Tiheys</string>
-    <string name="palette_hues">Sävyjä</string>
+    <string name="palette_blue">Sininen</string>
+    <string name="palette_cyan">Jää</string>
+    <string name="palette_green">Vihreä</string>
+    <string name="palette_grey">Hopea</string>
+    <string name="palette_lava">Laava</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Sateenkaari</string>
+    <string name="palette_red">Punainen</string>
+    <string name="palette_yellow">Keltainen</string>
 </resources>

@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">สนามไฟฟ้า</string>
+
+    <!-- Notifications. -->
+    <string name="finished">การเรนเดอร์เสร็จสิ้น</string>
+
+    <!-- Share. -->
+    <string name="save_failed">การบันทึกภาพล้มเหลว</string>
+
+    <!-- Menu. -->
+    <string name="menu_fullscreen">เต็มหน้าจอ</string>
+    <string name="menu_random">สุ่ม</string>
+
+    <!-- Palette -->
+    <string name="palette_title">จานสี</string>
+    <string name="palette_blue">สีน้ําเงิน</string>
+    <string name="palette_cyan">น้ําแข็ง</string>
+    <string name="palette_green">สีเขียว</string>
+    <string name="palette_grey">เงิน</string>
+    <string name="palette_lava">ลาวา</string>
+    <string name="palette_magenta">สีม่วงแดง</string>
+    <string name="palette_rainbow">สายรุ้ง</string>
+    <string name="palette_red">สีแดง</string>
+    <string name="palette_yellow">สีเหลือง</string>
+</resources>

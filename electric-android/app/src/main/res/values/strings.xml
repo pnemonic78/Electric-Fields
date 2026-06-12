@@ -23,6 +23,13 @@
     <!-- Palette -->
     <string name="menu_palette" translatable="false">@string/palette_title</string>
     <string name="palette_title">Palette</string>
-    <string name="palette_density">Density</string>
-    <string name="palette_hues">Hues</string>
+    <string name="palette_blue">Blue</string>
+    <string name="palette_cyan">Ice</string>
+    <string name="palette_green">Green</string>
+    <string name="palette_grey">Silver</string>
+    <string name="palette_lava">Lava</string>
+    <string name="palette_magenta">Magenta</string>
+    <string name="palette_rainbow">Rainbow</string>
+    <string name="palette_red">Red</string>
+    <string name="palette_yellow">Yellow</string>
 </resources>
